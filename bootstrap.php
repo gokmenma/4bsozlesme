@@ -25,7 +25,10 @@ spl_autoload_register(function ($class_name) {
 });
 
 // PHP-based mobile/tablet redirection for real devices
-if (isset($page) && $page !== '/mobile' && !isStandaloneRoute($page)) {
+$isPostRequest = ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST';
+$isAjaxRequest = ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'XMLHttpRequest';
+
+if (isset($page) && $page !== '/mobile' && !isStandaloneRoute($page) && !$isPostRequest && !$isAjaxRequest) {
     $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
     if (preg_match('/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i', $userAgent)) {
         header("Location: " . routeUrl('/mobile'));
