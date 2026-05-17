@@ -6,12 +6,29 @@ class WageController extends Controller {
         global $db;
         
         $tenant_id = $_SESSION['tenant_id'] ?? 0;
-        $stmt = $db->prepare("SELECT * FROM ucretler WHERE deleted_at IS NULL AND tenant_id = ? ORDER BY unvan ASC");
-        $stmt->execute([$tenant_id]);
+        
+        // Fetch all available periods for this tenant to populate a filter dropdown
+        $periodsStmt = $db->prepare("SELECT DISTINCT donem FROM ucretler WHERE deleted_at IS NULL AND tenant_id = ? ORDER BY donem DESC");
+        $periodsStmt->execute([$tenant_id]);
+        $allPeriods = $periodsStmt->fetchAll(PDO::FETCH_COLUMN);
+        
+        // Default to the first available period, or session, or '2026-1'
+        $selectedPeriod = $_GET['donem'] ?? ($_SESSION['active_wage_period'] ?? ($allPeriods[0] ?? '2026-1'));
+        $_SESSION['active_wage_period'] = $selectedPeriod;
+        
+        if (empty($allPeriods)) {
+            $allPeriods = ['2026-1'];
+        }
+        
+        // Fetch wages only for the selected period
+        $stmt = $db->prepare("SELECT * FROM ucretler WHERE deleted_at IS NULL AND tenant_id = ? AND donem = ? ORDER BY unvan ASC");
+        $stmt->execute([$tenant_id, $selectedPeriod]);
         $ucretler = $stmt->fetchAll();
 
         return [
-            'ucretler' => $ucretler
+            'ucretler' => $ucretler,
+            'allPeriods' => $allPeriods,
+            'selectedPeriod' => $selectedPeriod
         ];
     }
 
@@ -288,6 +305,19 @@ class WageController extends Controller {
                 throw new Exception('Silinecek dönem bilgisi gereklidir.');
             }
             
+            // Check if this is the only remaining period
+            $periodCountStmt = $db->prepare("
+                SELECT COUNT(DISTINCT donem) 
+                FROM ucretler 
+                WHERE tenant_id = ? AND deleted_at IS NULL
+            ");
+            $periodCountStmt->execute([$tenant_id]);
+            $periodCount = $periodCountStmt->fetchColumn();
+
+            if ($periodCount <= 1) {
+                throw new Exception("Sistemde en az bir ücret dönemi bulunmalıdır. Son kalan ücret dönemini silemezsiniz.");
+            }
+            
             // Check if any personnel is using a wage from this period
             $checkStmt = $db->prepare("
                 SELECT COUNT(*) 
@@ -305,6 +335,34 @@ class WageController extends Controller {
             // Soft delete all wages in this period
             $stmt = $db->prepare("UPDATE ucretler SET deleted_at = ? WHERE tenant_id = ? AND donem = ? AND deleted_at IS NULL");
             $success = $stmt->execute([date('Y-m-d H:i:s'), $tenant_id, $donem]);
+
+            // Check if this period is set as the default wage period in definitions table
+            $defStmt = $db->prepare("SELECT value FROM definitions WHERE `key` = 'default_wage_period' AND tenant_id = ?");
+            $defStmt->execute([$tenant_id]);
+            $defaultPeriodVal = $defStmt->fetchColumn();
+
+            if ($defaultPeriodVal === $donem) {
+                // If it is the default period, find another remaining active period and update the default setting to it
+                $otherPeriodStmt = $db->prepare("
+                    SELECT DISTINCT donem 
+                    FROM ucretler 
+                    WHERE tenant_id = ? AND donem != ? AND deleted_at IS NULL
+                    ORDER BY donem DESC 
+                    LIMIT 1
+                ");
+                $otherPeriodStmt->execute([$tenant_id, $donem]);
+                $otherPeriod = $otherPeriodStmt->fetchColumn();
+
+                if ($otherPeriod) {
+                    $updateDefStmt = $db->prepare("UPDATE definitions SET `value` = ? WHERE `key` = 'default_wage_period' AND tenant_id = ?");
+                    $updateDefStmt->execute([$otherPeriod, $tenant_id]);
+                }
+            }
+
+            // Clear session value if it matches the deleted period
+            if (isset($_SESSION['active_wage_period']) && $_SESSION['active_wage_period'] === $donem) {
+                unset($_SESSION['active_wage_period']);
+            }
             
             header('Content-Type: application/json');
             echo json_encode([

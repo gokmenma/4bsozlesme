@@ -62,8 +62,12 @@ sort($kidemler);
                         <option value="<?= htmlspecialchars($p) ?>" <?= $p === $selectedPeriod ? 'selected' : '' ?>><?= htmlspecialchars($p) ?></option>
                     <?php endforeach; ?>
                 </select>
-                <?php if (in_array($_SESSION['role'] ?? '', ['admin', 'superadmin'])): ?>
+                <?php if (count($allPeriods) > 1): ?>
                 <button onclick="confirmDeletePeriod('<?= htmlspecialchars($selectedPeriod) ?>')" class="text-rose-500 hover:text-rose-600 active:scale-90 transition-all p-1 mr-1" title="Bu Dönemi Sil">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2m-9 5v6m4-6v6"/></svg>
+                </button>
+                <?php else: ?>
+                <button disabled class="text-zinc-300 dark:text-zinc-700 opacity-40 cursor-not-allowed p-1 mr-1" title="Sistemde en az bir ücret dönemi bulunmalıdır">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2m-9 5v6m4-6v6"/></svg>
                 </button>
                 <?php endif; ?>

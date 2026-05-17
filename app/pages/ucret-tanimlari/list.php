@@ -5,9 +5,47 @@ $pageSubtitle = 'Sistemdeki tüm unvan ve ücret kriterlerinin listesi';
 
 <div class="p-6">
     <!-- Actions Bar -->
-    <div class="flex items-center justify-between gap-3 mb-6">
-        <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">Ücret Tanımları</h1>
-        <div class="flex items-center gap-3">
+    <div class="flex items-center justify-between gap-3 mb-6 !overflow-visible">
+        <div class="flex items-center gap-4 !overflow-visible">
+            <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">Ücret Tanımları</h1>
+            <!-- Aktif Dönem Seçici (Custom Select) -->
+            <div class="relative flex items-center gap-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 px-3 py-1.5 text-sm shadow-sm !overflow-visible">
+                <span class="text-xs font-bold text-zinc-400 uppercase tracking-wider whitespace-nowrap">Dönem:</span>
+                <div class="app-select-rich !border-none !shadow-none !bg-transparent min-w-[120px] !overflow-visible" id="select-desktop-period">
+                  <button type="button" class="font-bold text-zinc-800 dark:text-zinc-100 bg-transparent border-none focus:outline-none cursor-pointer flex items-center gap-1.5 px-1 py-0.5" onclick="toggleCustomSelect(this, event)">
+                    <span class="truncate"><?php echo htmlspecialchars($selectedPeriod); ?></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-60"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+                  </button>
+                  <div data-custom-popover aria-hidden="true" class="!z-[1001] !border-zinc-200 !dark:border-zinc-800 !shadow-2xl">
+                    <header class="!bg-white !dark:bg-zinc-900 !px-3 !py-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-40"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                      <input type="text" placeholder="Dönem ara..." autocomplete="off" onkeyup="filterCustomOptions(this)" />
+                    </header>
+                    <div role="listbox" class="max-h-[200px] overflow-y-auto custom-scrollbar p-1">
+                        <?php foreach ($allPeriods as $p): ?>
+                        <div role="option" data-select-option data-value="<?php echo htmlspecialchars($p); ?>" onclick="selectDesktopPeriodOption(this)" class="flex items-center justify-between px-3 py-2 text-sm cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors mx-1 rounded-md <?php echo $p === $selectedPeriod ? 'selected' : ''; ?>">
+                            <span><?php echo htmlspecialchars($p); ?></span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="check-icon opacity-0 text-primary"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                  </div>
+                  <input type="hidden" id="desktop-wage-period-select" value="<?php echo htmlspecialchars($selectedPeriod); ?>" />
+                </div>
+                <!-- Silme Butonu -->
+                <?php if (count($allPeriods) > 1): ?>
+                <button onclick="deleteDesktopPeriod()" class="text-zinc-400 hover:text-red-500 transition-colors ml-1 shrink-0" title="Bu Dönemi Sil">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </button>
+                <?php else: ?>
+                <button disabled class="text-zinc-300 dark:text-zinc-700 opacity-40 cursor-not-allowed ml-1 shrink-0" title="Sistemde en az bir ücret dönemi bulunmalıdır">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                </button>
+                <?php endif; ?>
+            </div>
+        </div>
+        <div class="flex items-center gap-3 !overflow-visible">
+            <!-- Arama Çubuğu -->
             <div class="relative w-full max-w-xs">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="h-4 w-4 text-zinc-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -16,10 +54,30 @@ $pageSubtitle = 'Sistemdeki tüm unvan ve ücret kriterlerinin listesi';
                 </div>
                 <input type="text" id="wageSearch" class="block w-full pl-10 pr-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 text-sm placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Tanım ara...">
             </div>
-            <button onclick="document.getElementById('dialog-import-wage').showModal()" class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors shadow-sm whitespace-nowrap">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                Excel'den Yükle
-            </button>
+            
+            <!-- Diğer İşlemler (Actions Dropdown) -->
+            <div class="relative app-select-rich !overflow-visible" id="select-desktop-actions">
+                <button type="button" onclick="toggleCustomSelect(this, event)" class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors shadow-sm whitespace-nowrap">
+                    <span>İşlemler</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-60"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+                <div data-custom-popover aria-hidden="true" class="!z-[1001] !border-zinc-200 !dark:border-zinc-800 !shadow-2xl min-w-[200px] right-0 left-auto bg-white dark:bg-zinc-950 rounded-lg border">
+                    <div role="listbox" class="p-1">
+                        <!-- Excel'den Yükle -->
+                        <div role="option" onclick="document.getElementById('dialog-import-wage').showModal()" class="flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors rounded-md text-zinc-700 dark:text-zinc-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <span>Excel'den Yükle</span>
+                        </div>
+                        <!-- Toplu Zam / Kopyala -->
+                        <div role="option" onclick="document.getElementById('dialog-copy-period').showModal()" class="flex items-center gap-2 px-3 py-2 text-sm cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors rounded-md text-zinc-700 dark:text-zinc-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-70"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
+                            <span>Toplu Zam / Kopyala</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Yeni Ücret Tanımı -->
             <button onclick="document.getElementById('dialog-add-wage').showModal()" class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors shadow-sm whitespace-nowrap">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                 Yeni Ücret Tanımı
@@ -155,9 +213,10 @@ $pageSubtitle = 'Sistemdeki tüm unvan ve ücret kriterlerinin listesi';
             </div>
         </div>
 
+        <input type="hidden" name="donem" id="add_donem" />
         <div class="grid gap-2">
             <label for="ucret">Aylık Ücret (₺)</label>
-            <input type="number" step="0.01" name="ucret" id="ucret" required placeholder="0,00" />
+            <input type="text" name="ucret" id="ucret" required placeholder="0,00" />
         </div>
     </form>
 
@@ -242,15 +301,70 @@ $pageSubtitle = 'Sistemdeki tüm unvan ve ücret kriterlerinin listesi';
             </div>
         </div>
 
+        <input type="hidden" name="donem" id="edit_donem" />
         <div class="grid gap-2">
             <label for="edit_ucret">Aylık Ücret (₺)</label>
-            <input type="number" step="0.01" name="ucret" id="edit_ucret" required />
+            <input type="text" name="ucret" id="edit_ucret" required />
         </div>
     </form>
 
     <footer class="mt-6 flex justify-end gap-3">
       <button type="button" class="btn-outline" onclick="this.closest('dialog').close()">İptal</button>
       <button type="button" onclick="saveWage()" class="btn">Değişiklikleri Kaydet</button>
+    </footer>
+
+    <button type="button" aria-label="Close dialog" class="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600" onclick="this.closest('dialog').close()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x">
+        <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+      </svg>
+    </button>
+  </div>
+</dialog>
+
+<!-- Dönem Kopyala & Toplu Zam Dialog -->
+<dialog id="dialog-copy-period" class="dialog w-full sm:max-w-[450px] !overflow-visible" onclick="if (event.target === this) this.close()">
+  <div class="dialog-content bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-2xl !overflow-visible" onclick="event.stopPropagation()">
+    <header class="mb-5">
+      <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Yeni Döneme Kopyala & Toplu Zam</h2>
+      <p class="text-sm text-zinc-500">Mevcut ücret tanımlarını zam oranıyla birlikte yeni bir döneme aktarın.</p>
+    </header>
+
+    <!-- Risk Alert Panel -->
+    <div class="bg-amber-50/80 dark:bg-amber-950/20 border border-amber-200/60 dark:border-amber-900/40 rounded-xl p-4 mb-5 flex items-start gap-3">
+        <div class="p-1.5 bg-amber-100 dark:bg-amber-900/50 rounded-lg text-amber-600 dark:text-amber-400 shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="space-y-1">
+            <h4 class="text-xs font-bold text-amber-800 dark:text-amber-300">Önemli Güvenlik Bildirimi</h4>
+            <p class="text-[11px] text-amber-700/90 dark:text-amber-400/80 leading-relaxed">
+                Bu işlem, seçtiğiniz döneme ait tüm ücret kombinasyonlarını yeni döneme kopyalayacak ve girdiğiniz oranda artıracaktır. <strong>Mevcut dönem verileriniz kesinlikle zarar görmez.</strong>
+            </p>
+        </div>
+    </div>
+
+    <form id="form-copy-period" class="form grid gap-4" onsubmit="event.preventDefault(); submitCopyPeriod();">
+        <div class="grid grid-cols-2 gap-4">
+            <div class="grid gap-2">
+                <label>Kaynak Dönem</label>
+                <input type="text" id="copy-from-donem" class="bg-zinc-50 dark:bg-zinc-800 text-zinc-500 cursor-not-allowed" readonly value="<?php echo htmlspecialchars($selectedPeriod); ?>" />
+            </div>
+            <div class="grid gap-2">
+                <label for="copy-to-donem">Hedef Dönem Adı*</label>
+                <input type="text" id="copy-to-donem" required placeholder="Örn: 2026-2" />
+            </div>
+        </div>
+        <div class="grid gap-2">
+            <label for="copy-raise-percent">Zam Oranı (%)*</label>
+            <div class="relative flex items-center">
+                <input type="number" step="0.1" id="copy-raise-percent" required placeholder="Örn: 15.4" class="w-full pr-8" />
+                <div class="absolute right-3 text-zinc-400 text-sm font-bold">%</div>
+            </div>
+        </div>
+    </form>
+
+    <footer class="mt-6 flex justify-end gap-3">
+      <button type="button" class="btn-outline" onclick="this.closest('dialog').close()">İptal</button>
+      <button type="button" onclick="submitCopyPeriod()" class="btn">Kopyalamayı Başlat</button>
     </footer>
 
     <button type="button" aria-label="Close dialog" class="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600" onclick="this.closest('dialog').close()">
@@ -347,6 +461,51 @@ $pageSubtitle = 'Sistemdeki tüm unvan ve ücret kriterlerinin listesi';
   </div>
 </dialog>
 
+<!-- Dönem Silme Onay Dialog -->
+<dialog id="dialog-confirm-delete-period" class="dialog w-full sm:max-w-[480px]" onclick="if (event.target === this) this.close()">
+  <div class="bg-white dark:bg-zinc-950 p-6 rounded-lg shadow-xl border border-zinc-200 dark:border-zinc-800" onclick="event.stopPropagation()">
+    <header class="mb-4">
+      <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-50 tracking-tight flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        Dönemi Sil?
+      </h2>
+      <p id="delete-period-warning-text" class="text-sm text-zinc-500 dark:text-zinc-400 mt-2 leading-relaxed">
+        Seçilen döneme ait kullanılmayan tüm ücret tanımlarını silmek istediğinize emin misiniz? Bu işlem geri alınamaz!
+      </p>
+    </header>
+    
+    <footer class="flex justify-end gap-3">
+      <button type="button" class="px-4 py-2 text-sm font-medium border border-zinc-200 dark:border-zinc-800 rounded-md hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors" onclick="document.getElementById('dialog-confirm-delete-period').close()">İptal</button>
+      <button type="button" id="btn-confirm-delete-period" class="px-4 py-2 text-sm font-medium bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors">Dönemi Sil</button>
+    </footer>
+  </div>
+</dialog>
+
+<!-- Kopyalama Onay Dialog -->
+<dialog id="dialog-confirm-copy" class="dialog w-full sm:max-w-[460px]" onclick="if (event.target === this) this.close()">
+  <div class="bg-white dark:bg-zinc-950 p-6 rounded-lg shadow-xl border border-zinc-200 dark:border-zinc-800" onclick="event.stopPropagation()">
+    <header class="mb-4">
+      <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-50 tracking-tight flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-500"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        Kopyalamayı Başlat?
+      </h2>
+      <div class="text-sm text-zinc-500 dark:text-zinc-400 mt-3 space-y-2 leading-relaxed bg-zinc-50 dark:bg-zinc-900/50 p-3 rounded-lg border border-zinc-100 dark:border-zinc-800/80">
+        <div class="flex justify-between"><span class="font-medium text-zinc-400">Kaynak Dönem:</span> <span id="confirm-copy-from" class="font-bold text-zinc-800 dark:text-zinc-200"></span></div>
+        <div class="flex justify-between"><span class="font-medium text-zinc-400">Hedef Dönem:</span> <span id="confirm-copy-to" class="font-bold text-zinc-800 dark:text-zinc-200"></span></div>
+        <div class="flex justify-between"><span class="font-medium text-zinc-400">Zam Oranı:</span> <span id="confirm-copy-raise" class="font-bold text-green-600 dark:text-green-400"></span></div>
+      </div>
+      <p class="text-xs text-zinc-400 dark:text-zinc-500 mt-3 leading-relaxed">
+        Bu işlem, kaynak dönemdeki tüm ücret kombinasyonlarını belirtilen zam oranıyla çarparak hedef dönem altına kopyalayacaktır.
+      </p>
+    </header>
+    
+    <footer class="flex justify-end gap-3">
+      <button type="button" class="px-4 py-2 text-sm font-medium border border-zinc-200 dark:border-zinc-800 rounded-md hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors" onclick="document.getElementById('dialog-confirm-copy').close()">Vazgeç</button>
+      <button type="button" id="btn-confirm-copy-submit" class="px-4 py-2 text-sm font-medium bg-zinc-950 dark:bg-zinc-50 text-white dark:text-zinc-950 rounded-md hover:opacity-90 transition-opacity">Kopyalamayı Başlat</button>
+    </footer>
+  </div>
+</dialog>
+
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 
@@ -424,9 +583,23 @@ $(document).ready(function() {
         table.search(this.value).draw();
     });
 
+    // Initialize currency input masks
+    const ucretInput = document.getElementById('ucret');
+    if (ucretInput) formatTurkishCurrencyInputDesktop(ucretInput);
+    const editUcretInput = document.getElementById('edit_ucret');
+    if (editUcretInput) formatTurkishCurrencyInputDesktop(editUcretInput);
+
     $('#form-add-wage').on('submit', function(e) {
         e.preventDefault();
+        
+        // Clean formatted currency input before serializing
+        const ucretEl = $('#ucret');
+        const rawVal = ucretEl.val();
+        const cleanedVal = rawVal.replace(/\./g, '').replace(',', '.');
+        ucretEl.val(cleanedVal);
+        
         const formData = $(this).serialize();
+        ucretEl.val(rawVal); // Restore immediately
         
         $.ajax({
             url: $(this).attr('action'),
@@ -469,6 +642,9 @@ $(document).ready(function() {
         updateCustomSelect('#select-add-ogrenim', 'Lise');
         updateCustomSelect('#select-add-kidem', '0-5 Yıl (Dahil)');
         
+        // Set active period in hidden field
+        $('#add_donem').val($('#desktop-wage-period-select').val());
+        
         $('#form-add-wage [data-custom-popover]').attr('aria-hidden', 'true');
     });
 });
@@ -487,7 +663,9 @@ function editWage(id) {
         updateCustomSelect('#select-edit-ogrenim', data.ogrenim);
         updateCustomSelect('#select-edit-kidem', data.kidem_yili);
         
-        $('#edit_ucret').val(data.ucret);
+        // Format wage when loading
+        $('#edit_ucret').val(typeof formatTurkishCurrencyDesktop === 'function' ? formatTurkishCurrencyDesktop(data.ucret) : data.ucret);
+        $('#edit_donem').val(data.donem || '2026-1');
 
         document.getElementById('dialog-edit-wage').showModal();
     });
@@ -512,7 +690,14 @@ function updateCustomSelect(selector, value) {
 }
 
 function saveWage() {
+    // Clean formatted currency input before serializing
+    const editUcretEl = $('#edit_ucret');
+    const rawVal = editUcretEl.val();
+    const cleanedVal = rawVal.replace(/\./g, '').replace(',', '.');
+    editUcretEl.val(cleanedVal);
+    
     const formData = $('#form-edit-wage').serialize();
+    editUcretEl.val(rawVal); // Restore immediately
     
     $.post('<?php echo routeUrl("ucret-guncelle"); ?>', formData, function(response) {
         // Her durumda modalı kapat
@@ -724,7 +909,10 @@ function doImport() {
     $.ajax({
         url: '<?php echo routeUrl("ucret-import"); ?>',
         method: 'POST',
-        data: JSON.stringify({ data: importData }),
+        data: JSON.stringify({ 
+            data: importData,
+            donem: document.getElementById('desktop-wage-period-select').value
+        }),
         contentType: 'application/json',
         success: function(response) {
             document.getElementById('dialog-import-wage').close();
@@ -750,6 +938,171 @@ function doImport() {
         }
     });
 }
+
+function selectDesktopPeriodOption(el) {
+    const value = el.getAttribute('data-value');
+    switchDesktopWagePeriod(value);
+}
+
+function switchDesktopWagePeriod(donem) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('donem', donem);
+    window.location.href = url.toString();
+}
+
+function deleteDesktopPeriod() {
+    const selectedPeriod = document.getElementById('desktop-wage-period-select').value;
+    
+    // Set text warning
+    document.getElementById('delete-period-warning-text').textContent = `"${selectedPeriod}" dönemine ait kullanılmayan tüm ücret tanımlarını silmek istediğinize emin misiniz? Bu işlem geri alınamaz!`;
+    
+    // Bind click event to confirm button
+    const confirmBtn = document.getElementById('btn-confirm-delete-period');
+    confirmBtn.onclick = function() {
+        confirmBtn.disabled = true;
+        const originalText = confirmBtn.textContent;
+        confirmBtn.textContent = 'Siliniyor...';
+        
+        $.post('<?php echo routeUrl("ucret-donem-sil"); ?>', { donem: selectedPeriod }, function(response) {
+            document.getElementById('dialog-confirm-delete-period').close();
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = originalText;
+            
+            if (response.success) {
+                showToast({
+                    category: 'success',
+                    title: 'Başarılı',
+                    description: response.message || 'Dönem başarıyla silindi.',
+                    duration: 1500,
+                    onClose: () => {
+                        const url = new URL(window.location.href);
+                        url.searchParams.delete('donem');
+                        window.location.href = url.toString();
+                    }
+                });
+                setTimeout(() => {
+                    const url = new URL(window.location.href);
+                    url.searchParams.delete('donem');
+                    window.location.href = url.toString();
+                }, 1700);
+            } else {
+                showToast({
+                    category: 'error',
+                    title: 'Hata',
+                    description: response.error || 'Dönem silinirken bir hata oluştu.'
+                });
+            }
+        }).fail(function() {
+            document.getElementById('dialog-confirm-delete-period').close();
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = originalText;
+            showToast({ category: 'error', title: 'Hata', description: 'Sunucu hatası oluştu.' });
+        });
+    };
+    
+    // Open Dialog
+    document.getElementById('dialog-confirm-delete-period').showModal();
+}
+
+function submitCopyPeriod() {
+    const from_donem = $('#copy-from-donem').val();
+    const to_donem = $('#copy-to-donem').val();
+    const raise_percent = $('#copy-raise-percent').val();
+    
+    if (!to_donem || !raise_percent) {
+        showToast({ category: 'error', title: 'Hata', description: 'Lütfen tüm alanları doldurun.' });
+        return;
+    }
+
+    // Populate confirmation card details
+    document.getElementById('confirm-copy-from').textContent = from_donem;
+    document.getElementById('confirm-copy-to').textContent = to_donem;
+    document.getElementById('confirm-copy-raise').textContent = `%${parseFloat(raise_percent).toFixed(1)}`;
+
+    const confirmBtn = document.getElementById('btn-confirm-copy-submit');
+    confirmBtn.onclick = function() {
+        confirmBtn.disabled = true;
+        const originalText = confirmBtn.textContent;
+        confirmBtn.textContent = 'Kopyalanıyor...';
+
+        $.post('<?php echo routeUrl("ucret-donem-kopyala"); ?>', {
+            from_donem: from_donem,
+            to_donem: to_donem,
+            raise_percent: raise_percent
+        }, function(response) {
+            document.getElementById('dialog-confirm-copy').close();
+            document.getElementById('dialog-copy-period').close();
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = originalText;
+            
+            if (response.success) {
+                showToast({
+                    category: 'success',
+                    title: 'Başarılı',
+                    description: response.message || 'Dönem başarıyla kopyalandı.',
+                    duration: 1500,
+                    onClose: () => {
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('donem', to_donem);
+                        window.location.href = url.toString();
+                    }
+                });
+                setTimeout(() => {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('donem', to_donem);
+                    window.location.href = url.toString();
+                }, 1700);
+            } else {
+                showToast({
+                    category: 'error',
+                    title: 'Hata',
+                    description: response.error || 'Kopyalama sırasında bir hata oluştu.'
+                });
+            }
+        }).fail(function() {
+            document.getElementById('dialog-confirm-copy').close();
+            confirmBtn.disabled = false;
+            confirmBtn.textContent = originalText;
+            showToast({ category: 'error', title: 'Hata', description: 'Sunucu hatası oluştu.' });
+        });
+    };
+
+    // Open confirmation dialog
+    document.getElementById('dialog-confirm-copy').showModal();
+}
+
+function formatTurkishCurrencyDesktop(value) {
+    if (value === null || value === undefined || value === '') return '';
+    let val = parseFloat(value);
+    if (isNaN(val)) return value;
+    let parts = val.toFixed(2).split('.');
+    let integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return integerPart + ',' + parts[1];
+}
+
+function formatTurkishCurrencyInputDesktop(inputElement) {
+    inputElement.addEventListener('input', function(e) {
+        let value = e.target.value;
+        value = value.replace(/[^0-9,]/g, '');
+        const parts = value.split(',');
+        if (parts.length > 2) {
+            value = parts[0] + ',' + parts.slice(1).join('');
+        }
+        let integerPart = parts[0];
+        let decimalPart = parts[1];
+        if (integerPart.length > 1 && integerPart.startsWith('0')) {
+            integerPart = integerPart.replace(/^0+/, '');
+            if (integerPart === '') integerPart = '0';
+        }
+        integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        if (decimalPart !== undefined) {
+            decimalPart = decimalPart.substring(0, 2);
+            e.target.value = integerPart + ',' + decimalPart;
+        } else {
+            e.target.value = integerPart;
+        }
+    });
+}
 </script>
 
 <style>
@@ -766,5 +1119,14 @@ function doImport() {
 }
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
     background: #3f3f46;
+}
+
+/* Nowrap Custom Select Options */
+.app-select-rich [role="option"] {
+    white-space: nowrap !important;
+}
+.app-select-rich [data-custom-popover] {
+    width: max-content !important;
+    min-width: 100% !important;
 }
 </style>
