@@ -95,7 +95,7 @@ if ($isLoggedIn) {
     </script>
     
     <!-- Theme Init -->
-    <script src="../assets/js/theme.js"></script>
+    <script src="<?php echo routeUrl('/assets/js/theme.js'); ?>"></script>
     
     <!-- Premium Google Fonts: Inter, Geist & Fira Code -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -114,7 +114,7 @@ if ($isLoggedIn) {
         @custom-variant dark (&:where(.dark, .dark *));
     </style>
     
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="<?php echo routeUrl('/mobile/style.css'); ?>">
 </head>
 <body class="h-full flex items-center justify-center select-none">
 
