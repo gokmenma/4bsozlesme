@@ -182,7 +182,7 @@ function isMenuActive($href, $currentPage)
       </div>
 
       <div role="group" aria-labelledby="group-label-content-1">
-        <h3 id="group-label-content-1">Hızlı Erişim</h3>
+        <h3 id="group-label-content-1">Diğer İşlemler</h3>
         <ul>
           <li>
             <a href="sozlesme-taslagi"

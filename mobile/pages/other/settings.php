@@ -92,6 +92,10 @@ if (!$settings) {
 </div>
 
 <script>
+if (typeof initMobileCustomSelects === 'function') {
+    setTimeout(initMobileCustomSelects, 50);
+}
+
 document.getElementById('mobileSettingsForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const formData = new FormData(this);

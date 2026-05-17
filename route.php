@@ -69,6 +69,8 @@ function isStandaloneRoute(string $page): bool
         '/ucret-guncelle',
         '/ucret-sil',
         '/ucret-import',
+        '/ucret-donem-kopyala',
+        '/ucret-donem-sil',
         
         // User/Auth APIs
         '/kullanici-ekle',
@@ -213,6 +215,11 @@ function renderRoute(string $page): void
 
     if ($page === '/mobile/pages/other/settings.php') {
         include 'mobile/pages/other/settings.php';
+        exit;
+    }
+
+    if ($page === '/mobile/pages/other/tanimlamalar.php') {
+        include 'mobile/pages/other/tanimlamalar.php';
         exit;
     }
 
@@ -372,6 +379,18 @@ function renderRoute(string $page): void
     if ($page === '/ucret-import' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $controller = new WageController();
         $controller->import();
+        exit;
+    }
+
+    if ($page === '/ucret-donem-kopyala' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new WageController();
+        $controller->copyPeriod();
+        exit;
+    }
+
+    if ($page === '/ucret-donem-sil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new WageController();
+        $controller->deletePeriod();
         exit;
     }
 

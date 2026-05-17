@@ -21,6 +21,49 @@ if (!function_exists('getVal')) {
 
   <form id="form-definitions" action="" method="POST" class="flex flex-col gap-8">
     
+    <!-- Ücret Dönemi Ayarları Section -->
+    <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+      <div class="p-6 border-b border-border bg-muted/30">
+        <div class="flex items-center gap-2">
+          <div class="p-2 rounded-lg bg-primary/10 text-primary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-days"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold leading-none tracking-tight">Ücret Dönemi Ayarları</h2>
+            <p class="text-sm text-muted-foreground mt-1">Personel ücretlerinde ve hesaplamalarda temel alınacak aktif bütçe dönemini yönetin.</p>
+          </div>
+        </div>
+      </div>
+      <div class="p-6 grid gap-6 md:grid-cols-2">
+        <div class="space-y-2 md:col-span-2">
+          <label for="default_wage_period" class="text-sm font-medium leading-none">Varsayılan Ücret Dönemi</label>
+          <?php
+          global $db;
+          $tenant_id = $_SESSION['tenant_id'] ?? 0;
+          $stmt_periods = $db->prepare("SELECT DISTINCT donem FROM ucretler WHERE deleted_at IS NULL AND tenant_id = ? ORDER BY donem DESC");
+          $stmt_periods->execute([$tenant_id]);
+          $db_periods = $stmt_periods->fetchAll(PDO::FETCH_COLUMN);
+
+          // Her zaman '2026-1' değerinin listede olmasını sağlayalım
+          $periods = array_unique(array_merge($db_periods, ['2026-1']));
+          sort($periods);
+
+          $default_wage_period = $settings['default_wage_period'] ?? '2026-1';
+          ?>
+          <select id="default_wage_period" name="default_wage_period" class="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+            <?php foreach ($periods as $p): ?>
+              <option value="<?php echo htmlspecialchars($p, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $p === $default_wage_period ? 'selected' : ''; ?>>
+                <?php echo htmlspecialchars($p, ENT_QUOTES, 'UTF-8'); ?> Dönemi
+              </option>
+            <?php endforeach; ?>
+          </select>
+          <p class="text-[11px] text-muted-foreground mt-1.5 leading-relaxed">
+            Burada seçilen dönem, tüm personellerin sözleşmelerinde, listelerinde ve döner matrah hesaplamalarında aktif olan ücret bilgilerini dinamik olarak yönlendirir.
+          </p>
+        </div>
+      </div>
+    </div>
+
     <!-- Kurum Bilgileri Section -->
     <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
       <div class="p-6 border-b border-border bg-muted/30">

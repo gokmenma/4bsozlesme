@@ -11,6 +11,7 @@ $isLoggedIn = isset($_SESSION['user_id']);
 // Eğer kullanıcı giriş yapmışsa verileri çekelim
 if ($isLoggedIn) {
     $tenant_id = $_SESSION['tenant_id'] ?? 0;
+    $selectedPeriod = $_SESSION['active_wage_period'] ?? '2026-1';
     
     // 1. Dashboard istatistikleri
     $dashboardController = new DashboardController();
@@ -342,6 +343,18 @@ if ($isLoggedIn) {
                                     </button>
 
 
+                                    <!-- Kurum Tanımlamaları -->
+                                    <button onclick="closeAllSheets(); loadOtherSubpage('tanimlamalar');" class="w-full p-4 rounded-xl glass-card flex items-center gap-3.5 text-left transition-all active:scale-[0.98] border border-zinc-200/60 dark:border-zinc-800/80 cursor-pointer">
+                                        <div class="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-900 dark:text-zinc-100 border border-zinc-200/40 dark:border-zinc-800/60 shadow-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 8v4l3 3"/></svg>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <h5 class="text-xs font-bold leading-tight">Kurum Tanımlamaları</h5>
+                                            <p class="text-[9px] text-zinc-400 dark:text-zinc-500 tracking-tight mt-0.5">Kurum & yetkili bilgileri, katsayılar ve bütçe dönemi</p>
+                                        </div>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-400" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+                                    </button>
+
                                     <!-- Sistem Ayarları -->
                                     <button onclick="closeAllSheets(); loadOtherSubpage('settings');" class="w-full p-4 rounded-xl glass-card flex items-center gap-3.5 text-left transition-all active:scale-[0.98] border border-zinc-200/60 dark:border-zinc-800/80 cursor-pointer">
                                         <div class="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-900 dark:text-zinc-100 border border-zinc-200/40 dark:border-zinc-800/60 shadow-sm">
@@ -349,7 +362,7 @@ if ($isLoggedIn) {
                                         </div>
                                         <div class="flex-1 min-w-0">
                                             <h5 class="text-xs font-bold leading-tight">Sistem & SMS Ayarları</h5>
-                                            <p class="text-[9px] text-zinc-400 dark:text-zinc-500 tracking-tight mt-0.5">Bildirim süreleri, SMS API bilgileri ve entegrasyonlar</p>
+                                            <p class="text-[9px] text-zinc-400 dark:text-zinc-505 tracking-tight mt-0.5">Bildirim süreleri, SMS API bilgileri ve entegrasyonlar</p>
                                         </div>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-400" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
                                     </button>
@@ -593,6 +606,7 @@ if ($isLoggedIn) {
                             
                             <form id="definitionForm" class="space-y-4">
                                 <input type="hidden" id="form-def-id" name="id" value="">
+                                <input type="hidden" id="form-def-donem" name="donem" value="">
                                 
                                 <div class="space-y-1.5">
                                     <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-def-unvan">Unvan*</label>
@@ -624,7 +638,7 @@ if ($isLoggedIn) {
 
                                 <div class="space-y-1.5">
                                     <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-def-ucret">Aylık Brüt Ücret (₺)*</label>
-                                    <input class="mobile-input" type="number" step="0.01" id="form-def-ucret" name="ucret" required placeholder="0.00">
+                                    <input class="mobile-input" type="text" id="form-def-ucret" name="ucret" required placeholder="0,00">
                                 </div>
 
                                 <button type="submit" class="w-full py-3.5 bg-zinc-900 dark:bg-zinc-50 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-950 rounded-md font-bold text-xs flex items-center justify-center gap-1.5 mt-2 cursor-pointer active:scale-95 transition-all shadow-sm">
@@ -743,6 +757,51 @@ if ($isLoggedIn) {
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                 </button>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- 8. PERIOD COPY BOTTOM SHEET FOR DEFINITIONS -->
+                    <div id="def-copy-sheet" class="bottom-sheet flex flex-col max-h-[85%] bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
+                        <div class="w-12 h-1 bg-zinc-300 dark:bg-zinc-800 rounded-full mx-auto my-3 flex-shrink-0"></div>
+                        
+                        <div class="overflow-y-auto app-scroll px-6 pb-24 flex-1 space-y-5">
+                            <h3 class="text-base font-extrabold text-zinc-900 dark:text-zinc-100">Dönem Kopyala & Toplu Zam</h3>
+                            
+                            <!-- Premium warning callout -->
+                            <div class="p-4 bg-amber-500/10 border border-amber-500/25 rounded-xl space-y-2">
+                                <div class="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-extrabold text-xs uppercase tracking-wider">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+                                    Önemli Uyarı ve Risk Bilgisi
+                                </div>
+                                <p class="text-[11px] text-amber-700 dark:text-amber-300/90 leading-relaxed font-medium">
+                                    Bu işlem, aktif dönemdeki tüm ücret tanımlarını girdiğiniz zam oranıyla (% artış) çarparak <strong>belirleyeceğiniz yeni bir döneme kopyalar</strong>.
+                                    Eski döneme ait ücret tanımları ve o dönemdeki personellerin geçmiş sözleşmeleri <strong>kesinlikle korunur ve zarar görmez</strong>.
+                                </p>
+                            </div>
+
+                            <form id="defCopyForm" class="space-y-4" onsubmit="handlePeriodCopy(event)">
+                                <div class="space-y-1.5">
+                                    <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block">Kaynak Dönem (Aktif)</label>
+                                    <input class="mobile-input bg-zinc-50 dark:bg-zinc-950 font-bold" type="text" id="copy-from-donem" readonly value="<?= htmlspecialchars($selectedPeriod ?? '2026-1') ?>">
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="copy-to-donem">Hedef Dönem (Yeni)*</label>
+                                    <input class="mobile-input font-bold" type="text" id="copy-to-donem" required placeholder="Örn: 2026-2">
+                                    <p class="text-[9px] text-zinc-500 font-semibold mt-0.5">Yeni dönemin adı benzersiz olmalıdır (Örn: 2026-2, 2027-1).</p>
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="copy-raise-percent">Zam Oranı (%)*</label>
+                                    <input class="mobile-input font-bold" type="number" step="0.01" id="copy-raise-percent" required placeholder="Örn: 25.5">
+                                    <p class="text-[9px] text-zinc-500 font-semibold mt-0.5">Tüm ücretler bu yüzde oranında artırılarak yeni döneme aktarılır.</p>
+                                </div>
+
+                                <button type="submit" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 mt-6 cursor-pointer active:scale-95 transition-all shadow-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+                                    Uygula ve Yeni Döneme Aktar
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -899,7 +958,7 @@ if ($isLoggedIn) {
         }
 
         // Switch bottom navigation tabs smoothly and fetch content dynamically
-        async function switchTab(tabName, callback = null) {
+        async function switchTab(tabName, callback = null, params = {}) {
             // Reset bottom navigation active indicators
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('text-zinc-950', 'dark:text-zinc-50');
@@ -958,7 +1017,9 @@ if ($isLoggedIn) {
                     else if (tabName === 'profile') pagePath = 'profil';
 
                     const basePath = '<?php echo appBasePath(); ?>';
-                    const response = await fetch(basePath + `/mobile/pages/${pagePath}/index.php`);
+                    const query = new URLSearchParams(params).toString();
+                    const urlSuffix = query ? '?' + query : '';
+                    const response = await fetch(basePath + `/mobile/pages/${pagePath}/index.php` + urlSuffix);
                     if (!response.ok) throw new Error("Yüklenemedi");
                     
                     const html = await response.text();
@@ -1900,7 +1961,7 @@ if ($isLoggedIn) {
         }
 
         // Show a premium confirm dialog modal (Shadcn styled)
-        function showConfirmDialog(title, message, onConfirm) {
+        function showConfirmDialog(title, message, onConfirm, confirmText = "Evet, Sil", confirmColorClass = "bg-rose-600 hover:bg-rose-700 text-white", iconColorClass = "bg-rose-500/10 text-rose-500") {
             let confirmModal = document.getElementById('confirm-dialog-modal');
             if (!confirmModal) {
                 confirmModal = document.createElement('div');
@@ -1909,7 +1970,7 @@ if ($isLoggedIn) {
                 confirmModal.innerHTML = `
                     <div class="w-full max-w-sm bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xl p-5 space-y-4 scale-95 transition-transform duration-200 transform">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-500 flex-shrink-0">
+                            <div id="confirm-icon-wrapper" class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
                             </div>
                             <h4 id="confirm-title" class="text-sm font-extrabold text-zinc-950 dark:text-zinc-50 leading-tight">İşlem Onayı</h4>
@@ -1917,7 +1978,7 @@ if ($isLoggedIn) {
                         <p id="confirm-message" class="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed font-medium">Bu işlemi gerçekleştirmek istediğinize emin misiniz?</p>
                         <div class="flex items-center justify-end gap-2.5 pt-2">
                             <button id="confirm-btn-cancel" class="px-3.5 py-2 rounded-lg bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 text-xs font-bold transition-all cursor-pointer">Vazgeç</button>
-                            <button id="confirm-btn-ok" class="px-3.5 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-all cursor-pointer shadow-sm">Evet, Sil</button>
+                            <button id="confirm-btn-ok" class="px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm">Evet, Sil</button>
                         </div>
                     </div>
                 `;
@@ -1926,11 +1987,17 @@ if ($isLoggedIn) {
 
             const titleEl = confirmModal.querySelector('#confirm-title');
             const messageEl = confirmModal.querySelector('#confirm-message');
+            const iconWrapper = confirmModal.querySelector('#confirm-icon-wrapper');
             const btnCancel = confirmModal.querySelector('#confirm-btn-cancel');
             const btnOk = confirmModal.querySelector('#confirm-btn-ok');
 
             titleEl.innerText = title;
             messageEl.innerText = message;
+            btnOk.innerText = confirmText;
+            
+            // Set dynamic button and icon colors
+            btnOk.className = `px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-sm ${confirmColorClass}`;
+            iconWrapper.className = `w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${iconColorClass}`;
 
             const closeModal = () => {
                 confirmModal.classList.add('opacity-0');
@@ -2108,8 +2175,11 @@ if ($isLoggedIn) {
 
         // Mobile Custom Select Dropdown Mechanics (Matches Premium Desktop Styling & UX with Multi-Select support)
         function initMobileCustomSelects() {
-            const selects = document.querySelectorAll('#personnelForm select, #filter-sheet select, #definitionForm select, #def-filter-sheet select');
+            const selects = document.querySelectorAll('#personnelForm select, #filter-sheet select, #definitionForm select, #def-filter-sheet select, #mobileTanimlamalarForm select, #mobileSettingsForm select, #wage-period-select');
             selects.forEach(select => {
+                if (!select.id) {
+                    select.id = 'mobile-select-rand-' + Math.random().toString(36).substr(2, 9);
+                }
                 if (select.getAttribute('data-custom-select-initialized')) return;
                 select.setAttribute('data-custom-select-initialized', 'true');
                 
@@ -2130,24 +2200,37 @@ if ($isLoggedIn) {
                 
                 // Create custom select wrapper
                 const wrapper = document.createElement('div');
-                wrapper.className = 'relative mobile-custom-select-wrapper w-full';
+                wrapper.className = id === 'wage-period-select' ? 'relative mobile-custom-select-wrapper' : 'relative mobile-custom-select-wrapper w-full';
                 wrapper.id = 'custom-select-wrapper-' + id;
                 
                 // Trigger button
                 const trigger = document.createElement('button');
                 trigger.type = 'button';
-                trigger.className = 'mobile-input flex items-center justify-between cursor-pointer w-full text-left font-semibold text-sm transition-all duration-200';
                 trigger.id = 'custom-select-trigger-' + id;
-                trigger.innerHTML = `
-                    <span class="selected-label truncate text-zinc-400 dark:text-zinc-500">Seçim Yapın</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" class="opacity-50 shrink-0 text-zinc-400 transition-transform duration-200" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                    </svg>
-                `;
+                
+                if (id === 'wage-period-select') {
+                    trigger.className = 'flex items-center gap-1 cursor-pointer text-xs font-extrabold text-zinc-950 dark:text-white bg-transparent border-0 p-0 pr-4 focus:ring-0 focus:outline-none uppercase transition-all duration-200';
+                    trigger.innerHTML = `
+                        <span class="selected-label uppercase truncate text-zinc-950 dark:text-white">${select.options[select.selectedIndex]?.text || 'SEÇİN'}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" class="opacity-80 shrink-0 text-zinc-950 dark:text-white transition-transform duration-200" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    `;
+                } else {
+                    trigger.className = 'mobile-input flex items-center justify-between cursor-pointer w-full text-left font-semibold text-sm transition-all duration-200';
+                    trigger.innerHTML = `
+                        <span class="selected-label truncate text-zinc-400 dark:text-zinc-500">Seçim Yapın</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" class="opacity-50 shrink-0 text-zinc-400 transition-transform duration-200" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    `;
+                }
                 
                 // Popover container
                 const popover = document.createElement('div');
-                popover.className = 'mobile-custom-select-popover absolute top-full left-0 right-0 mt-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xl z-50 hidden max-h-60 overflow-y-auto app-scroll py-1 animate-fade-in';
+                popover.className = id === 'wage-period-select'
+                    ? 'mobile-custom-select-popover absolute top-full left-0 mt-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xl z-50 hidden max-h-60 overflow-y-auto app-scroll py-1 animate-fade-in w-48'
+                    : 'mobile-custom-select-popover absolute top-full left-0 right-0 mt-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xl z-50 hidden max-h-60 overflow-y-auto app-scroll py-1 animate-fade-in';
                 popover.id = 'custom-select-popover-' + id;
                 
                 // Populate options
@@ -2232,6 +2315,11 @@ if ($isLoggedIn) {
                             syncMobileCustomSelects();
                             closeAllCustomSelectPopovers();
                             
+                            if (id === 'wage-period-select') {
+                                if (typeof switchWagePeriod === 'function') {
+                                    switchWagePeriod(val);
+                                }
+                            }
                             if (select.closest('#filter-sheet')) {
                                 applyPersonnelFilters();
                             }
@@ -2274,7 +2362,7 @@ if ($isLoggedIn) {
         }
 
         function syncMobileCustomSelects() {
-            const selects = document.querySelectorAll('#personnelForm select, #filter-sheet select, #definitionForm select, #def-filter-sheet select');
+            const selects = document.querySelectorAll('#personnelForm select, #filter-sheet select, #definitionForm select, #def-filter-sheet select, #mobileTanimlamalarForm select, #mobileSettingsForm select, #wage-period-select');
             selects.forEach(select => {
                 const id = select.id;
                 const wrapper = document.getElementById('custom-select-wrapper-' + id);
@@ -2320,7 +2408,10 @@ if ($isLoggedIn) {
                     
                     if (selectedOption) {
                         selectedLabelSpan.innerText = selectedOption.text;
-                        if (selectedOption.disabled && !selectedOption.value) {
+                        if (id === 'wage-period-select') {
+                            selectedLabelSpan.classList.remove('text-zinc-400', 'dark:text-zinc-500');
+                            selectedLabelSpan.classList.add('text-zinc-950', 'dark:text-white');
+                        } else if (selectedOption.disabled && !selectedOption.value) {
                             // Placeholder option selected (no value yet)
                             selectedLabelSpan.classList.add('text-zinc-400', 'dark:text-zinc-500');
                             selectedLabelSpan.classList.remove('text-zinc-900', 'dark:text-zinc-100');
@@ -2376,6 +2467,114 @@ if ($isLoggedIn) {
             }
         }
 
+        async function handlePeriodCopy(e) {
+            e.preventDefault();
+            
+            const from_donem = document.getElementById('copy-from-donem').value;
+            const to_donem = document.getElementById('copy-to-donem').value.trim();
+            const raise_percent = document.getElementById('copy-raise-percent').value;
+            
+            if (!to_donem || !raise_percent) {
+                showToast("Lütfen tüm alanları doldurun.", "error");
+                return;
+            }
+            
+            const confirmMsg = `${from_donem} dönemindeki tüm ücret tanımları %${raise_percent} zam oranıyla ${to_donem} dönemine kopyalanacak. Emin misiniz?`;
+            
+            showConfirmDialog(
+                'Dönem Kopyala & Zam Yap',
+                confirmMsg,
+                async () => {
+                    try {
+                        const basePath = '<?php echo appBasePath(); ?>';
+                        const formData = new FormData();
+                        formData.append('from_donem', from_donem);
+                        formData.append('to_donem', to_donem);
+                        formData.append('raise_percent', raise_percent);
+                        
+                        const response = await fetch(basePath + '/ucret-donem-kopyala', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            showToast(result.message, "success");
+                            closeAllSheets();
+                            
+                            // Reset copy form inputs
+                            document.getElementById('copy-to-donem').value = "";
+                            document.getElementById('copy-raise-percent').value = "";
+                            
+                            // Switch current active period to the new target period and reload wages tab!
+                            switchTab('definitions', null, { donem: to_donem });
+                        } else {
+                            showToast(result.error || "Bir hata oluştu.", "error");
+                        }
+                    } catch (err) {
+                        showToast("İstek gönderilirken bağlantı hatası oluştu.", "error");
+                    }
+                },
+                'Evet, Kopyala',
+                'bg-indigo-600 hover:bg-indigo-700 text-white',
+                'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400'
+            );
+        }
+
+        // Turkish Currency Formatter Helper (Formats float number to XX.XXX,XX)
+        function formatTurkishCurrency(value) {
+            if (value === null || value === undefined || value === '') return '';
+            let val = parseFloat(value);
+            if (isNaN(val)) return value;
+            
+            // Format with dots as thousands separator and comma as decimal separator
+            let parts = val.toFixed(2).split('.');
+            let integerPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            return integerPart + ',' + parts[1];
+        }
+
+        // Dynamic Input Mask for Turkish Currency Format
+        function initWageInputMask() {
+            const input = document.getElementById('form-def-ucret');
+            if (!input) return;
+            
+            input.addEventListener('input', function(e) {
+                let value = e.target.value;
+                
+                // Remove everything except numbers and comma
+                value = value.replace(/[^0-9,]/g, '');
+                
+                // Ensure there is only one comma
+                const parts = value.split(',');
+                if (parts.length > 2) {
+                    value = parts[0] + ',' + parts.slice(1).join('');
+                }
+                
+                // Format the integer part with thousands separators (dots)
+                let integerPart = parts[0];
+                let decimalPart = parts[1];
+                
+                // Remove leading zeros from integer part
+                if (integerPart.length > 1 && integerPart.startsWith('0')) {
+                    integerPart = integerPart.replace(/^0+/, '');
+                    if (integerPart === '') integerPart = '0';
+                }
+                
+                // Add dots every three digits
+                integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                
+                // Reassemble the value
+                if (decimalPart !== undefined) {
+                    // Limit decimal part to 2 digits
+                    decimalPart = decimalPart.substring(0, 2);
+                    e.target.value = integerPart + ',' + decimalPart;
+                } else {
+                    e.target.value = integerPart;
+                }
+            });
+        }
+
         // Click outside event listener to automatically dismiss custom select popovers
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.mobile-custom-select-wrapper')) {
@@ -2389,6 +2588,7 @@ if ($isLoggedIn) {
             // Initialize mobile custom selects on form fields
             initMobileCustomSelects();
             initMobileFlatpickr();
+            initWageInputMask();
 
             const lastActiveTab = localStorage.getItem('last_active_tab') || 'home';
             const lastActiveSubpage = localStorage.getItem('last_active_subpage');

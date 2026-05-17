@@ -14,8 +14,23 @@ if (!$isLoggedIn) {
 
 $tenant_id = $_SESSION['tenant_id'] ?? 0;
 
-$stmt_ucret = $db->prepare("SELECT id, unvan, ucret, ogrenim, kidem_yili FROM ucretler WHERE deleted_at IS NULL AND tenant_id = ? ORDER BY unvan ASC");
-$stmt_ucret->execute([$tenant_id]);
+// Fetch all available periods for this tenant to populate a filter dropdown
+$periodsStmt = $db->prepare("SELECT DISTINCT donem FROM ucretler WHERE deleted_at IS NULL AND tenant_id = ? ORDER BY donem DESC");
+$periodsStmt->execute([$tenant_id]);
+$allPeriods = $periodsStmt->fetchAll(PDO::FETCH_COLUMN);
+
+// Default to the first available period, or if none, '2026-1'
+$selectedPeriod = $_GET['donem'] ?? ($_SESSION['active_wage_period'] ?? ($allPeriods[0] ?? '2026-1'));
+$_SESSION['active_wage_period'] = $selectedPeriod;
+
+// Add '2026-1' to allPeriods if empty to ensure dropdown renders
+if (empty($allPeriods)) {
+    $allPeriods = ['2026-1'];
+}
+
+// Fetch wages only for the selected period
+$stmt_ucret = $db->prepare("SELECT id, unvan, ucret, ogrenim, kidem_yili, donem FROM ucretler WHERE deleted_at IS NULL AND tenant_id = ? AND donem = ? ORDER BY unvan ASC");
+$stmt_ucret->execute([$tenant_id, $selectedPeriod]);
 $ucretler = $stmt_ucret->fetchAll(PDO::FETCH_ASSOC);
 
 // Extract unique unvanlar for advanced filters
@@ -37,11 +52,28 @@ $kidemler = array_unique(array_filter(array_map(function($u) {
 sort($kidemler);
 ?>
 <div class="space-y-4 animate-fade-in pb-16">
-    <!-- Header with total count -->
-    <div class="flex items-center justify-between px-0.5">
-        <span class="text-[10px] font-black uppercase tracking-wider text-zinc-400 dark:text-zinc-500 definition-count-text">
-            Toplam <?= count($ucretler) ?> Ücret Tanımı
-        </span>
+    <!-- Beautiful Period Selector Header -->
+    <div class="flex items-center justify-between bg-zinc-50 dark:bg-zinc-950 border border-zinc-200/60 dark:border-zinc-800/80 px-4 py-3 rounded-xl shadow-sm gap-4">
+        <div class="flex flex-col">
+            <span class="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest leading-none mb-1">Aktif Ücret Dönemi</span>
+            <div class="relative flex items-center gap-1">
+                <select id="wage-period-select" onchange="switchWagePeriod(this.value)" class="text-xs font-extrabold text-zinc-950 dark:text-white bg-transparent border-0 p-0 pr-4 focus:ring-0 focus:outline-none cursor-pointer uppercase">
+                    <?php foreach ($allPeriods as $p): ?>
+                        <option value="<?= htmlspecialchars($p) ?>" <?= $p === $selectedPeriod ? 'selected' : '' ?>><?= htmlspecialchars($p) ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if (in_array($_SESSION['role'] ?? '', ['admin', 'superadmin'])): ?>
+                <button onclick="confirmDeletePeriod('<?= htmlspecialchars($selectedPeriod) ?>')" class="text-rose-500 hover:text-rose-600 active:scale-90 transition-all p-1 mr-1" title="Bu Dönemi Sil">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2m-9 5v6m4-6v6"/></svg>
+                </button>
+                <?php endif; ?>
+            </div>
+        </div>
+        <div class="text-right">
+            <span class="text-[9px] font-black uppercase tracking-wider text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 px-2 py-1 rounded-md definition-count-text">
+                <?= count($ucretler) ?> ÜCRET TANIMI
+            </span>
+        </div>
     </div>
 
     <!-- Search & Filter Bar -->
@@ -50,7 +82,7 @@ sort($kidemler);
             <div class="absolute left-4 text-zinc-500">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             </div>
-            <input id="definitionSearch" type="text" class="mobile-input pl-11" placeholder="Unvan veya öğrenim ara..." onkeyup="applyDefinitionFilters()">
+            <input id="definitionSearch" type="text" class="mobile-input pl-icon" placeholder="Unvan veya öğrenim ara..." onkeyup="applyDefinitionFilters()">
         </div>
         <!-- Sort Button -->
         <button id="mobileDefSortBtn" onclick="openDefSortSheet()" class="p-3 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-lg text-zinc-600 dark:text-zinc-400 active:scale-95 transition-all cursor-pointer flex items-center justify-center">
@@ -76,6 +108,7 @@ sort($kidemler);
             <?php foreach ($ucretler as $u): ?>
                 <div class="swipe-container relative overflow-hidden definition-item-card"
                      data-id="<?= $u['id'] ?>"
+                     data-donem="<?= htmlspecialchars($u['donem'] ?? '2026-1') ?>"
                      data-unvan="<?= htmlspecialchars($u['unvan']) ?>"
                      data-ogrenim="<?= htmlspecialchars($u['ogrenim']) ?>"
                      data-kidem="<?= htmlspecialchars($u['kidem_yili']) ?>"
@@ -97,7 +130,7 @@ sort($kidemler);
                             <h4 class="text-xs font-bold text-zinc-800 dark:text-zinc-200 leading-tight"><?= htmlspecialchars($u['unvan']) ?></h4>
                             <div class="flex items-center gap-1.5 mt-1">
                                 <span class="text-[9px] bg-zinc-100 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 px-2 py-0.5 rounded font-bold uppercase leading-none"><?= htmlspecialchars($u['ogrenim']) ?></span>
-                                <span class="text-[9px] bg-indigo-50 dark:bg-zinc-900 text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-zinc-800 px-2 py-0.5 rounded font-bold uppercase leading-none"><?= htmlspecialchars($u['kidem_yili']) ?></span>
+                                <span class="text-[9px] bg-zinc-100 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 px-2 py-0.5 rounded font-bold uppercase leading-none"><?= htmlspecialchars($u['kidem_yili']) ?></span>
                             </div>
                         </div>
                         <div class="text-right select-none pointer-events-none">
@@ -109,6 +142,13 @@ sort($kidemler);
             <?php endforeach; ?>
         <?php endif; ?>
     </div>
+
+    <?php if (in_array($_SESSION['role'] ?? '', ['admin', 'superadmin'])): ?>
+    <!-- Floating Action Button for Period Copy/Raise -->
+    <button onclick="openWageCopySheet()" class="fixed bottom-40 right-6 w-14 h-14 rounded-full bg-zinc-600 hover:bg-zinc-700 dark:bg-zinc-200 dark:hover:bg-zinc-300 text-white dark:text-zinc-950 shadow-lg border border-zinc-550/20 flex items-center justify-center active:scale-95 transition-all cursor-pointer z-40">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+    </button>
+    <?php endif; ?>
 
     <!-- Floating Action Button for Adding New Definition -->
     <button onclick="openAddDefinitionSheet()" class="fixed bottom-24 right-6 w-14 h-14 rounded-full bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-950 shadow-lg border border-zinc-200 dark:border-zinc-800 flex items-center justify-center active:scale-95 transition-all cursor-pointer z-40">
@@ -135,6 +175,12 @@ sort($kidemler);
 
         // Reset form
         formIdEl.value = "";
+        
+        const donemInput = document.getElementById('form-def-donem');
+        if (donemInput) {
+            donemInput.value = document.getElementById('wage-period-select').value;
+        }
+        
         document.getElementById('form-def-unvan').value = "";
         document.getElementById('form-def-ogrenim').value = "Lise";
         document.getElementById('form-def-kidem').value = "0-5 Yıl (Dahil)";
@@ -162,12 +208,19 @@ sort($kidemler);
         const ogrenim = cardElement.getAttribute('data-ogrenim');
         const kidem = cardElement.getAttribute('data-kidem');
         const ucret = cardElement.getAttribute('data-ucret-raw');
+        const donem = cardElement.getAttribute('data-donem') || '2026-1';
         
         formIdEl.value = id;
+        
+        const donemInput = document.getElementById('form-def-donem');
+        if (donemInput) {
+            donemInput.value = donem;
+        }
+        
         document.getElementById('form-def-unvan').value = unvan;
         document.getElementById('form-def-ogrenim').value = ogrenim;
         document.getElementById('form-def-kidem').value = kidem;
-        document.getElementById('form-def-ucret').value = ucret;
+        document.getElementById('form-def-ucret').value = typeof formatTurkishCurrency === 'function' ? formatTurkishCurrency(ucret) : ucret;
         
         document.getElementById('def-form-title').innerText = "Ücret Tanımını Düzenle";
         
@@ -175,6 +228,20 @@ sort($kidemler);
         if (typeof syncMobileCustomSelects === 'function') {
             syncMobileCustomSelects();
         }
+    }
+
+    function openWageCopySheet() {
+        const selectEl = document.getElementById('wage-period-select');
+        const selected = selectEl ? selectEl.value : '2026-1';
+        const copyFromInput = document.getElementById('copy-from-donem');
+        if (copyFromInput) {
+            copyFromInput.value = selected;
+        }
+        openSheet('def-copy-sheet');
+    }
+
+    function switchWagePeriod(period) {
+        switchTab('definitions', null, { donem: period });
     }
 
     // Open sorting sheet
@@ -473,6 +540,38 @@ sort($kidemler);
         );
     }
 
+    // Confirm Delete Period
+    function confirmDeletePeriod(period) {
+        showConfirmDialog(
+            'Dönemi Sil ve Kaldır',
+            `"${period}" dönemine ait tüm ücret tanımlarını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.`,
+            () => {
+                const basePath = '<?= appBasePath(); ?>';
+                const formData = new FormData();
+                formData.append('donem', period);
+
+                fetch(basePath + '/ucret-donem-sil', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message || 'Ücret dönemi silindi.');
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1200);
+                    } else {
+                        showToast(data.error || 'Dönem silme işlemi gerçekleştirilemedi.', 'error');
+                    }
+                })
+                .catch(err => {
+                    showToast('Bağlantı hatası oluştu.', 'error');
+                });
+            }
+        );
+    }
+
     // Add submit listener to Form
     (function() {
         const form = document.getElementById('definitionForm');
@@ -483,6 +582,11 @@ sort($kidemler);
                 const basePath = '<?= appBasePath(); ?>';
                 const url = id ? (basePath + '/ucret-guncelle') : (basePath + '/ucret-ekle');
                 const formData = new FormData(this);
+                
+                // Parse formatted Turkish currency back to standard decimal float before sending
+                let ucretVal = formData.get('ucret') || '';
+                ucretVal = ucretVal.replace(/\./g, '').replace(',', '.');
+                formData.set('ucret', ucretVal);
                 
                 fetch(url, {
                     method: 'POST',

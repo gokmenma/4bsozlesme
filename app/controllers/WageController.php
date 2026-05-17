@@ -50,6 +50,7 @@ class WageController extends Controller {
                 'ogrenim' => $_POST['ogrenim'] ?? '',
                 'kidem_yili' => $_POST['kidem_yili'] ?? '',
                 'ucret' => $_POST['ucret'] ?? 0,
+                'donem' => $_POST['donem'] ?? '2026-1',
                 'tenant_id' => !empty($_SESSION['tenant_id']) ? $_SESSION['tenant_id'] : 1,
                 'created_at' => date('Y-m-d H:i:s')
             ];
@@ -99,6 +100,7 @@ class WageController extends Controller {
                 'ogrenim' => $_POST['ogrenim'],
                 'kidem_yili' => $_POST['kidem_yili'],
                 'ucret' => $_POST['ucret'],
+                'donem' => $_POST['donem'] ?? '2026-1',
                 'updated_at' => date('Y-m-d H:i:s')
             ];
 
@@ -163,6 +165,7 @@ class WageController extends Controller {
         try {
             $input = json_decode(file_get_contents('php://input'), true);
             $data = $input['data'] ?? [];
+            $donem = $input['donem'] ?? '2026-1';
             
             if (empty($data)) {
                 throw new Exception('Veri bulunamadı.');
@@ -173,7 +176,7 @@ class WageController extends Controller {
 
             $db->beginTransaction();
 
-            $sql = "INSERT INTO ucretler (unvan, ogrenim, kidem_yili, ucret, tenant_id, created_at) VALUES (?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO ucretler (unvan, ogrenim, kidem_yili, ucret, donem, tenant_id, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt = $db->prepare($sql);
 
             foreach ($data as $row) {
@@ -184,6 +187,7 @@ class WageController extends Controller {
                     $row['ogrenim'] ?? '',
                     $row['kidem_yili'] ?? '',
                     floatval($row['ucret'] ?? 0),
+                    $donem,
                     $tenant_id,
                     date('Y-m-d H:i:s')
                 ]);
@@ -197,6 +201,118 @@ class WageController extends Controller {
             exit;
         } catch (Exception $e) {
             if ($db->inTransaction()) $db->rollBack();
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+            exit;
+        }
+    }
+
+    public function copyPeriod() {
+        global $db;
+        $tenant_id = $_SESSION['tenant_id'] ?? 0;
+        
+        try {
+            $from_donem = $_POST['from_donem'] ?? '';
+            $to_donem = $_POST['to_donem'] ?? '';
+            $raise_percent = floatval($_POST['raise_percent'] ?? 0);
+            
+            if (empty($from_donem) || empty($to_donem)) {
+                throw new Exception('Kaynak ve hedef dönem bilgileri gereklidir.');
+            }
+            
+            // Check if target period already has records for this tenant
+            $checkStmt = $db->prepare("SELECT COUNT(*) FROM ucretler WHERE tenant_id = ? AND donem = ? AND deleted_at IS NULL");
+            $checkStmt->execute([$tenant_id, $to_donem]);
+            if ($checkStmt->fetchColumn() > 0) {
+                throw new Exception("Hedef dönem ({$to_donem}) için zaten ücret tanımları mevcut. Lütfen farklı bir dönem adı belirleyin.");
+            }
+            
+            // Fetch all source records
+            $stmt = $db->prepare("SELECT * FROM ucretler WHERE tenant_id = ? AND donem = ? AND deleted_at IS NULL");
+            $stmt->execute([$tenant_id, $from_donem]);
+            $sources = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            if (empty($sources)) {
+                throw new Exception("Kaynak dönemde ({$from_donem}) kopyalanacak ücret tanımı bulunamadı.");
+            }
+            
+            $db->beginTransaction();
+            
+            $insertStmt = $db->prepare("
+                INSERT INTO ucretler (tenant_id, donem, unvan, ogrenim, kidem_yili, ucret, is_active, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            
+            $count = 0;
+            foreach ($sources as $s) {
+                $new_ucret = floatval($s['ucret']) * (1 + $raise_percent / 100);
+                
+                $insertStmt->execute([
+                    $tenant_id,
+                    $to_donem,
+                    $s['unvan'],
+                    $s['ogrenim'],
+                    $s['kidem_yili'],
+                    $new_ucret,
+                    $s['is_active'],
+                    date('Y-m-d H:i:s')
+                ]);
+                $count++;
+            }
+            
+            $db->commit();
+            
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => true,
+                'count' => $count,
+                'message' => "{$count} adet ücret tanımı, %{$raise_percent} zam oranıyla '{$from_donem}' döneminden '{$to_donem}' dönemine başarıyla kopyalandı."
+            ]);
+            exit;
+        } catch (Exception $e) {
+            if ($db->inTransaction()) $db->rollBack();
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+            exit;
+        }
+    }
+
+    public function deletePeriod() {
+        global $db;
+        $tenant_id = $_SESSION['tenant_id'] ?? 0;
+        
+        try {
+            $donem = $_POST['donem'] ?? '';
+            
+            if (empty($donem)) {
+                throw new Exception('Silinecek dönem bilgisi gereklidir.');
+            }
+            
+            // Check if any personnel is using a wage from this period
+            $checkStmt = $db->prepare("
+                SELECT COUNT(*) 
+                FROM personeller p
+                JOIN ucretler u ON p.ucret_id = u.id
+                WHERE u.donem = ? AND p.tenant_id = ? AND p.deleted_at IS NULL AND u.deleted_at IS NULL
+            ");
+            $checkStmt->execute([$donem, $tenant_id]);
+            $count = $checkStmt->fetchColumn();
+            
+            if ($count > 0) {
+                throw new Exception("Bu dönemdeki ücret tanımları şu anda {$count} personel tarafından aktif olarak kullanılmaktadır. Dönemi silebilmek için bu personellerin ücretlerini veya dönemini değiştirmeniz gerekmektedir.");
+            }
+            
+            // Soft delete all wages in this period
+            $stmt = $db->prepare("UPDATE ucretler SET deleted_at = ? WHERE tenant_id = ? AND donem = ? AND deleted_at IS NULL");
+            $success = $stmt->execute([date('Y-m-d H:i:s'), $tenant_id, $donem]);
+            
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => true,
+                'message' => "'{$donem}' dönemine ait tüm ücret tanımları başarıyla silindi."
+            ]);
+            exit;
+        } catch (Exception $e) {
             header('Content-Type: application/json');
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
             exit;

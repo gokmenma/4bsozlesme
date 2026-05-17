@@ -14,14 +14,28 @@ if (!$isLoggedIn) {
 
 $tenant_id = $_SESSION['tenant_id'] ?? 0;
 
+$defModel = new Definition();
+$settings = $defModel->getSettings($tenant_id);
+$default_period = $settings['default_wage_period'] ?? '2026-1';
+
 $stmt = $db->prepare("
-    SELECT p.*, u.unvan, u.ucret, u.ogrenim, u.kidem_yili
+    SELECT p.*, 
+           u.unvan, 
+           COALESCE(u_def.ucret, u.ucret) as ucret, 
+           u.ogrenim, 
+           u.kidem_yili
     FROM personeller p 
     LEFT JOIN ucretler u ON p.ucret_id = u.id 
+    LEFT JOIN ucretler u_def ON u_def.tenant_id = p.tenant_id 
+                            AND u_def.unvan = u.unvan 
+                            AND u_def.ogrenim = u.ogrenim 
+                            AND u_def.kidem_yili = u.kidem_yili
+                            AND u_def.donem = ?
+                            AND u_def.deleted_at IS NULL
     WHERE p.deleted_at IS NULL AND p.tenant_id = ? 
     ORDER BY p.ad_soyad ASC
 ");
-$stmt->execute([$tenant_id]);
+$stmt->execute([$default_period, $tenant_id]);
 $personnels = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Extract unique unvanlar for advanced filters

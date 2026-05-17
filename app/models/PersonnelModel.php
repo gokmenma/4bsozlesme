@@ -4,13 +4,31 @@ class PersonnelModel extends Model {
     protected $table = 'personeller';
 
     public function find($id, $tenant_id = null) {
+        if ($tenant_id === null) {
+            $tenant_id = $_SESSION['tenant_id'] ?? 0;
+        }
+
+        // Fetch default period
+        $stmt_period = $this->db->prepare("SELECT `value` FROM definitions WHERE `key` = 'default_wage_period' AND tenant_id = ? LIMIT 1");
+        $stmt_period->execute([$tenant_id]);
+        $default_period = $stmt_period->fetchColumn() ?: '2026-1';
+
         $sql = "
-            SELECT p.*, u.unvan, u.ucret, u.ogrenim 
+            SELECT p.*, 
+                   u.unvan, 
+                   COALESCE(u_def.ucret, u.ucret) as ucret, 
+                   u.ogrenim 
             FROM {$this->table} p 
             LEFT JOIN ucretler u ON p.ucret_id = u.id 
+            LEFT JOIN ucretler u_def ON u_def.tenant_id = p.tenant_id 
+                                    AND u_def.unvan = u.unvan 
+                                    AND u_def.ogrenim = u.ogrenim 
+                                    AND u_def.kidem_yili = u.kidem_yili
+                                    AND u_def.donem = ?
+                                    AND u_def.deleted_at IS NULL
             WHERE p.id = ? AND p.deleted_at IS NULL
         ";
-        $params = [$id];
+        $params = [$default_period, $id];
         if ($tenant_id !== null) {
             $sql .= " AND p.tenant_id = ?";
             $params[] = $tenant_id;

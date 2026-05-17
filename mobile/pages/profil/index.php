@@ -107,16 +107,18 @@ if (!function_exists('getVal')) {
                     <label for="name" class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Ad Soyad</label>
                     <input type="text" id="name" name="name" value="<?php echo getVal('name', $user); ?>" placeholder="Ad Soyad" required class="mobile-input text-xs font-semibold">
                 </div>
-                          <div class="space-y-1.5">
+                <div class="space-y-1.5 opacity-55 select-none pointer-events-none">
                     <label for="username_display" class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Kullanıcı Adı</label>
-                    <input type="text" id="username_display" value="<?php echo explode('@', getVal('email', $user))[0]; ?>" readonly class="mobile-input text-xs font-semibold bg-zinc-100 dark:bg-zinc-950 cursor-not-allowed text-zinc-400 dark:text-zinc-500 outline-none select-none" tabindex="-1">
+                    <input type="text" id="username_display" value="<?php echo explode('@', getVal('email', $user))[0]; ?>" disabled class="mobile-input text-xs font-semibold bg-zinc-100 dark:bg-zinc-950 cursor-not-allowed text-zinc-400 dark:text-zinc-500 outline-none select-none" tabindex="-1">
                 </div>
 
-                <div class="space-y-1.5">
-                    <label for="email" class="text-[10px] font-black text-zinc-400 dark:text-zinc-550 uppercase tracking-wider block">E-posta Adresi</label>
-                    <input type="email" id="email" name="email" value="<?php echo getVal('email', $user); ?>" readonly class="mobile-input text-xs font-semibold bg-zinc-100 dark:bg-zinc-950 cursor-not-allowed text-zinc-400 dark:text-zinc-500 outline-none select-none" tabindex="-1">
-                    <span class="text-[9px] text-zinc-400 dark:text-zinc-500 font-semibold block leading-tight">Kullanıcı adı ve e-posta adresi benzersiz giriş kimliğiniz olup güvenlik amacıyla değiştirilemez.</span>
+                <div class="space-y-1.5 opacity-55 select-none pointer-events-none">
+                    <label for="email_display" class="text-[10px] font-black text-zinc-400 dark:text-zinc-550 uppercase tracking-wider block">E-posta Adresi</label>
+                    <input type="email" id="email_display" value="<?php echo getVal('email', $user); ?>" disabled class="mobile-input text-xs font-semibold bg-zinc-100 dark:bg-zinc-950 cursor-not-allowed text-zinc-400 dark:text-zinc-500 outline-none select-none" tabindex="-1">
                 </div>
+                <input type="hidden" name="email" id="email" value="<?php echo getVal('email', $user); ?>">
+                
+                <span class="text-[9px] text-zinc-400 dark:text-zinc-500 font-semibold block leading-tight select-none mt-1">Kullanıcı adı ve e-posta adresi benzersiz giriş kimliğiniz olup güvenlik amacıyla değiştirilemez.</span>
                 
                 <button type="submit" class="w-full py-3.5 bg-zinc-950 dark:bg-zinc-50 text-white dark:text-zinc-950 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-sm cursor-pointer select-none">
                     Bilgileri Güncelle

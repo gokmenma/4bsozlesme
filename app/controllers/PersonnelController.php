@@ -177,14 +177,27 @@ class PersonnelController extends Controller {
         global $db;
         
         // Fetch personnel with wage details including ogrenim
+        $tenant_id = $_SESSION['tenant_id'] ?? 0;
+        $defModel = new Definition();
+        $settings = $defModel->getSettings($tenant_id);
+        $default_period = $settings['default_wage_period'] ?? '2026-1';
+
         $stmt = $db->prepare("
-            SELECT p.*, u.unvan, u.ucret, u.ogrenim 
+            SELECT p.*, 
+                   u.unvan, 
+                   COALESCE(u_def.ucret, u.ucret) as ucret, 
+                   u.ogrenim 
             FROM personeller p 
             LEFT JOIN ucretler u ON p.ucret_id = u.id 
+            LEFT JOIN ucretler u_def ON u_def.tenant_id = p.tenant_id 
+                                    AND u_def.unvan = u.unvan 
+                                    AND u_def.ogrenim = u.ogrenim 
+                                    AND u_def.kidem_yili = u.kidem_yili
+                                    AND u_def.donem = ?
+                                    AND u_def.deleted_at IS NULL
             WHERE p.id = ? AND p.tenant_id = ?
         ");
-        $tenant_id = $_SESSION['tenant_id'] ?? 0;
-        $stmt->execute([$id, $tenant_id]);
+        $stmt->execute([$default_period, $id, $tenant_id]);
         $p = $stmt->fetch();
 
         if (!$p) {
@@ -247,14 +260,27 @@ class PersonnelController extends Controller {
 
         global $db;
         
+        $tenant_id = $_SESSION['tenant_id'] ?? 0;
+        $defModel = new Definition();
+        $settings = $defModel->getSettings($tenant_id);
+        $default_period = $settings['default_wage_period'] ?? '2026-1';
+
         $stmt = $db->prepare("
-            SELECT p.*, u.unvan, u.ucret, u.ogrenim 
+            SELECT p.*, 
+                   u.unvan, 
+                   COALESCE(u_def.ucret, u.ucret) as ucret, 
+                   u.ogrenim 
             FROM personeller p 
             LEFT JOIN ucretler u ON p.ucret_id = u.id 
+            LEFT JOIN ucretler u_def ON u_def.tenant_id = p.tenant_id 
+                                    AND u_def.unvan = u.unvan 
+                                    AND u_def.ogrenim = u.ogrenim 
+                                    AND u_def.kidem_yili = u.kidem_yili
+                                    AND u_def.donem = ?
+                                    AND u_def.deleted_at IS NULL
             WHERE p.id = ? AND p.tenant_id = ?
         ");
-        $tenant_id = $_SESSION['tenant_id'] ?? 0;
-        $stmt->execute([$id, $tenant_id]);
+        $stmt->execute([$default_period, $id, $tenant_id]);
         $p = $stmt->fetch();
 
         if (!$p) {
@@ -524,7 +550,7 @@ class PersonnelController extends Controller {
                 4 => 'p.cinsiyet',
                 5 => 'u.unvan',
                 6 => 'u.ogrenim',
-                7 => 'u.ucret',
+                7 => 'COALESCE(u_def.ucret, u.ucret)',
                 8 => 'p.durum',
                 9 => 'p.goreve_baslama_tarihi',
                 10 => 'p.goreve_baslama_tarihi', 
@@ -633,7 +659,23 @@ class PersonnelController extends Controller {
             $totalStmt->execute([$tenant_id]);
             $totalRecords = $totalStmt->fetchColumn();
 
-            $filteredSql = "SELECT COUNT(*) FROM personeller p LEFT JOIN ucretler u ON p.ucret_id = u.id WHERE $whereSql";
+            $defModel = new Definition();
+            $settings = $defModel->getSettings($tenant_id);
+            $default_period = $settings['default_wage_period'] ?? '2026-1';
+            $params[':default_period'] = $default_period;
+
+            $filteredSql = "
+                SELECT COUNT(*) 
+                FROM personeller p 
+                LEFT JOIN ucretler u ON p.ucret_id = u.id 
+                LEFT JOIN ucretler u_def ON u_def.tenant_id = p.tenant_id 
+                                        AND u_def.unvan = u.unvan 
+                                        AND u_def.ogrenim = u.ogrenim 
+                                        AND u_def.kidem_yili = u.kidem_yili
+                                        AND u_def.donem = :default_period
+                                        AND u_def.deleted_at IS NULL
+                WHERE $whereSql
+            ";
             $filteredStmt = $db->prepare($filteredSql);
             $filteredStmt->execute($params);
             $totalRecordsWithFilter = $filteredStmt->fetchColumn();
@@ -644,9 +686,18 @@ class PersonnelController extends Controller {
             }
 
             $dataSql = "
-                SELECT p.*, u.unvan, u.ucret, u.ogrenim 
+                SELECT p.*, 
+                       u.unvan, 
+                       COALESCE(u_def.ucret, u.ucret) as ucret, 
+                       u.ogrenim 
                 FROM personeller p 
                 LEFT JOIN ucretler u ON p.ucret_id = u.id 
+                LEFT JOIN ucretler u_def ON u_def.tenant_id = p.tenant_id 
+                                        AND u_def.unvan = u.unvan 
+                                        AND u_def.ogrenim = u.ogrenim 
+                                        AND u_def.kidem_yili = u.kidem_yili
+                                        AND u_def.donem = :default_period
+                                        AND u_def.deleted_at IS NULL
                 WHERE $whereSql
                 ORDER BY $orderColumn $orderDir
                 $limitSql
