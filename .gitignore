@@ -1,0 +1,6 @@
+/vendor/
+/.agent/
+/scratch/
+.env
+.DS_Store
+*.log

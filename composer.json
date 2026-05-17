@@ -1,0 +1,7 @@
+{
+    "name": "sozlesme/sozlesme-4b",
+    "description": "Personnel and Contract Management System",
+    "require": {
+        "phpmailer/phpmailer": "^7.0"
+    }
+}

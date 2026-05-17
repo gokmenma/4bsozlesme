@@ -1,0 +1,11 @@
+RewriteEngine On
+
+# Route every page request through index.php.
+RewriteRule ^index\.php$ - [L]
+
+# Keep existing non-PHP files available for assets such as CSS, JS, and images.
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_URI} !\.php$ [NC]
+RewriteRule ^ - [L]
+
+RewriteRule ^.*$ index.php [L,QSA]

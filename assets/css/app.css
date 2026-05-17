@@ -1,0 +1,475 @@
+/* Tailwind 4 Browser Script handles imports automatically */
+
+@theme {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-border: var(--border);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+}
+
+/* Dark Mode Fallbacks for Tailwind Utility Failures */
+.dark body {
+    background-color: #09090b;
+    color: #f4f4f5;
+}
+
+.dark .bg-white {
+    background-color: #18181b !important;
+}
+
+.dark .text-zinc-900 {
+    color: #f4f4f5 !important;
+}
+
+.dark .text-zinc-600 {
+    color: #a1a1aa !important;
+}
+
+.dark .border-zinc-200 {
+    border-color: #27272a !important;
+}
+
+.dark .hover\:bg-zinc-50:hover {
+    background-color: #27272a !important;
+}
+
+.dark .shadow-sm {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.3) !important;
+}
+
+.dark .shadow-md {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5) !important;
+}
+
+.dark .shadow-lg {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5) !important;
+}
+
+.dark .shadow-xl {
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px rgb(0 0 0 / 0.5) !important;
+}
+
+.dark .shadow-2xl {
+    box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.7) !important;
+}
+
+/* Badge and Status Overrides */
+.dark .text-green-700 {
+    color: #4ade80 !important;
+}
+
+.dark .border-green-100 {
+    border-color: rgba(20, 83, 45, 0.3) !important;
+    background-color: rgba(20, 83, 45, 0.1) !important;
+}
+
+.dark .bg-zinc-900 {
+    background-color: #f4f4f5 !important;
+    color: #18181b !important;
+}
+
+.dark .bg-white\/90 {
+    background-color: rgba(24, 24, 27, 0.9) !important;
+}
+
+.dark .bg-white\/80 {
+    background-color: rgba(24, 24, 27, 0.8) !important;
+}
+
+.dark .text-white {
+    color: #18181b !important;
+}
+
+.dark .bg-white {
+    background-color: #18181b !important;
+}
+
+.dark .hover\:bg-zinc-50:hover {
+    background-color: #27272a !important;
+}
+
+.dark .text-zinc-400 {
+    color: #71717a !important;
+}
+
+/* Fix for buttons in actions bar */
+.dark .inline-flex.items-center.bg-white {
+    background-color: #18181b !important;
+    color: #f4f4f5 !important;
+    border-color: #27272a !important;
+}
+
+.dark .inline-flex.items-center.bg-zinc-900 {
+    background-color: #f4f4f5 !important;
+    color: #18181b !important;
+}
+
+/* Button Overrides */
+.dark .btn {
+    background-color: #f4f4f5 !important;
+    color: #18181b !important;
+    border-color: #f4f4f5 !important;
+}
+
+.dark .btn-outline {
+    background-color: #18181b !important;
+    color: #f4f4f5 !important;
+    border-color: #27272a !important;
+}
+
+.dark .btn-outline:hover,
+.dark .hover\:bg-zinc-100:hover,
+.dark .hover\:bg-zinc-50:hover,
+.dark .hover\:bg-zinc-50\/50:hover,
+.dark .hover\:bg-zinc-100\/50:hover {
+    background-color: #27272a !important;
+}
+
+.dark .border-border {
+    border-color: #27272a !important;
+}
+
+/* Dialog and Modal Overrides */
+.dark dialog,
+.dark .dialog,
+.dark [data-basecoat-dialog],
+.dark .dialog-content {
+    background-color: #18181b !important;
+    color: #f4f4f5 !important;
+    border-color: #27272a !important;
+}
+
+.dark dialog header,
+.dark .dialog-content header {
+    border-color: #27272a !important;
+}
+
+.dark dialog footer,
+.dark .dialog-content footer {
+    background-color: #18181b !important;
+    border-color: #27272a !important;
+}
+
+.dark dialog label {
+    color: #a1a1aa !important;
+}
+
+/* Button Fixes for Dialogs */
+.dark dialog .btn,
+.dark .dialog-content .btn,
+.dark .btn {
+    background-color: #f4f4f5 !important;
+    color: #18181b !important;
+    border: 1px solid #f4f4f5 !important;
+}
+
+.dark dialog .btn:hover,
+.dark .dialog-content .btn:hover,
+.dark .btn:hover {
+    background-color: #e4e4e7 !important;
+}
+
+.dark dialog .btn-outline,
+.dark .dialog-content .btn-outline,
+.dark .btn-outline {
+    background-color: transparent !important;
+    color: #f4f4f5 !important;
+    border: 1px solid #27272a !important;
+}
+
+.dark dialog input,
+.dark dialog select,
+.dark dialog textarea {
+    background-color: #09090b !important;
+    color: #f4f4f5 !important;
+    border-color: #27272a !important;
+}
+
+.dark .text-zinc-400 {
+    color: #71717a !important;
+}
+
+.dark .hover\:text-zinc-600:hover {
+    color: #f4f4f5 !important;
+}
+
+/* Dropdown Menu Overrides */
+.dark .dropdown-menu,
+.dark .app-dropdown-menu {
+    background-color: #18181b !important;
+    border-color: #27272a !important;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.5) !important;
+}
+
+.dark .dropdown-menu button,
+.dark .dropdown-menu a,
+.dark .app-dropdown-menu button,
+.dark .app-dropdown-menu a {
+    color: #d4d4d8 !important;
+}
+
+.dark .dropdown-menu button:hover,
+.dark .dropdown-menu a:hover,
+.dark .app-dropdown-menu button:hover,
+.dark .app-dropdown-menu a:hover {
+    background-color: #27272a !important;
+    color: #f4f4f5 !important;
+}
+
+.dark .dropdown-menu hr,
+.dark .app-dropdown-menu hr {
+    border-color: #27272a !important;
+}
+
+/* Select and Popover Overrides */
+.dark .select-rich button,
+.dark .select button,
+.dark .app-select-rich button,
+.dark .app-select button {
+    background-color: #18181b !important;
+    color: #f4f4f5 !important;
+    border-color: #27272a !important;
+}
+
+.dark [data-custom-popover] {
+    background-color: #18181b !important;
+    border-color: #27272a !important;
+}
+
+.dark [data-custom-popover] header {
+    background-color: #27272a !important;
+    border-color: #3f3f46 !important;
+}
+
+.dark [data-custom-popover] input {
+    color: #f4f4f5 !important;
+}
+
+.dark [data-select-option] {
+    color: #d4d4d8 !important;
+    border-color: #27272a !important;
+}
+
+.dark [data-select-option]:hover {
+    background-color: #27272a !important;
+}
+
+.dark [data-select-option].selected {
+    background-color: #27272a !important;
+    color: #f4f4f5 !important;
+}
+
+/* Global Form Element Overrides */
+.dark select,
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.dark textarea {
+    background-color: #18181b !important;
+    color: #f4f4f5 !important;
+    border-color: #27272a !important;
+}
+
+.dark select option {
+    background-color: #18181b !important;
+    color: #f4f4f5 !important;
+}
+
+/* Custom Styles */
+summary.no-marker {
+    list-style: none;
+}
+
+summary.no-marker::-webkit-details-marker {
+    display: none;
+}
+
+/* DataTables Flex Fix */
+.dataTables_wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 100%;
+    min-height: 0;
+}
+
+.app-view {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.app-main {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.app-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    height: 65px;
+    flex-shrink: 0;
+}
+
+
+
+/* Custom Select Styles */
+.select, .select-rich, .app-select, .app-select-rich {
+    position: relative;
+}
+
+[data-custom-popover] {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 0.5rem;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    z-index: 50;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.2s ease;
+}
+
+.dark [data-custom-popover] {
+    background: #18181b; /* zinc-900 */
+}
+
+[data-custom-popover][aria-hidden="true"] {
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+    display: none;
+}
+
+[data-custom-popover][aria-hidden="false"] {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    display: flex;
+}
+
+[data-custom-popover] header {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #f9fafb; /* gray-50 */
+}
+
+.dark [data-custom-popover] header {
+    background-color: #27272a; /* zinc-800 */
+}
+
+[data-custom-popover] header input {
+    background: transparent;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    flex: 1;
+    min-width: 0;
+    font-size: 0.875rem;
+    height: 2rem;
+    padding: 0;
+}
+
+[data-select-option]:hover {
+    background-color: #f4f4f5; /* zinc-100 */
+}
+
+.dark [data-select-option]:hover {
+    background-color: #27272a; /* zinc-800 */
+}
+
+.select button, .select-rich button, .app-select button, .app-select-rich button {
+    height: 2.5rem;
+    min-height: 2.5rem;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+
+/* Alert Destructive Styles */
+.alert-destructive {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 0.75rem;
+    align-items: flex-start;
+    color: #991b1b;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+}
+
+.alert-destructive svg {
+    color: #dc2626;
+    margin-top: 0.125rem;
+}
+
+.alert-destructive h2 {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    margin: 0;
+    line-height: 1.5;
+    grid-column: 2;
+}
+
+.alert-destructive section {
+    font-size: 0.875rem;
+    color: #b91c1c;
+    grid-column: 2;
+    line-height: 1.5;
+}
+
+.dark .alert-destructive {
+    background-color: rgba(127, 29, 29, 0.1);
+    border-color: rgba(127, 29, 29, 0.4);
+    color: #fca5a5;
+}
+
+.dark .alert-destructive section {
+    color: #f87171;
+}
+
+/* Toast positioning and Popover Top Layer fix - Moved to end to ensure priority */
+#toaster[popover] {
+    position: fixed !important;
+    inset: auto 1rem 1rem auto !important; /* Sağ Alt Köşe */
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    overflow: visible !important;
+    width: auto !important;
+    height: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+    z-index: 999999 !important;
+    display: none; /* Varsayılan kapalı */
+    flex-direction: column !important;
+    align-items: flex-end !important;
+    justify-content: flex-end !important;
+    gap: 0.5rem !important;
+    pointer-events: none !important;
+}
+
+#toaster[popover]:popover-open {
+    display: flex !important;
+}
+
+#toaster > *,
+#toaster[popover] > * {
+    pointer-events: auto !important;
+}

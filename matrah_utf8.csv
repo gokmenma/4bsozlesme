@@ -1,0 +1,851 @@
+﻿Id,Unvan,Ogrenim,HizmetYılı,GostergePuan,EkGostergePuan,YanOdemePuan,OzelHizmetPuan,Derece,DengeOran,DengeDerece
+1,Hemşire,Lisans,0,660,1400,1700,94,8-1,90,8
+2,Hemşire,Lisans,1,675,1400,1700,94,8-2,90,8
+3,Hemşire,Lisans,2,690,1400,1700,94,8-3,90,8
+4,Hemşire,Lisans,3,705,1500,1700,94,7-1,90,8
+5,Hemşire,Lisans,4,720,1500,1700,94,7-2,90,8
+6,Hemşire,Lisans,5,740,1500,1700,94,7-3,90,8
+7,Hemşire,Lisans,6,760,1700,1700,94,6-1,95,7
+8,Hemşire,Lisans,7,785,1700,1700,94,6-2,95,7
+9,Hemşire,Lisans,8,810,1700,1700,94,6-3,95,7
+10,Hemşire,Lisans,9,835,1800,1700,94,5-1,95,7
+11,Hemşire,Lisans,10,865,1800,1700,94,5-2,95,7
+12,Hemşire,Lisans,11,895,1800,1700,94,5-3,95,7
+13,Hemşire,Lisans,12,915,2100,1700,97,4-1,95,7
+14,Hemşire,Lisans,13,950,2100,1700,97,4-2,95,7
+15,Hemşire,Lisans,14,985,2100,1700,97,4-3,95,7
+16,Hemşire,Lisans,15,1020,2200,1700,97,3-1,105,4
+17,Hemşire,Lisans,16,1065,2200,1700,97,3-2,105,4
+18,Hemşire,Lisans,17,1110,2200,1700,97,3-3,105,4
+19,Hemşire,Lisans,18,1155,3000,1700,97,2-1,105,4
+20,Hemşire,Lisans,19,1210,3000,1700,97,2-2,105,4
+21,Hemşire,Lisans,20,1265,3000,1700,97,2-3,105,4
+22,Hemşire,Lisans,21,1320,3600,1700,97,1-1,115,2
+23,Hemşire,Lisans,22,1380,3600,1700,97,1-2,115,2
+24,Hemşire,Lisans,23,1440,3600,1700,97,1-3,115,2
+25,Hemşire,Lisans,24,1500,3600,1700,97,1-4,115,2
+26,Hemşire,Lisans,25,1500,3600,1700,97,1-4,115,2
+27,Hemşire,Lisans,26,1500,3600,1700,97,1-4,115,2
+28,Hemşire,Lisans,27,1500,3600,1700,97,1-4,115,2
+29,Hemşire,Lisans,28,1500,3600,1700,97,1-4,115,2
+30,Hemşire,Lisans,29,1500,3600,1700,97,1-4,115,2
+31,Hemşire,Lisans,30,1500,3600,1700,97,1-4,115,2
+32,Hemşire,Ön Lisans,0,600,,1700,88,10-2,90,10
+33,Hemşire,Ön Lisans,1,610,,1700,88,10-3,90,10
+34,Hemşire,Ön Lisans,2,620,,1700,88,9-1,90,10
+35,Hemşire,Ön Lisans,3,630,,1700,88,9-2,90,10
+36,Hemşire,Ön Lisans,4,645,,1700,88,9-3,90,10
+37,Hemşire,Ön Lisans,5,660,1400,1700,88,8-1,90,10
+38,Hemşire,Ön Lisans,6,675,1400,1700,88,8-2,90,10
+39,Hemşire,Ön Lisans,7,690,1400,1700,88,8-3,90,10
+40,Hemşire,Ön Lisans,8,705,1500,1700,88,7-1,95,7
+41,Hemşire,Ön Lisans,9,720,1500,1700,88,7-2,95,7
+42,Hemşire,Ön Lisans,10,740,1500,1700,88,7-3,95,7
+43,Hemşire,Ön Lisans,11,760,1700,1700,88,6-1,95,7
+44,Hemşire,Ön Lisans,12,785,1700,1700,88,6-2,95,7
+45,Hemşire,Ön Lisans,13,810,1700,1700,88,6-3,95,7
+46,Hemşire,Ön Lisans,14,835,1800,1700,88,5-1,95,7
+47,Hemşire,Ön Lisans,15,865,1800,1700,88,5-2,95,7
+48,Hemşire,Ön Lisans,16,895,1800,1700,88,5-3,95,7
+49,Hemşire,Ön Lisans,17,915,2100,1700,90,4-1,105,4
+50,Hemşire,Ön Lisans,18,950,2100,1700,90,4-2,105,4
+51,Hemşire,Ön Lisans,19,985,2100,1700,90,4-3,105,4
+52,Hemşire,Ön Lisans,20,1020,2200,1700,90,3-1,105,4
+53,Hemşire,Ön Lisans,21,1065,2200,1700,90,3-2,105,4
+54,Hemşire,Ön Lisans,22,1110,2200,1700,90,3-3,105,4
+55,Hemşire,Ön Lisans,23,1155,3000,1700,90,2-1,115,2
+56,Hemşire,Ön Lisans,24,1210,3000,1700,90,2-2,115,2
+57,Hemşire,Ön Lisans,25,1265,3000,1700,90,2-3,115,2
+58,Hemşire,Ön Lisans,26,1320,3600,1700,90,1-1,115,2
+59,Hemşire,Ön Lisans,27,1380,3600,1700,90,1-2,115,2
+60,Hemşire,Ön Lisans,28,1440,3600,1700,90,1-3,115,2
+61,Hemşire,Ön Lisans,29,1500,3600,1700,90,1-4,115,2
+62,Hemşire,Ön Lisans,30,1500,3600,1700,90,1-4,115,2
+63,Hemşire,Lise,0,600,,1250,70,12-3,90,12
+64,Hemşire,Lise,1,610,,1250,70,11-1,90,12
+65,Hemşire,Lise,2,620,,1250,70,11-2,90,12
+66,Hemşire,Lise,3,630,,1250,70,11-3,90,12
+67,Hemşire,Lise,4,645,,1250,70,10-1,90,12
+68,Hemşire,Lise,5,660,,1250,70,10-2,90,12
+69,Hemşire,Lise,6,675,,1250,70,10-3,90,12
+70,Hemşire,Lise,7,690,,1250,70,9-1,90,12
+71,Hemşire,Lise,8,705,,1250,70,9-2,90,12
+72,Hemşire,Lise,9,720,,1250,70,9-3,90,12
+73,Hemşire,Lise,10,740,,1250,70,8-1,90,12
+74,Hemşire,Lise,11,760,,1250,70,8-2,90,12
+75,Hemşire,Lise,12,785,,1250,70,8-3,90,12
+76,Hemşire,Lise,13,810,,1250,70,7-1,95,12
+77,Hemşire,Lise,14,835,,1250,70,7-2,95,12
+78,Hemşire,Lise,15,865,,1250,70,7-3,95,12
+79,Hemşire,Lise,16,895,,1250,70,6-1,95,7
+80,Hemşire,Lise,17,915,,1250,70,6-2,95,7
+81,Hemşire,Lise,18,950,,1250,70,6-3,95,7
+82,Hemşire,Lise,19,985,,1250,70,5-1,95,7
+83,Hemşire,Lise,20,1020,,1250,70,5-2,95,7
+84,Hemşire,Lise,21,1065,,1250,70,5-3,95,7
+85,Hemşire,Lise,22,1110,1250,1250,72,4-1,95,7
+86,Hemşire,Lise,23,1155,1250,1250,72,4-2,95,7
+87,Hemşire,Lise,24,1210,1250,1250,72,4-3,95,7
+88,Hemşire,Lise,25,1265,1400,1250,72,3-1,105,4
+89,Hemşire,Lise,26,1320,1400,1250,72,3-2,105,4
+90,Hemşire,Lise,27,1380,1400,1250,72,3-3,105,4
+91,Hemşire,Lise,28,1440,1700,1250,72,2-1,105,4
+92,Hemşire,Lise,29,1500,1700,1250,72,2-2,105,4
+93,Hemşire,Lise,30,1500,1700,1250,72,2-3,105,4
+94,Hemşire,Lise,31,1500,2200,1250,72,1-1,105,4
+95,Hemşire,Lise,32,1500,2200,1250,72,1-2,105,4
+96,Hemşire,Lise,33,1500,2200,1250,72,1-3,105,4
+97,Hemşire,Lise,34,1500,2200,1250,72,1-4,105,4
+98,Diğer Sağlık Personeli,Lisans,0,660,1400,1700,94,8-1,90,8
+99,Diğer Sağlık Personeli,Lisans,1,675,1400,1700,94,8-2,90,8
+100,Diğer Sağlık Personeli,Lisans,2,690,1400,1700,94,8-3,90,8
+101,Diğer Sağlık Personeli,Lisans,3,705,1500,1700,94,7-1,90,8
+102,Diğer Sağlık Personeli,Lisans,4,720,1500,1700,94,7-2,90,8
+103,Diğer Sağlık Personeli,Lisans,5,740,1500,1700,94,7-3,90,8
+104,Diğer Sağlık Personeli,Lisans,6,760,1700,1700,94,6-1,95,7
+105,Diğer Sağlık Personeli,Lisans,7,785,1700,1700,94,6-2,95,7
+106,Diğer Sağlık Personeli,Lisans,8,810,1700,1700,94,6-3,95,7
+107,Diğer Sağlık Personeli,Lisans,9,835,1800,1700,94,5-1,95,7
+108,Diğer Sağlık Personeli,Lisans,10,865,1800,1700,94,5-2,95,7
+109,Diğer Sağlık Personeli,Lisans,11,895,1800,1700,94,5-3,95,7
+110,Diğer Sağlık Personeli,Lisans,12,915,2100,1700,97,4-1,95,7
+111,Diğer Sağlık Personeli,Lisans,13,950,2100,1700,97,4-2,95,7
+112,Diğer Sağlık Personeli,Lisans,14,985,2100,1700,97,4-3,95,7
+113,Diğer Sağlık Personeli,Lisans,15,1020,2200,1700,97,3-1,105,4
+114,Diğer Sağlık Personeli,Lisans,16,1065,2200,1700,97,3-2,105,4
+115,Diğer Sağlık Personeli,Lisans,17,1110,2200,1700,97,3-3,105,4
+116,Diğer Sağlık Personeli,Lisans,18,1155,3000,1700,97,2-1,105,4
+117,Diğer Sağlık Personeli,Lisans,19,1210,3000,1700,97,2-2,105,4
+118,Diğer Sağlık Personeli,Lisans,20,1265,3000,1700,97,2-3,105,4
+119,Diğer Sağlık Personeli,Lisans,21,1320,3600,1700,97,1-1,115,2
+120,Diğer Sağlık Personeli,Lisans,22,1380,3600,1700,97,1-2,115,2
+121,Diğer Sağlık Personeli,Lisans,23,1440,3600,1700,97,1-3,115,2
+122,Diğer Sağlık Personeli,Lisans,24,1500,3600,1700,97,1-4,115,2
+123,Diğer Sağlık Personeli,Lisans,25,1500,3600,1700,97,1-4,115,2
+124,Diğer Sağlık Personeli,Lisans,26,1500,3600,1700,97,1-4,115,2
+125,Diğer Sağlık Personeli,Lisans,27,1500,3600,1700,97,1-4,115,2
+126,Diğer Sağlık Personeli,Lisans,28,1500,3600,1700,97,1-4,115,2
+127,Diğer Sağlık Personeli,Lisans,29,1500,3600,1700,97,1-4,115,2
+128,Diğer Sağlık Personeli,Lisans,30,1500,3600,1700,97,1-4,115,2
+129,Diğer Sağlık Personeli,Ön Lisans,0,600,,1700,88,10-2,90,10
+130,Diğer Sağlık Personeli,Ön Lisans,1,610,,1700,88,10-3,90,10
+131,Diğer Sağlık Personeli,Ön Lisans,2,620,,1700,88,9-1,90,10
+132,Diğer Sağlık Personeli,Ön Lisans,3,630,,1700,88,9-2,90,10
+133,Diğer Sağlık Personeli,Ön Lisans,4,645,,1700,88,9-3,90,10
+134,Diğer Sağlık Personeli,Ön Lisans,5,660,1400,1700,88,8-1,90,10
+135,Diğer Sağlık Personeli,Ön Lisans,6,675,1400,1700,88,8-2,90,10
+136,Diğer Sağlık Personeli,Ön Lisans,7,690,1400,1700,88,8-3,90,10
+137,Diğer Sağlık Personeli,Ön Lisans,8,705,1500,1700,88,7-1,95,7
+138,Diğer Sağlık Personeli,Ön Lisans,9,720,1500,1700,88,7-2,95,7
+139,Diğer Sağlık Personeli,Ön Lisans,10,740,1500,1700,88,7-3,95,7
+140,Diğer Sağlık Personeli,Ön Lisans,11,760,1700,1700,88,6-1,95,7
+141,Diğer Sağlık Personeli,Ön Lisans,12,785,1700,1700,88,6-2,95,7
+142,Diğer Sağlık Personeli,Ön Lisans,13,810,1700,1700,88,6-3,95,7
+143,Diğer Sağlık Personeli,Ön Lisans,14,835,1800,1700,88,5-1,95,7
+144,Diğer Sağlık Personeli,Ön Lisans,15,865,1800,1700,88,5-2,95,7
+145,Diğer Sağlık Personeli,Ön Lisans,16,895,1800,1700,88,5-3,95,7
+146,Diğer Sağlık Personeli,Ön Lisans,17,915,2100,1700,90,4-1,105,4
+147,Diğer Sağlık Personeli,Ön Lisans,18,950,2100,1700,90,4-2,105,4
+148,Diğer Sağlık Personeli,Ön Lisans,19,985,2100,1700,90,4-3,105,4
+149,Diğer Sağlık Personeli,Ön Lisans,20,1020,2200,1700,90,3-1,105,4
+150,Diğer Sağlık Personeli,Ön Lisans,21,1065,2200,1700,90,3-2,105,4
+151,Diğer Sağlık Personeli,Ön Lisans,22,1110,2200,1700,90,3-3,105,4
+152,Diğer Sağlık Personeli,Ön Lisans,23,1155,3000,1700,90,2-1,115,2
+153,Diğer Sağlık Personeli,Ön Lisans,24,1210,3000,1700,90,2-2,115,2
+154,Diğer Sağlık Personeli,Ön Lisans,25,1265,3000,1700,90,2-3,115,2
+155,Diğer Sağlık Personeli,Ön Lisans,26,1320,3600,1700,90,1-1,115,2
+156,Diğer Sağlık Personeli,Ön Lisans,27,1380,3600,1700,90,1-2,115,2
+157,Diğer Sağlık Personeli,Ön Lisans,28,1440,3600,1700,90,1-3,115,2
+158,Diğer Sağlık Personeli,Ön Lisans,29,1500,3600,1700,90,1-4,115,2
+159,Diğer Sağlık Personeli,Ön Lisans,30,1500,3600,1700,90,1-4,115,2
+160,Diğer Sağlık Personeli,Lise,0,600,,1250,70,12-3,90,12
+161,Diğer Sağlık Personeli,Lise,1,610,,1250,70,11-1,90,12
+162,Diğer Sağlık Personeli,Lise,2,620,,1250,70,11-2,90,12
+163,Diğer Sağlık Personeli,Lise,3,630,,1250,70,11-3,90,12
+164,Diğer Sağlık Personeli,Lise,4,645,,1250,70,10-1,90,12
+165,Diğer Sağlık Personeli,Lise,5,660,,1250,70,10-2,90,12
+166,Diğer Sağlık Personeli,Lise,6,675,,1250,70,10-3,90,12
+167,Diğer Sağlık Personeli,Lise,7,690,,1250,70,9-1,90,12
+168,Diğer Sağlık Personeli,Lise,8,705,,1250,70,9-2,90,12
+169,Diğer Sağlık Personeli,Lise,9,720,,1250,70,9-3,90,12
+170,Diğer Sağlık Personeli,Lise,10,740,,1250,70,8-1,90,12
+171,Diğer Sağlık Personeli,Lise,11,760,,1250,70,8-2,90,12
+172,Diğer Sağlık Personeli,Lise,12,785,,1250,70,8-3,90,12
+173,Diğer Sağlık Personeli,Lise,13,810,,1250,70,7-1,90,12
+174,Diğer Sağlık Personeli,Lise,14,835,,1250,70,7-2,90,12
+175,Diğer Sağlık Personeli,Lise,15,865,,1250,70,7-3,90,12
+176,Diğer Sağlık Personeli,Lise,16,895,,1250,70,6-1,95,7
+177,Diğer Sağlık Personeli,Lise,17,915,,1250,70,6-2,95,7
+178,Diğer Sağlık Personeli,Lise,18,950,,1250,70,6-3,95,7
+179,Diğer Sağlık Personeli,Lise,19,985,,1250,70,5-1,95,7
+180,Diğer Sağlık Personeli,Lise,20,1020,,1250,70,5-2,95,7
+181,Diğer Sağlık Personeli,Lise,21,1065,,1250,70,5-3,95,7
+182,Diğer Sağlık Personeli,Lise,22,1110,1250,1250,72,4-1,95,7
+183,Diğer Sağlık Personeli,Lise,23,1155,1250,1250,72,4-2,95,7
+184,Diğer Sağlık Personeli,Lise,24,1210,1250,1250,72,4-3,95,7
+185,Diğer Sağlık Personeli,Lise,25,1265,1400,1250,72,3-1,105,4
+186,Diğer Sağlık Personeli,Lise,26,1320,1400,1250,72,3-2,105,4
+187,Diğer Sağlık Personeli,Lise,27,1380,1400,1250,72,3-3,105,4
+188,Diğer Sağlık Personeli,Lise,28,1440,1700,1250,72,2-1,105,4
+189,Diğer Sağlık Personeli,Lise,29,1500,1700,1250,72,2-2,105,4
+190,Diğer Sağlık Personeli,Lise,30,1500,1700,1250,72,2-3,105,4
+191,Diğer Sağlık Personeli,Lise,31,1500,2200,1250,72,1-1,105,4
+192,Diğer Sağlık Personeli,Lise,32,1500,2200,1250,72,1-2,105,4
+193,Diğer Sağlık Personeli,Lise,33,1500,2200,1250,72,1-3,105,4
+194,Diğer Sağlık Personeli,Lise,34,1500,2200,1250,72,1-4,105,4
+195,Ebe,Lisans,0,660,1400,1700,94,8-1,90,8
+196,Ebe,Lisans,1,675,1400,1700,94,8-2,90,8
+197,Ebe,Lisans,2,690,1400,1700,94,8-3,90,8
+198,Ebe,Lisans,3,705,1500,1700,94,7-1,90,8
+199,Ebe,Lisans,4,720,1500,1700,94,7-2,90,8
+200,Ebe,Lisans,5,740,1500,1700,94,7-3,90,8
+201,Ebe,Lisans,6,760,1700,1700,94,6-1,95,7
+202,Ebe,Lisans,7,785,1700,1700,94,6-2,95,7
+203,Ebe,Lisans,8,810,1700,1700,94,6-3,95,7
+204,Ebe,Lisans,9,835,1800,1700,94,5-1,95,7
+205,Ebe,Lisans,10,865,1800,1700,94,5-2,95,7
+206,Ebe,Lisans,11,895,1800,1700,94,5-3,95,7
+207,Ebe,Lisans,12,915,2100,1700,97,4-1,95,7
+208,Ebe,Lisans,13,950,2100,1700,97,4-2,95,7
+209,Ebe,Lisans,14,985,2100,1700,97,4-3,95,7
+210,Ebe,Lisans,15,1020,2200,1700,97,3-1,105,4
+211,Ebe,Lisans,16,1065,2200,1700,97,3-2,105,4
+212,Ebe,Lisans,17,1110,2200,1700,97,3-3,105,4
+213,Ebe,Lisans,18,1155,3000,1700,97,2-1,105,4
+214,Ebe,Lisans,19,1210,3000,1700,97,2-2,105,4
+215,Ebe,Lisans,20,1265,3000,1700,97,2-3,105,4
+216,Ebe,Lisans,21,1320,3600,1700,97,1-1,115,2
+217,Ebe,Lisans,22,1380,3600,1700,97,1-2,115,2
+218,Ebe,Lisans,23,1440,3600,1700,97,1-3,115,2
+219,Ebe,Lisans,24,1500,3600,1700,97,1-4,115,2
+220,Ebe,Lisans,25,1500,3600,1700,97,1-4,115,2
+221,Ebe,Lisans,26,1500,3600,1700,97,1-4,115,2
+222,Ebe,Lisans,27,1500,3600,1700,97,1-4,115,2
+223,Ebe,Lisans,28,1500,3600,1700,97,1-4,115,2
+224,Ebe,Lisans,29,1500,3600,1700,97,1-4,115,2
+225,Ebe,Lisans,30,1500,3600,1700,97,1-4,115,2
+226,Ebe,Ön Lisans,0,600,,1700,88,10-2,90,10
+227,Ebe,Ön Lisans,1,610,,1700,88,10-3,90,10
+228,Ebe,Ön Lisans,2,620,,1700,88,9-1,90,10
+229,Ebe,Ön Lisans,3,630,,1700,88,9-2,90,10
+230,Ebe,Ön Lisans,4,645,,1700,88,9-3,90,10
+231,Ebe,Ön Lisans,5,660,1400,1700,88,8-1,90,10
+232,Ebe,Ön Lisans,6,675,1400,1700,88,8-2,90,10
+233,Ebe,Ön Lisans,7,690,1400,1700,88,8-3,90,10
+234,Ebe,Ön Lisans,8,705,1500,1700,88,7-1,95,7
+235,Ebe,Ön Lisans,9,720,1500,1700,88,7-2,95,7
+236,Ebe,Ön Lisans,10,740,1500,1700,88,7-3,95,7
+237,Ebe,Ön Lisans,11,760,1700,1700,88,6-1,95,7
+238,Ebe,Ön Lisans,12,785,1700,1700,88,6-2,95,7
+239,Ebe,Ön Lisans,13,810,1700,1700,88,6-3,95,7
+240,Ebe,Ön Lisans,14,835,1800,1700,88,5-1,95,7
+241,Ebe,Ön Lisans,15,865,1800,1700,88,5-2,95,7
+242,Ebe,Ön Lisans,16,895,1800,1700,88,5-3,95,7
+243,Ebe,Ön Lisans,17,915,2100,1700,90,4-1,105,4
+244,Ebe,Ön Lisans,18,950,2100,1700,90,4-2,105,4
+245,Ebe,Ön Lisans,19,985,2100,1700,90,4-3,105,4
+246,Ebe,Ön Lisans,20,1020,2200,1700,90,3-1,105,4
+247,Ebe,Ön Lisans,21,1065,2200,1700,90,3-2,105,4
+248,Ebe,Ön Lisans,22,1110,2200,1700,90,3-3,105,4
+249,Ebe,Ön Lisans,23,1155,3000,1700,90,2-1,115,2
+250,Ebe,Ön Lisans,24,1210,3000,1700,90,2-2,115,2
+251,Ebe,Ön Lisans,25,1265,3000,1700,90,2-3,115,2
+252,Ebe,Ön Lisans,26,1320,3600,1700,90,1-1,115,2
+253,Ebe,Ön Lisans,27,1380,3600,1700,90,1-2,115,2
+254,Ebe,Ön Lisans,28,1440,3600,1700,90,1-3,115,2
+255,Ebe,Ön Lisans,29,1500,3600,1700,90,1-4,115,2
+256,Ebe,Ön Lisans,30,1500,3600,1700,90,1-4,115,2
+257,Ebe,Lise,0,600,,1250,70,12-3,90,12
+258,Ebe,Lise,1,610,,1250,70,11-1,90,12
+259,Ebe,Lise,2,620,,1250,70,11-2,90,12
+260,Ebe,Lise,3,630,,1250,70,11-3,90,12
+261,Ebe,Lise,4,645,,1250,70,10-1,90,12
+262,Ebe,Lise,5,660,,1250,70,10-2,90,12
+263,Ebe,Lise,6,675,,1250,70,10-3,90,12
+264,Ebe,Lise,7,690,,1250,70,9-1,90,12
+265,Ebe,Lise,8,705,,1250,70,9-2,90,12
+266,Ebe,Lise,9,720,,1250,70,9-3,90,12
+267,Ebe,Lise,10,740,,1250,70,8-1,90,12
+268,Ebe,Lise,11,760,,1250,70,8-2,90,12
+269,Ebe,Lise,12,785,,1250,70,8-3,90,12
+270,Ebe,Lise,13,810,,1250,70,7-1,90,12
+271,Ebe,Lise,14,835,,1250,70,7-2,90,12
+272,Ebe,Lise,15,865,,1250,70,7-3,90,12
+273,Ebe,Lise,16,895,,1250,70,6-1,95,7
+274,Ebe,Lise,17,915,,1250,70,6-2,95,7
+275,Ebe,Lise,18,950,,1250,70,6-3,95,7
+276,Ebe,Lise,19,985,,1250,70,5-1,95,7
+277,Ebe,Lise,20,1020,,1250,70,5-2,95,7
+278,Ebe,Lise,21,1065,,1250,70,5-3,95,7
+279,Ebe,Lise,22,1110,1250,1250,72,4-1,95,7
+280,Ebe,Lise,23,1155,1250,1250,72,4-2,95,7
+281,Ebe,Lise,24,1210,1250,1250,72,4-3,95,7
+282,Ebe,Lise,25,1265,1400,1250,72,3-1,105,4
+283,Ebe,Lise,26,1320,1400,1250,72,3-2,105,4
+284,Ebe,Lise,27,1380,1400,1250,72,3-3,105,4
+285,Ebe,Lise,28,1440,1700,1250,72,2-1,105,4
+286,Ebe,Lise,29,1500,1700,1250,72,2-2,105,4
+287,Ebe,Lise,30,1500,1700,1250,72,2-3,105,4
+288,Ebe,Lise,31,1500,2200,1250,72,1-1,105,4
+289,Ebe,Lise,32,1500,2200,1250,72,1-2,105,4
+290,Ebe,Lise,33,1500,2200,1250,72,1-3,105,4
+291,Ebe,Lise,34,1500,2200,1250,72,1-4,105,4
+292,Laborant,Lisans,0,660,1400,1700,94,8-1,90,8
+293,Laborant,Lisans,1,675,1400,1700,94,8-2,90,8
+294,Laborant,Lisans,2,690,1400,1700,94,8-3,90,8
+295,Laborant,Lisans,3,705,1500,1700,94,7-1,90,8
+296,Laborant,Lisans,4,720,1500,1700,94,7-2,90,8
+297,Laborant,Lisans,5,740,1500,1700,94,7-3,90,8
+298,Laborant,Lisans,6,760,1700,1700,94,6-1,95,7
+299,Laborant,Lisans,7,785,1700,1700,94,6-2,95,7
+300,Laborant,Lisans,8,810,1700,1700,94,6-3,95,7
+301,Laborant,Lisans,9,835,1800,1700,94,5-1,95,7
+302,Laborant,Lisans,10,865,1800,1700,94,5-2,95,7
+303,Laborant,Lisans,11,895,1800,1700,94,5-3,95,7
+304,Laborant,Lisans,12,915,2100,1700,97,4-1,95,7
+305,Laborant,Lisans,13,950,2100,1700,97,4-2,95,7
+306,Laborant,Lisans,14,985,2100,1700,97,4-3,95,7
+307,Laborant,Lisans,15,1020,2200,1700,97,3-1,105,4
+308,Laborant,Lisans,16,1065,2200,1700,97,3-2,105,4
+309,Laborant,Lisans,17,1110,2200,1700,97,3-3,105,4
+310,Laborant,Lisans,18,1155,3000,1700,97,2-1,105,4
+311,Laborant,Lisans,19,1210,3000,1700,97,2-2,105,4
+312,Laborant,Lisans,20,1265,3000,1700,97,2-3,105,4
+313,Laborant,Lisans,21,1320,3600,1700,97,1-1,115,2
+314,Laborant,Lisans,22,1380,3600,1700,97,1-2,115,2
+315,Laborant,Lisans,23,1440,3600,1700,97,1-3,115,2
+316,Laborant,Lisans,24,1500,3600,1700,97,1-4,115,2
+317,Laborant,Lisans,25,1500,3600,1700,97,1-4,115,2
+318,Laborant,Lisans,26,1500,3600,1700,97,1-4,115,2
+319,Laborant,Lisans,27,1500,3600,1700,97,1-4,115,2
+320,Laborant,Lisans,28,1500,3600,1700,97,1-4,115,2
+321,Laborant,Lisans,29,1500,3600,1700,97,1-4,115,2
+322,Laborant,Lisans,30,1500,3600,1700,97,1-4,115,2
+323,Laborant,Ön Lisans,0,600,,1700,88,10-2,90,10
+324,Laborant,Ön Lisans,1,610,,1700,88,10-3,90,10
+325,Laborant,Ön Lisans,2,620,,1700,88,9-1,90,10
+326,Laborant,Ön Lisans,3,630,,1700,88,9-2,90,10
+327,Laborant,Ön Lisans,4,645,,1700,88,9-3,90,10
+328,Laborant,Ön Lisans,5,660,1400,1700,88,8-1,90,10
+329,Laborant,Ön Lisans,6,675,1400,1700,88,8-2,90,10
+330,Laborant,Ön Lisans,7,690,1400,1700,88,8-3,90,10
+331,Laborant,Ön Lisans,8,705,1500,1700,88,7-1,95,7
+332,Laborant,Ön Lisans,9,720,1500,1700,88,7-2,95,7
+333,Laborant,Ön Lisans,10,740,1500,1700,88,7-3,95,7
+334,Laborant,Ön Lisans,11,760,1700,1700,88,6-1,95,7
+335,Laborant,Ön Lisans,12,785,1700,1700,88,6-2,95,7
+336,Laborant,Ön Lisans,13,810,1700,1700,88,6-3,95,7
+337,Laborant,Ön Lisans,14,835,1800,1700,88,5-1,95,7
+338,Laborant,Ön Lisans,15,865,1800,1700,88,5-2,95,7
+339,Laborant,Ön Lisans,16,895,1800,1700,88,5-3,95,7
+340,Laborant,Ön Lisans,17,915,2100,1700,90,4-1,105,4
+341,Laborant,Ön Lisans,18,950,2100,1700,90,4-2,105,4
+342,Laborant,Ön Lisans,19,985,2100,1700,90,4-3,105,4
+343,Laborant,Ön Lisans,20,1020,2200,1700,90,3-1,105,4
+344,Laborant,Ön Lisans,21,1065,2200,1700,90,3-2,105,4
+345,Laborant,Ön Lisans,22,1110,2200,1700,90,3-3,105,4
+346,Laborant,Ön Lisans,23,1155,3000,1700,90,2-1,115,2
+347,Laborant,Ön Lisans,24,1210,3000,1700,90,2-2,115,2
+348,Laborant,Ön Lisans,25,1265,3000,1700,90,2-3,115,2
+349,Laborant,Ön Lisans,26,1320,3600,1700,90,1-1,115,2
+350,Laborant,Ön Lisans,27,1380,3600,1700,90,1-2,115,2
+351,Laborant,Ön Lisans,28,1440,3600,1700,90,1-3,115,2
+352,Laborant,Ön Lisans,29,1500,3600,1700,90,1-4,115,2
+353,Laborant,Ön Lisans,30,1500,3600,1700,90,1-4,115,2
+389,Fizyoterapist,Lisans,0,660,1400,1700,94,8-1,90,8
+390,Fizyoterapist,Lisans,1,675,1400,1700,94,8-2,90,8
+391,Fizyoterapist,Lisans,2,690,1400,1700,94,8-3,90,8
+392,Fizyoterapist,Lisans,3,705,1500,1700,94,7-1,95,7
+393,Fizyoterapist,Lisans,4,720,1500,1700,94,7-2,95,7
+394,Fizyoterapist,Lisans,5,740,1500,1700,94,7-3,95,7
+395,Fizyoterapist,Lisans,6,760,1700,1700,94,6-1,95,7
+396,Fizyoterapist,Lisans,7,785,1700,1700,94,6-2,95,7
+397,Fizyoterapist,Lisans,8,810,1700,1700,94,6-3,95,7
+398,Fizyoterapist,Lisans,9,835,1800,1700,94,5-1,95,7
+399,Fizyoterapist,Lisans,10,865,1800,1700,94,5-2,95,7
+400,Fizyoterapist,Lisans,11,895,1800,1700,94,5-3,95,7
+401,Fizyoterapist,Lisans,12,915,2100,1700,97,4-1,105,4
+402,Fizyoterapist,Lisans,13,950,2100,1700,97,4-2,105,4
+403,Fizyoterapist,Lisans,14,985,2100,1700,97,4-3,105,4
+404,Fizyoterapist,Lisans,15,1020,2200,1700,97,3-1,105,4
+405,Fizyoterapist,Lisans,16,1065,2200,1700,97,3-2,105,4
+406,Fizyoterapist,Lisans,17,1110,2200,1700,97,3-3,105,4
+407,Fizyoterapist,Lisans,18,1155,3000,1700,97,2-1,115,2
+408,Fizyoterapist,Lisans,19,1210,3000,1700,97,2-2,115,2
+409,Fizyoterapist,Lisans,20,1265,3000,1700,97,2-3,115,2
+410,Fizyoterapist,Lisans,21,1320,3600,1700,97,1-1,115,2
+411,Fizyoterapist,Lisans,22,1380,3600,1700,97,1-2,115,2
+412,Fizyoterapist,Lisans,23,1440,3600,1700,97,1-3,115,2
+413,Fizyoterapist,Lisans,24,1500,3600,1700,97,1-4,115,2
+414,Fizyoterapist,Lisans,25,1500,3600,1700,97,1-4,115,2
+415,Fizyoterapist,Lisans,26,1500,3600,1700,97,1-4,115,2
+416,Fizyoterapist,Lisans,27,1500,3600,1700,97,1-4,115,2
+417,Fizyoterapist,Lisans,28,1500,3600,1700,97,1-4,115,2
+418,Fizyoterapist,Lisans,29,1500,3600,1700,97,1-4,115,2
+419,Fizyoterapist,Lisans,30,1500,3600,1700,97,1-4,115,2
+420,Biyolog,Lisans,0,660,1450,1700,94,8-1,90,8
+421,Biyolog,Lisans,1,675,1450,1700,94,8-2,90,8
+422,Biyolog,Lisans,2,690,1450,1700,94,8-3,90,8
+423,Biyolog,Lisans,3,705,1550,1700,94,7-1,95,7
+424,Biyolog,Lisans,4,720,1550,1700,94,7-2,95,7
+425,Biyolog,Lisans,5,740,1550,1700,94,7-3,95,7
+426,Biyolog,Lisans,6,760,1750,1700,94,6-1,95,7
+427,Biyolog,Lisans,7,785,1750,1700,94,6-2,95,7
+428,Biyolog,Lisans,8,810,1750,1700,94,6-3,95,7
+429,Biyolog,Lisans,9,835,1900,1700,94,5-1,95,7
+430,Biyolog,Lisans,10,865,1900,1700,94,5-2,95,7
+431,Biyolog,Lisans,11,895,1900,1700,94,5-3,95,7
+432,Biyolog,Lisans,12,915,2200,1700,97,4-1,105,4
+433,Biyolog,Lisans,13,950,2200,1700,97,4-2,105,4
+434,Biyolog,Lisans,14,985,2200,1700,97,4-3,105,4
+435,Biyolog,Lisans,15,1020,2800,1700,97,3-1,105,4
+436,Biyolog,Lisans,16,1065,2800,1700,97,3-2,105,4
+437,Biyolog,Lisans,17,1110,2800,1700,97,3-3,105,4
+438,Biyolog,Lisans,18,1155,3600,1700,97,2-1,115,2
+439,Biyolog,Lisans,19,1210,3600,1700,97,2-2,115,2
+440,Biyolog,Lisans,20,1265,3600,1700,97,2-3,115,2
+441,Biyolog,Lisans,21,1320,4200,1700,97,1-1,115,2
+442,Biyolog,Lisans,22,1380,4200,1700,97,1-2,115,2
+443,Biyolog,Lisans,23,1440,4200,1700,97,1-3,115,2
+444,Biyolog,Lisans,24,1500,4200,1700,97,1-4,115,2
+445,Biyolog,Lisans,25,1500,4200,1700,97,1-4,115,2
+446,Biyolog,Lisans,26,1500,4200,1700,97,1-4,115,2
+447,Biyolog,Lisans,27,1500,4200,1700,97,1-4,115,2
+448,Biyolog,Lisans,28,1500,4200,1700,97,1-4,115,2
+449,Biyolog,Lisans,29,1500,4200,1700,97,1-4,115,2
+450,Biyolog,Lisans,30,1500,4200,1700,97,1-4,115,2
+451,Eczacı,Lisans,0,660,1450,1700,106,8-1,120,8
+452,Eczacı,Lisans,1,675,1450,1700,106,8-2,120,8
+453,Eczacı,Lisans,2,690,1450,1700,106,8-3,120,8
+454,Eczacı,Lisans,3,705,1550,1700,106,7-1,120,8
+455,Eczacı,Lisans,4,720,1550,1700,106,7-2,120,8
+456,Eczacı,Lisans,5,740,1550,1700,106,7-3,120,8
+457,Eczacı,Lisans,6,760,1750,1700,106,6-1,120,8
+458,Eczacı,Lisans,7,785,1750,1700,106,6-2,120,8
+459,Eczacı,Lisans,8,810,1750,1700,106,6-3,120,8
+460,Eczacı,Lisans,9,835,1900,1700,106,5-1,120,8
+461,Eczacı,Lisans,10,865,1900,1700,106,5-2,120,8
+462,Eczacı,Lisans,11,895,1900,1700,106,5-3,130,7
+463,Eczacı,Lisans,12,915,2200,1700,110,4-1,130,7
+464,Eczacı,Lisans,13,950,2200,1700,110,4-2,130,7
+465,Eczacı,Lisans,14,985,2200,1700,110,4-3,130,7
+466,Eczacı,Lisans,15,1020,2800,1700,110,3-1,130,7
+467,Eczacı,Lisans,16,1065,2800,1700,110,3-2,130,7
+468,Eczacı,Lisans,17,1110,2800,1700,110,3-3,140,4
+469,Eczacı,Lisans,18,1155,3600,1700,110,2-1,140,4
+470,Eczacı,Lisans,19,1210,3600,1700,110,2-2,140,4
+471,Eczacı,Lisans,20,1265,3600,1700,110,2-3,140,4
+472,Eczacı,Lisans,21,1320,4200,1700,110,1-1,140,4
+473,Eczacı,Lisans,22,1380,4200,1700,110,1-2,140,4
+474,Eczacı,Lisans,23,1440,4200,1700,110,1-3,140,4
+475,Eczacı,Lisans,24,1500,4200,1700,110,1-4,140,4
+476,Eczacı,Lisans,25,1500,4200,1700,110,1-4,140,4
+477,Eczacı,Lisans,26,1500,4200,1700,110,1-4,140,4
+478,Eczacı,Lisans,27,1500,4200,1700,110,1-4,140,4
+479,Eczacı,Lisans,28,1500,4200,1700,110,1-4,140,4
+480,Eczacı,Lisans,29,1500,4200,1700,110,1-4,140,4
+481,Eczacı,Lisans,30,1500,4200,1700,110,1-4,140,4
+486,Büro Personeli,Lise,4,645,,500,48,10-1,85,12
+487,Büro Personeli,Lise,5,660,,500,48,10-2,85,12
+517,Büro Personeli,Ön Lisans,0,600,,500,48,10-2,85,10
+488,Büro Personeli,Lise,6,675,,500,48,10-3,85,12
+518,Büro Personeli,Ön Lisans,1,610,,500,48,10-3,85,10
+513,Büro Personeli,Lise,31,1500,2200,500,49,1-1,100,4
+543,Büro Personeli,Ön Lisans,26,1320,2800,500,49,1-1,110,2
+572,Büro Personeli,Lisans,24,1320,2800,500,49,1-1,110,2
+483,Büro Personeli,Lise,1,610,,500,48,11-1,85,12
+484,Büro Personeli,Lise,2,620,,500,48,11-2,85,12
+485,Büro Personeli,Lise,3,630,,500,48,11-3,85,12
+514,Büro Personeli,Lise,32,1500,2200,500,49,1-2,100,4
+544,Büro Personeli,Ön Lisans,27,1380,2800,500,49,1-2,110,2
+573,Büro Personeli,Lisans,25,1380,2800,500,49,1-2,110,2
+482,Büro Personeli,Lise,0,600,,500,48,12-3,85,12
+515,Büro Personeli,Lise,33,1500,2200,500,49,1-3,100,4
+545,Büro Personeli,Ön Lisans,28,1440,2800,500,49,1-3,110,2
+574,Büro Personeli,Lisans,26,1440,2800,500,49,1-3,110,2
+516,Büro Personeli,Lise,34,1500,2200,500,49,1-4,100,4
+546,Büro Personeli,Ön Lisans,29,1500,2800,500,49,1-4,110,2
+547,Büro Personeli,Ön Lisans,30,1500,2800,500,49,1-4,110,2
+575,Büro Personeli,Lisans,27,1500,2800,500,49,1-4,110,2
+576,Büro Personeli,Lisans,28,1500,2800,500,49,1-4,110,2
+577,Büro Personeli,Lisans,29,1500,2800,500,49,1-4,110,2
+578,Büro Personeli,Lisans,30,1500,2800,500,49,1-4,110,2
+579,Büro Personeli,Lisans,31,1500,2800,500,49,1-4,110,2
+580,Büro Personeli,Lisans,32,1500,2800,500,49,1-4,110,2
+581,Büro Personeli,Lisans,33,1500,2800,500,49,1-4,110,2
+510,Büro Personeli,Lise,28,1440,1700,500,49,2-1,100,4
+540,Büro Personeli,Ön Lisans,23,1155,2200,500,49,2-1,110,2
+569,Büro Personeli,Lisans,21,1155,2200,500,49,2-1,100,4
+511,Büro Personeli,Lise,29,1500,1700,500,49,2-2,100,4
+541,Büro Personeli,Ön Lisans,24,1210,2200,500,49,2-2,110,2
+570,Büro Personeli,Lisans,22,1210,2200,500,49,2-2,100,4
+512,Büro Personeli,Lise,30,1500,1700,500,49,2-3,100,4
+542,Büro Personeli,Ön Lisans,25,1265,2200,500,49,2-3,110,2
+571,Büro Personeli,Lisans,23,1265,2200,500,49,2-3,110,2
+507,Büro Personeli,Lise,25,1265,1400,500,49,3-1,100,4
+537,Büro Personeli,Ön Lisans,20,1020,1700,500,49,3-1,100,4
+566,Büro Personeli,Lisans,18,1020,1700,500,49,3-1,100,4
+508,Büro Personeli,Lise,26,1320,1400,500,49,3-2,100,4
+538,Büro Personeli,Ön Lisans,21,1065,1700,500,49,3-2,100,4
+567,Büro Personeli,Lisans,19,1065,1700,500,49,3-2,100,4
+509,Büro Personeli,Lise,27,1380,1400,500,49,3-3,100,4
+539,Büro Personeli,Ön Lisans,22,1110,1700,500,49,3-3,100,4
+568,Büro Personeli,Lisans,20,1110,1700,500,49,3-3,100,4
+504,Büro Personeli,Lise,22,1110,1250,500,49,4-1,90,7
+534,Büro Personeli,Ön Lisans,17,915,1400,500,49,4-1,100,4
+563,Büro Personeli,Lisans,15,915,1400,500,49,4-1,90,7
+505,Büro Personeli,Lise,23,1155,1250,500,49,4-2,90,7
+535,Büro Personeli,Ön Lisans,18,950,1400,500,49,4-2,100,4
+564,Büro Personeli,Lisans,16,950,1400,500,49,4-2,90,7
+506,Büro Personeli,Lise,24,1210,1250,500,49,4-3,90,7
+536,Büro Personeli,Ön Lisans,19,985,1400,500,49,4-3,100,4
+565,Büro Personeli,Lisans,17,985,1400,500,49,4-3,100,4
+501,Büro Personeli,Lise,19,985,,500,48,5-1,90,7
+531,Büro Personeli,Ön Lisans,14,835,,500,48,5-1,90,7
+560,Büro Personeli,Lisans,12,835,,500,48,5-1,90,7
+502,Büro Personeli,Lise,20,1020,,500,48,5-2,90,7
+532,Büro Personeli,Ön Lisans,15,865,,500,48,5-2,90,7
+561,Büro Personeli,Lisans,13,865,,500,48,5-2,90,7
+503,Büro Personeli,Lise,21,1065,,500,48,5-3,90,7
+533,Büro Personeli,Ön Lisans,16,895,,500,48,5-3,90,7
+562,Büro Personeli,Lisans,14,895,,500,48,5-3,90,7
+498,Büro Personeli,Lise,16,895,,500,48,6-1,90,7
+528,Büro Personeli,Ön Lisans,11,760,,500,48,6-1,90,7
+557,Büro Personeli,Lisans,9,760,,500,48,6-1,90,7
+499,Büro Personeli,Lise,17,915,,500,48,6-2,90,7
+529,Büro Personeli,Ön Lisans,12,785,,500,48,6-2,90,7
+558,Büro Personeli,Lisans,10,785,,500,48,6-2,90,7
+500,Büro Personeli,Lise,18,950,,500,48,6-3,90,7
+530,Büro Personeli,Ön Lisans,13,810,,500,48,6-3,90,7
+559,Büro Personeli,Lisans,11,810,,500,48,6-3,90,7
+495,Büro Personeli,Lise,13,810,,500,48,7-1,85,12
+525,Büro Personeli,Ön Lisans,8,705,,500,48,7-1,90,7
+554,Büro Personeli,Lisans,6,705,,500,48,7-1,85,8
+496,Büro Personeli,Lise,14,835,,500,48,7-2,85,12
+526,Büro Personeli,Ön Lisans,9,720,,500,48,7-2,90,7
+555,Büro Personeli,Lisans,7,720,,500,48,7-2,85,8
+497,Büro Personeli,Lise,15,865,,500,48,7-3,85,12
+527,Büro Personeli,Ön Lisans,10,740,,500,48,7-3,90,7
+556,Büro Personeli,Lisans,8,740,,500,48,7-3,90,7
+492,Büro Personeli,Lise,10,740,,500,48,8-1,85,12
+522,Büro Personeli,Ön Lisans,5,660,,500,48,8-1,85,10
+551,Büro Personeli,Lisans,3,660,,500,48,8-1,85,8
+493,Büro Personeli,Lise,11,760,,500,48,8-2,85,12
+523,Büro Personeli,Ön Lisans,6,675,,500,48,8-2,85,10
+552,Büro Personeli,Lisans,4,675,,500,48,8-2,85,8
+494,Büro Personeli,Lise,12,785,,500,48,8-3,85,12
+524,Büro Personeli,Ön Lisans,7,690,,500,48,8-3,85,10
+553,Büro Personeli,Lisans,5,690,,500,48,8-3,85,8
+489,Büro Personeli,Lise,7,690,,500,48,9-1,85,12
+519,Büro Personeli,Ön Lisans,2,620,,500,48,9-1,85,10
+548,Büro Personeli,Lisans,0,620,,500,48,9-1,85,8
+490,Büro Personeli,Lise,8,705,,500,48,9-2,85,12
+520,Büro Personeli,Ön Lisans,3,630,,500,48,9-2,85,10
+549,Büro Personeli,Lisans,1,630,,500,48,9-2,85,8
+491,Büro Personeli,Lise,9,720,,500,48,9-3,85,12
+521,Büro Personeli,Ön Lisans,4,645,,500,48,9-3,85,10
+550,Büro Personeli,Lisans,2,645,,500,48,9-3,85,8
+582,Koruma ve Güvenlik Görevlisi,Lise,0,600,,675,48,12-3,70,12
+583,Koruma ve Güvenlik Görevlisi,Lise,1,610,,675,48,11-1,70,12
+584,Koruma ve Güvenlik Görevlisi,Lise,2,620,,675,48,11-2,70,12
+585,Koruma ve Güvenlik Görevlisi,Lise,3,630,,675,48,11-3,70,12
+586,Koruma ve Güvenlik Görevlisi,Lise,4,645,,675,48,10-1,70,12
+587,Koruma ve Güvenlik Görevlisi,Lise,5,660,,675,48,10-2,70,12
+588,Koruma ve Güvenlik Görevlisi,Lise,6,675,,675,48,10-3,70,12
+589,Koruma ve Güvenlik Görevlisi,Lise,7,690,,675,48,9-1,70,12
+590,Koruma ve Güvenlik Görevlisi,Lise,8,705,,675,48,9-2,70,12
+591,Koruma ve Güvenlik Görevlisi,Lise,9,720,,675,48,9-3,70,12
+592,Koruma ve Güvenlik Görevlisi,Lise,10,740,,675,48,8-1,70,12
+593,Koruma ve Güvenlik Görevlisi,Lise,11,760,,675,48,8-2,70,12
+594,Koruma ve Güvenlik Görevlisi,Lise,12,785,,675,48,8-3,70,12
+595,Koruma ve Güvenlik Görevlisi,Lise,13,810,,675,48,7-1,70,12
+596,Koruma ve Güvenlik Görevlisi,Lise,14,835,,675,48,7-2,70,12
+597,Koruma ve Güvenlik Görevlisi,Lise,15,865,,675,48,7-3,70,12
+598,Koruma ve Güvenlik Görevlisi,Lise,16,895,,675,48,6-1,80,7
+599,Koruma ve Güvenlik Görevlisi,Lise,17,915,,675,48,6-2,80,7
+600,Koruma ve Güvenlik Görevlisi,Lise,18,950,,675,48,6-3,80,7
+601,Koruma ve Güvenlik Görevlisi,Lise,19,985,,675,48,5-1,80,7
+602,Koruma ve Güvenlik Görevlisi,Lise,20,1020,,675,48,5-2,80,7
+603,Koruma ve Güvenlik Görevlisi,Lise,21,1065,,675,48,5-3,80,7
+604,Koruma ve Güvenlik Görevlisi,Lise,22,1110,1250,675,49,4-1,80,7
+605,Koruma ve Güvenlik Görevlisi,Lise,23,1155,1250,675,49,4-2,80,7
+606,Koruma ve Güvenlik Görevlisi,Lise,24,1210,1250,675,49,4-3,80,7
+607,Koruma ve Güvenlik Görevlisi,Lise,25,1265,1400,675,49,3-1,90,4
+608,Koruma ve Güvenlik Görevlisi,Lise,26,1320,1400,675,49,3-2,90,4
+609,Koruma ve Güvenlik Görevlisi,Lise,27,1380,1400,675,49,3-3,90,4
+610,Koruma ve Güvenlik Görevlisi,Lise,28,1440,1700,675,49,2-1,90,4
+611,Koruma ve Güvenlik Görevlisi,Lise,29,1500,1700,675,49,2-2,90,4
+612,Koruma ve Güvenlik Görevlisi,Lise,30,1500,1700,675,49,2-3,90,4
+613,Koruma ve Güvenlik Görevlisi,Lise,31,1500,2200,675,49,1-1,90,4
+614,Koruma ve Güvenlik Görevlisi,Lise,32,1500,2200,675,49,1-2,90,4
+615,Koruma ve Güvenlik Görevlisi,Lise,33,1500,2200,675,49,1-3,90,4
+616,Koruma ve Güvenlik Görevlisi,Lise,34,1500,2200,675,49,1-4,90,4
+617,Koruma ve Güvenlik Görevlisi,Ön Lisans,0,600,,675,48,10-2,70,10
+618,Koruma ve Güvenlik Görevlisi,Ön Lisans,1,610,,675,48,10-3,70,10
+619,Koruma ve Güvenlik Görevlisi,Ön Lisans,2,620,,675,48,9-1,70,10
+620,Koruma ve Güvenlik Görevlisi,Ön Lisans,3,630,,675,48,9-2,70,10
+621,Koruma ve Güvenlik Görevlisi,Ön Lisans,4,645,,675,48,9-3,70,10
+622,Koruma ve Güvenlik Görevlisi,Ön Lisans,5,660,,675,48,8-1,70,10
+623,Koruma ve Güvenlik Görevlisi,Ön Lisans,6,675,,675,48,8-2,70,10
+624,Koruma ve Güvenlik Görevlisi,Ön Lisans,7,690,,675,48,8-3,70,10
+625,Koruma ve Güvenlik Görevlisi,Ön Lisans,8,705,,675,48,7-1,80,7
+626,Koruma ve Güvenlik Görevlisi,Ön Lisans,9,720,,675,48,7-2,80,7
+627,Koruma ve Güvenlik Görevlisi,Ön Lisans,10,740,,675,48,7-3,80,7
+628,Koruma ve Güvenlik Görevlisi,Ön Lisans,11,760,,675,48,6-1,80,7
+629,Koruma ve Güvenlik Görevlisi,Ön Lisans,12,785,,675,48,6-2,80,7
+630,Koruma ve Güvenlik Görevlisi,Ön Lisans,13,810,,675,48,6-3,80,7
+631,Koruma ve Güvenlik Görevlisi,Ön Lisans,14,835,,675,48,5-1,80,7
+632,Koruma ve Güvenlik Görevlisi,Ön Lisans,15,865,,675,48,5-2,80,7
+633,Koruma ve Güvenlik Görevlisi,Ön Lisans,16,895,,675,48,5-3,80,7
+634,Koruma ve Güvenlik Görevlisi,Ön Lisans,17,915,1400,675,49,4-1,90,4
+635,Koruma ve Güvenlik Görevlisi,Ön Lisans,18,950,1400,675,49,4-2,90,4
+636,Koruma ve Güvenlik Görevlisi,Ön Lisans,19,985,1400,675,49,4-3,90,4
+637,Koruma ve Güvenlik Görevlisi,Ön Lisans,20,1020,1700,675,49,3-1,90,4
+638,Koruma ve Güvenlik Görevlisi,Ön Lisans,21,1065,1700,675,49,3-2,90,4
+639,Koruma ve Güvenlik Görevlisi,Ön Lisans,22,1110,1700,675,49,3-3,90,4
+640,Koruma ve Güvenlik Görevlisi,Ön Lisans,23,1155,2200,675,49,2-1,90,4
+641,Koruma ve Güvenlik Görevlisi,Ön Lisans,24,1210,2200,675,49,2-2,90,4
+642,Koruma ve Güvenlik Görevlisi,Ön Lisans,25,1265,2200,675,49,2-3,90,4
+643,Koruma ve Güvenlik Görevlisi,Ön Lisans,26,1320,2800,675,49,1-1,90,4
+644,Koruma ve Güvenlik Görevlisi,Ön Lisans,27,1380,2800,675,49,1-2,90,4
+645,Koruma ve Güvenlik Görevlisi,Ön Lisans,28,1440,2800,675,49,1-3,90,4
+646,Koruma ve Güvenlik Görevlisi,Ön Lisans,29,1500,2800,675,49,1-4,90,4
+647,Koruma ve Güvenlik Görevlisi,Ön Lisans,30,1500,2800,675,49,1-4,90,4
+648,Koruma ve Güvenlik Görevlisi,Lisans,0,620,,675,48,9-1,70,8
+649,Koruma ve Güvenlik Görevlisi,Lisans,1,630,,675,48,9-2,70,8
+650,Koruma ve Güvenlik Görevlisi,Lisans,2,645,,675,48,9-3,70,8
+651,Koruma ve Güvenlik Görevlisi,Lisans,3,660,,675,48,8-1,70,8
+652,Koruma ve Güvenlik Görevlisi,Lisans,4,675,,675,48,8-2,70,8
+653,Koruma ve Güvenlik Görevlisi,Lisans,5,690,,675,48,8-3,70,8
+654,Koruma ve Güvenlik Görevlisi,Lisans,6,705,,675,48,7-1,70,8
+655,Koruma ve Güvenlik Görevlisi,Lisans,7,720,,675,48,7-2,70,8
+656,Koruma ve Güvenlik Görevlisi,Lisans,8,740,,675,48,7-3,80,7
+657,Koruma ve Güvenlik Görevlisi,Lisans,9,760,,675,48,6-1,80,7
+658,Koruma ve Güvenlik Görevlisi,Lisans,10,785,,675,48,6-2,80,7
+659,Koruma ve Güvenlik Görevlisi,Lisans,11,810,,675,48,6-3,80,7
+660,Koruma ve Güvenlik Görevlisi,Lisans,12,835,,675,48,5-1,80,7
+661,Koruma ve Güvenlik Görevlisi,Lisans,13,865,,675,48,5-2,80,7
+662,Koruma ve Güvenlik Görevlisi,Lisans,14,895,,675,48,5-3,80,7
+663,Koruma ve Güvenlik Görevlisi,Lisans,15,915,1400,675,49,4-1,80,7
+664,Koruma ve Güvenlik Görevlisi,Lisans,16,950,1400,675,49,4-2,80,7
+665,Koruma ve Güvenlik Görevlisi,Lisans,17,985,1400,675,49,4-3,90,4
+666,Koruma ve Güvenlik Görevlisi,Lisans,18,1020,1700,675,49,3-1,90,4
+667,Koruma ve Güvenlik Görevlisi,Lisans,19,1065,1700,675,49,3-2,90,4
+668,Koruma ve Güvenlik Görevlisi,Lisans,20,1110,1700,675,49,3-3,90,4
+669,Koruma ve Güvenlik Görevlisi,Lisans,21,1155,2200,675,49,2-1,90,4
+670,Koruma ve Güvenlik Görevlisi,Lisans,22,1210,2200,675,49,2-2,90,4
+671,Koruma ve Güvenlik Görevlisi,Lisans,23,1265,2200,675,49,2-3,90,4
+672,Koruma ve Güvenlik Görevlisi,Lisans,24,1320,2800,675,49,1-1,90,4
+673,Koruma ve Güvenlik Görevlisi,Lisans,25,1380,2800,675,49,1-2,90,4
+674,Koruma ve Güvenlik Görevlisi,Lisans,26,1440,2800,675,49,1-3,90,4
+675,Koruma ve Güvenlik Görevlisi,Lisans,27,1500,2800,675,49,1-4,90,4
+676,Koruma ve Güvenlik Görevlisi,Lisans,28,1500,2800,675,49,1-4,90,4
+677,Koruma ve Güvenlik Görevlisi,Lisans,29,1500,2800,675,49,1-4,90,4
+678,Koruma ve Güvenlik Görevlisi,Lisans,30,1500,2800,675,49,1-4,90,4
+679,Koruma ve Güvenlik Görevlisi,Lisans,31,1500,2800,675,49,1-4,90,4
+680,Koruma ve Güvenlik Görevlisi,Lisans,32,1500,2800,675,49,1-4,90,4
+681,Koruma ve Güvenlik Görevlisi,Lisans,33,1500,2800,675,49,1-4,90,4
+682,Destek Personeli,Lise,0,600,,800,44,12-3,70,12
+683,Destek Personeli,Lise,1,610,,800,44,11-1,70,12
+684,Destek Personeli,Lise,2,620,,800,44,11-2,70,12
+685,Destek Personeli,Lise,3,630,,800,44,11-3,70,12
+686,Destek Personeli,Lise,4,645,,800,44,10-1,70,12
+687,Destek Personeli,Lise,5,660,,800,44,10-2,70,12
+688,Destek Personeli,Lise,6,675,,800,44,10-3,70,12
+689,Destek Personeli,Lise,7,690,,800,44,9-1,70,12
+690,Destek Personeli,Lise,8,705,,800,44,9-2,70,12
+691,Destek Personeli,Lise,9,720,,800,44,9-3,70,12
+692,Destek Personeli,Lise,10,740,,800,44,8-1,70,12
+693,Destek Personeli,Lise,11,760,,800,44,8-2,70,12
+694,Destek Personeli,Lise,12,785,,800,44,8-3,70,12
+695,Destek Personeli,Lise,13,810,,800,45,7-1,70,12
+696,Destek Personeli,Lise,14,835,,800,45,7-2,70,12
+697,Destek Personeli,Lise,15,865,,800,45,7-3,70,12
+698,Destek Personeli,Lise,16,895,,800,45,6-1,80,7
+699,Destek Personeli,Lise,17,915,,800,45,6-2,80,7
+700,Destek Personeli,Lise,18,950,,800,45,6-3,80,7
+701,Destek Personeli,Lise,19,985,,800,45,5-1,80,7
+702,Destek Personeli,Lise,20,1020,,800,45,5-2,80,7
+703,Destek Personeli,Lise,21,1065,,800,45,5-3,80,7
+704,Destek Personeli,Lise,22,1110,,800,45,4-1,80,7
+705,Destek Personeli,Lise,23,1155,,800,45,4-2,80,7
+706,Destek Personeli,Lise,24,1210,,800,45,4-3,80,7
+707,Destek Personeli,Lise,25,1265,,800,45,3-1,90,4
+708,Destek Personeli,Lise,26,1320,,800,45,3-2,90,4
+709,Destek Personeli,Lise,27,1380,,800,45,3-3,90,4
+710,Destek Personeli,Lise,28,1440,,800,45,2-1,90,4
+711,Destek Personeli,Lise,29,1500,,800,45,2-2,90,4
+712,Destek Personeli,Lise,30,1500,,800,45,2-3,90,4
+713,Destek Personeli,Lise,31,1500,,800,45,1-1,90,4
+714,Destek Personeli,Lise,32,1500,,800,45,1-2,90,4
+715,Destek Personeli,Lise,33,1500,,800,45,1-3,90,4
+716,Destek Personeli,Lise,34,1500,,800,45,1-4,90,4
+717,Destek Personeli,Ön Lisans,0,600,,800,44,10-2,70,10
+718,Destek Personeli,Ön Lisans,1,610,,800,44,10-3,70,10
+719,Destek Personeli,Ön Lisans,2,620,,800,44,9-1,70,10
+720,Destek Personeli,Ön Lisans,3,630,,800,44,9-2,70,10
+721,Destek Personeli,Ön Lisans,4,645,,800,44,9-3,70,10
+722,Destek Personeli,Ön Lisans,5,660,,800,44,8-1,70,10
+723,Destek Personeli,Ön Lisans,6,675,,800,44,8-2,70,10
+724,Destek Personeli,Ön Lisans,7,690,,800,44,8-3,70,10
+725,Destek Personeli,Ön Lisans,8,705,,800,45,7-1,80,7
+726,Destek Personeli,Ön Lisans,9,720,,800,45,7-2,80,7
+727,Destek Personeli,Ön Lisans,10,740,,800,45,7-3,80,7
+728,Destek Personeli,Ön Lisans,11,760,,800,45,6-1,80,7
+729,Destek Personeli,Ön Lisans,12,785,,800,45,6-2,80,7
+730,Destek Personeli,Ön Lisans,13,810,,800,45,6-3,80,7
+731,Destek Personeli,Ön Lisans,14,835,,800,45,5-1,80,7
+732,Destek Personeli,Ön Lisans,15,865,,800,45,5-2,80,7
+733,Destek Personeli,Ön Lisans,16,895,,800,45,5-3,80,7
+734,Destek Personeli,Ön Lisans,17,915,,800,45,4-1,90,4
+735,Destek Personeli,Ön Lisans,18,950,,800,45,4-2,90,4
+736,Destek Personeli,Ön Lisans,19,985,,800,45,4-3,90,4
+737,Destek Personeli,Ön Lisans,20,1020,,800,45,3-1,90,4
+738,Destek Personeli,Ön Lisans,21,1065,,800,45,3-2,90,4
+739,Destek Personeli,Ön Lisans,22,1110,,800,45,3-3,90,4
+740,Destek Personeli,Ön Lisans,23,1155,,800,45,2-1,90,4
+741,Destek Personeli,Ön Lisans,24,1210,,800,45,2-2,90,4
+742,Destek Personeli,Ön Lisans,25,1265,,800,45,2-3,90,4
+743,Destek Personeli,Ön Lisans,26,1320,,800,45,1-1,90,4
+744,Destek Personeli,Ön Lisans,27,1380,,800,45,1-2,90,4
+745,Destek Personeli,Ön Lisans,28,1440,,800,45,1-3,90,4
+746,Destek Personeli,Ön Lisans,29,1500,,800,45,1-4,90,4
+747,Destek Personeli,Ön Lisans,30,1500,,800,45,1-4,90,4
+748,Destek Personeli,Lisans,0,620,,800,44,9-1,70,8
+749,Destek Personeli,Lisans,1,630,,800,44,9-2,70,8
+750,Destek Personeli,Lisans,2,645,,800,44,9-3,70,8
+751,Destek Personeli,Lisans,3,660,,800,44,8-1,70,8
+752,Destek Personeli,Lisans,4,675,,800,44,8-2,70,8
+753,Destek Personeli,Lisans,5,690,,800,44,8-3,70,8
+754,Destek Personeli,Lisans,6,705,,800,45,7-1,70,8
+755,Destek Personeli,Lisans,7,720,,800,45,7-2,70,8
+756,Destek Personeli,Lisans,8,740,,800,45,7-3,80,7
+757,Destek Personeli,Lisans,9,760,,800,45,6-1,80,7
+758,Destek Personeli,Lisans,10,785,,800,45,6-2,80,7
+759,Destek Personeli,Lisans,11,810,,800,45,6-3,80,7
+760,Destek Personeli,Lisans,12,835,,800,45,5-1,80,7
+761,Destek Personeli,Lisans,13,865,,800,45,5-2,80,7
+762,Destek Personeli,Lisans,14,895,,800,45,5-3,80,7
+763,Destek Personeli,Lisans,15,915,,800,45,4-1,80,7
+764,Destek Personeli,Lisans,16,950,,800,45,4-2,80,7
+765,Destek Personeli,Lisans,17,985,,800,45,4-3,90,4
+766,Destek Personeli,Lisans,18,1020,,800,45,3-1,90,4
+767,Destek Personeli,Lisans,19,1065,,800,45,3-2,90,4
+768,Destek Personeli,Lisans,20,1110,,800,45,3-3,90,4
+769,Destek Personeli,Lisans,21,1155,,800,45,2-1,90,4
+770,Destek Personeli,Lisans,22,1210,,800,45,2-2,90,4
+771,Destek Personeli,Lisans,23,1265,,800,45,2-3,90,4
+772,Destek Personeli,Lisans,24,1320,,800,45,1-1,90,4
+773,Destek Personeli,Lisans,25,1380,,800,45,1-2,90,4
+774,Destek Personeli,Lisans,26,1440,,800,45,1-3,90,4
+775,Destek Personeli,Lisans,27,1500,,800,45,1-4,90,4
+776,Destek Personeli,Lisans,28,1500,,800,45,1-4,90,4
+777,Destek Personeli,Lisans,29,1500,,800,45,1-4,90,4
+778,Destek Personeli,Lisans,30,1500,,800,45,1-4,90,4
+779,Destek Personeli,Lisans,31,1500,,800,45,1-4,90,4
+780,Destek Personeli,Lisans,32,1500,,800,45,1-4,90,4
+781,Destek Personeli,Lisans,33,1500,,800,45,1-4,90,4
+782,Sağlık Teknikeri,Lisans,0,660,1400,1700,94,8-1,90,8
+783,Sağlık Teknikeri,Lisans,1,675,1400,1700,94,8-2,90,8
+784,Sağlık Teknikeri,Lisans,2,690,1400,1700,94,8-3,90,8
+785,Sağlık Teknikeri,Lisans,3,705,1500,1700,94,7-1,90,8
+786,Sağlık Teknikeri,Lisans,4,720,1500,1700,94,7-2,90,8
+787,Sağlık Teknikeri,Lisans,5,740,1500,1700,94,7-3,90,8
+788,Sağlık Teknikeri,Lisans,6,760,1700,1700,94,6-1,95,7
+789,Sağlık Teknikeri,Lisans,7,785,1700,1700,94,6-2,95,7
+790,Sağlık Teknikeri,Lisans,8,810,1700,1700,94,6-3,95,7
+791,Sağlık Teknikeri,Lisans,9,835,1800,1700,94,5-1,95,7
+792,Sağlık Teknikeri,Lisans,10,865,1800,1700,94,5-2,95,7
+793,Sağlık Teknikeri,Lisans,11,895,1800,1700,94,5-3,95,7
+794,Sağlık Teknikeri,Lisans,12,915,2100,1700,97,4-1,95,7
+795,Sağlık Teknikeri,Lisans,13,950,2100,1700,97,4-2,95,7
+796,Sağlık Teknikeri,Lisans,14,985,2100,1700,97,4-3,95,7
+797,Sağlık Teknikeri,Lisans,15,1020,2200,1700,97,3-1,105,4
+798,Sağlık Teknikeri,Lisans,16,1065,2200,1700,97,3-2,105,4
+799,Sağlık Teknikeri,Lisans,17,1110,2200,1700,97,3-3,105,4
+800,Sağlık Teknikeri,Lisans,18,1155,3000,1700,97,2-1,105,4
+801,Sağlık Teknikeri,Lisans,19,1210,3000,1700,97,2-2,105,4
+802,Sağlık Teknikeri,Lisans,20,1265,3000,1700,97,2-3,105,4
+803,Sağlık Teknikeri,Lisans,21,1320,3600,1700,97,1-1,115,2
+804,Sağlık Teknikeri,Lisans,22,1380,3600,1700,97,1-2,115,2
+805,Sağlık Teknikeri,Lisans,23,1440,3600,1700,97,1-3,115,2
+806,Sağlık Teknikeri,Lisans,24,1500,3600,1700,97,1-4,115,2
+807,Sağlık Teknikeri,Lisans,25,1500,3600,1700,97,1-4,115,2
+808,Sağlık Teknikeri,Lisans,26,1500,3600,1700,97,1-4,115,2
+809,Sağlık Teknikeri,Lisans,27,1500,3600,1700,97,1-4,115,2
+810,Sağlık Teknikeri,Lisans,28,1500,3600,1700,97,1-4,115,2
+811,Sağlık Teknikeri,Lisans,29,1500,3600,1700,97,1-4,115,2
+812,Sağlık Teknikeri,Lisans,30,1500,3600,1700,97,1-4,115,2
+813,Sağlık Teknikeri,Ön Lisans,0,600,,1700,88,10-2,90,10
+814,Sağlık Teknikeri,Ön Lisans,1,610,,1700,88,10-3,90,10
+815,Sağlık Teknikeri,Ön Lisans,2,620,,1700,88,9-1,90,10
+816,Sağlık Teknikeri,Ön Lisans,3,630,,1700,88,9-2,90,10
+817,Sağlık Teknikeri,Ön Lisans,4,645,,1700,88,9-3,90,10
+818,Sağlık Teknikeri,Ön Lisans,5,660,1400,1700,88,8-1,90,10
+819,Sağlık Teknikeri,Ön Lisans,6,675,1400,1700,88,8-2,90,10
+820,Sağlık Teknikeri,Ön Lisans,7,690,1400,1700,88,8-3,90,10
+821,Sağlık Teknikeri,Ön Lisans,8,705,1500,1700,88,7-1,95,7
+822,Sağlık Teknikeri,Ön Lisans,9,720,1500,1700,88,7-2,95,7
+823,Sağlık Teknikeri,Ön Lisans,10,740,1500,1700,88,7-3,95,7
+824,Sağlık Teknikeri,Ön Lisans,11,760,1700,1700,88,6-1,95,7
+825,Sağlık Teknikeri,Ön Lisans,12,785,1700,1700,88,6-2,95,7
+826,Sağlık Teknikeri,Ön Lisans,13,810,1700,1700,88,6-3,95,7
+827,Sağlık Teknikeri,Ön Lisans,14,835,1800,1700,88,5-1,95,7
+828,Sağlık Teknikeri,Ön Lisans,15,865,1800,1700,88,5-2,95,7
+829,Sağlık Teknikeri,Ön Lisans,16,895,1800,1700,88,5-3,95,7
+830,Sağlık Teknikeri,Ön Lisans,17,915,2100,1700,90,4-1,105,4
+831,Sağlık Teknikeri,Ön Lisans,18,950,2100,1700,90,4-2,105,4
+832,Sağlık Teknikeri,Ön Lisans,19,985,2100,1700,90,4-3,105,4
+833,Sağlık Teknikeri,Ön Lisans,20,1020,2200,1700,90,3-1,105,4
+834,Sağlık Teknikeri,Ön Lisans,21,1065,2200,1700,90,3-2,105,4
+835,Sağlık Teknikeri,Ön Lisans,22,1110,2200,1700,90,3-3,105,4
+836,Sağlık Teknikeri,Ön Lisans,23,1155,3000,1700,90,2-1,115,2
+837,Sağlık Teknikeri,Ön Lisans,24,1210,3000,1700,90,2-2,115,2
+838,Sağlık Teknikeri,Ön Lisans,25,1265,3000,1700,90,2-3,115,2
+839,Sağlık Teknikeri,Ön Lisans,26,1320,3600,1700,90,1-1,115,2
+840,Sağlık Teknikeri,Ön Lisans,27,1380,3600,1700,90,1-2,115,2
+841,Sağlık Teknikeri,Ön Lisans,28,1440,3600,1700,90,1-3,115,2
+842,Sağlık Teknikeri,Ön Lisans,29,1500,3600,1700,90,1-4,115,2
+843,Sağlık Teknikeri,Ön Lisans,30,1500,3600,1700,90,1-4,115,2
+844,Sağlık Teknikeri,Lise,0,600,,1250,70,12-3,90,12
+845,Sağlık Teknikeri,Lise,1,610,,1250,70,11-1,90,12
+846,Sağlık Teknikeri,Lise,2,620,,1250,70,11-2,90,12
+847,Sağlık Teknikeri,Lise,3,630,,1250,70,11-3,90,12
+848,Sağlık Teknikeri,Lise,4,645,,1250,70,10-1,90,12
+849,Sağlık Teknikeri,Lise,5,660,,1250,70,10-2,90,12
+850,Sağlık Teknikeri,Lise,6,675,,1250,70,10-3,90,12
+851,Sağlık Teknikeri,Lise,7,690,,1250,70,9-1,90,12
+852,Sağlık Teknikeri,Lise,8,705,,1250,70,9-2,90,12
+853,Sağlık Teknikeri,Lise,9,720,,1250,70,9-3,90,12
+854,Sağlık Teknikeri,Lise,10,740,,1250,70,8-1,90,12
+855,Sağlık Teknikeri,Lise,11,760,,1250,70,8-2,90,12
+856,Sağlık Teknikeri,Lise,12,785,,1250,70,8-3,90,12
+857,Sağlık Teknikeri,Lise,13,810,,1250,70,7-1,90,12
+858,Sağlık Teknikeri,Lise,14,835,,1250,70,7-2,90,12
+859,Sağlık Teknikeri,Lise,15,865,,1250,70,7-3,90,12
+860,Sağlık Teknikeri,Lise,16,895,,1250,70,6-1,95,7
+861,Sağlık Teknikeri,Lise,17,915,,1250,70,6-2,95,7
+862,Sağlık Teknikeri,Lise,18,950,,1250,70,6-3,95,7
+863,Sağlık Teknikeri,Lise,19,985,,1250,70,5-1,95,7
+864,Sağlık Teknikeri,Lise,20,1020,,1250,70,5-2,95,7
+865,Sağlık Teknikeri,Lise,21,1065,,1250,70,5-3,95,7
+866,Sağlık Teknikeri,Lise,22,1110,1250,1250,72,4-1,95,7
+867,Sağlık Teknikeri,Lise,23,1155,1250,1250,72,4-2,95,7
+868,Sağlık Teknikeri,Lise,24,1210,1250,1250,72,4-3,95,7
+869,Sağlık Teknikeri,Lise,25,1265,1400,1250,72,3-1,105,4
+870,Sağlık Teknikeri,Lise,26,1320,1400,1250,72,3-2,105,4
+871,Sağlık Teknikeri,Lise,27,1380,1400,1250,72,3-3,105,4
+872,Sağlık Teknikeri,Lise,28,1440,1700,1250,72,2-1,105,4
+873,Sağlık Teknikeri,Lise,29,1500,1700,1250,72,2-2,105,4
+874,Sağlık Teknikeri,Lise,30,1500,1700,1250,72,2-3,105,4
+875,Sağlık Teknikeri,Lise,31,1500,2200,1250,72,1-1,105,4
+876,Sağlık Teknikeri,Lise,32,1500,2200,1250,72,1-2,105,4
+877,Sağlık Teknikeri,Lise,33,1500,2200,1250,72,1-3,105,4
+878,Sağlık Teknikeri,Lise,34,1500,2200,1250,72,1-4,105,4
+879,Mühendis,Lisans,0,660,1450,2200,152,8-1,130,8
+880,Mühendis,Lisans,1,660,1450,2200,152,8-2,130,8
+881,Mühendis,Lisans,2,660,1450,2200,152,8-3,130,8
+813,Tekniker,Ön Lisans,0,600,,1625,93,10-2,85,10
+814,Tekniker,Ön Lisans,1,610,,1625,93,10-3,85,10
+815,Tekniker,Ön Lisans,2,620,,1625,93,9-1,85,10
+816,Tekniker,Ön Lisans,3,630,,1625,93,9-2,85,10

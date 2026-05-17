@@ -1,0 +1,229 @@
+.contract-document,
+.contract-document .ql-editor,
+.contract-document .ql-editor * {
+    font-family: 'Times New Roman', Times, serif !important;
+}
+
+.contract-document .ql-font-times { font-family: 'Times New Roman', Times, serif !important; }
+.contract-document .ql-font-serif { font-family: serif !important; }
+.contract-document .ql-font-monospace { font-family: monospace !important; }
+
+.contract-document .ql-container.ql-snow {
+    border: none !important;
+    height: auto !important;
+    font-family: 'Times New Roman', Times, serif !important;
+    font-size: 13px !important;
+}
+
+.contract-document .ql-container.ql-snow .ql-editor,
+.contract-document .ql-editor {
+    padding: 0 !important;
+    min-height: 25cm !important;
+    height: auto !important;
+    overflow: visible !important;
+    line-height: 1.4 !important; /* Adjusted for exact page fit */
+    font-size: 13px !important;
+    color: #000 !important;
+}
+
+.contract-document .ql-editor * {
+    color: #000 !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.contract-document .ql-editor h1,
+.contract-document .ql-editor h2,
+.contract-document .ql-editor h3,
+.contract-document .ql-editor h4 {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-weight: normal !important;
+}
+
+.contract-document .ql-editor p {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.contract-document .ql-editor > *:first-child {
+    margin-top: 0 !important;
+}
+
+.contract-document .ql-editor p.first-paragraph {
+    text-indent: 0 !important;
+}
+
+.contract-document .ql-editor .ql-align-left {
+    text-align: left !important;
+}
+
+.contract-document .ql-editor .ql-align-center {
+    text-align: center !important;
+}
+
+.contract-document .ql-editor .ql-align-right {
+    text-align: right !important;
+}
+
+.contract-document .ql-editor .ql-align-justify {
+    text-align: justify !important;
+}
+
+.contract-document .ql-editor .ql-direction-rtl {
+    direction: rtl !important;
+}
+
+.contract-document .ql-editor strong,
+.contract-document .ql-editor b,
+.contract-document .variable-tag {
+    font-weight: bold !important;
+}
+
+.contract-document .variable-tag {
+    color: inherit !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    text-indent: 0 !important;
+}
+
+.contract-document table {
+    width: 100% !important;
+    table-layout: fixed !important;
+    border-collapse: collapse !important;
+}
+
+.contract-document td {
+    padding: 0.5em;
+    border: 1px solid #000;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+    white-space: normal !important;
+}
+
+.contract-document td .table-cell-inner {
+    width: 100%;
+    min-height: inherit;
+    box-sizing: border-box;
+}
+
+.contract-document table.no-borders td,
+.contract-document table.no-borders,
+.contract-document table[data-no-borders="true"] td,
+.contract-document table[data-no-borders="true"],
+.contract-document table[style*="border: none"] td,
+.contract-document table[style*="border: none"],
+.contract-document table[style*="border-style: none"] td,
+.contract-document table[style*="border-style: none"],
+.contract-document td[style*="border: none"],
+.contract-document td[style*="border-style: none"] {
+    border: none !important;
+    border-width: 0 !important;
+}
+
+.contract-document table.has-borders td,
+.contract-document table.has-borders {
+    border: 1px solid #000 !important;
+}
+
+.contract-document .signatures-table {
+    width: 100% !important;
+    table-layout: fixed !important;
+    margin-top: 40px !important;
+    border: none;
+    text-indent: 0 !important;
+    border-collapse: collapse !important;
+}
+
+.contract-document .signatures-table td {
+    border: none !important;
+    width: 50% !important;
+    max-width: 50% !important;
+    text-align: center !important;
+    vertical-align: top !important;
+    padding: 0 !important;
+    text-indent: 0 !important;
+    overflow-wrap: break-word !important;
+    word-wrap: break-word !important;
+    word-break: normal !important;
+    white-space: normal !important;
+    box-sizing: border-box !important;
+}
+
+.contract-document .signatures-table td strong,
+.contract-document .signatures-table td span,
+.contract-document .signatures-table td p {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-wrap: break-word !important;
+    word-wrap: break-word !important;
+    word-break: normal !important;
+    white-space: normal !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.contract-document.has-border {
+    position: relative;
+}
+
+.contract-document.has-border::after {
+    content: '';
+    position: absolute;
+    top: 0.8cm;
+    left: 0.8cm;
+    right: 0.8cm;
+    bottom: 0.8cm !important;
+    border: 2px solid #000 !important;
+    pointer-events: none;
+    z-index: 9999;
+    display: block !important;
+}
+
+@media print {
+    @page {
+        size: A4;
+        margin: 0 !important;
+    }
+    html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+        width: 210mm !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+    .page-container, 
+    .contract-document {
+        margin: 0 auto !important;
+        padding: 0cm 1.5cm 1cm !important;
+        width: 210mm !important;
+        height: auto !important;
+        min-height: 297mm !important;
+        max-height: none !important;
+        box-sizing: border-box !important;
+        overflow: visible !important;
+        border: none !important;
+        box-shadow: none !important;
+        position: relative !important;
+        display: block !important;
+    }
+    .ql-container.ql-snow {
+        border: none !important;
+    }
+    .ql-editor {
+        padding: 0 !important;
+        height: auto !important;
+        min-height: 0 !important;
+    }
+    .signatures-table {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+    
+}
