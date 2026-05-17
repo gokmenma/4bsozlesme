@@ -45,6 +45,11 @@ sort($ogrenimler);
             </div>
             <input id="personnelSearch" type="text" class="mobile-input pl-icon" placeholder="Personel ara (İsim, TC...)" onkeyup="applyPersonnelFilters()">
         </div>
+        <!-- Sort Button -->
+        <button id="mobileSortBtn" onclick="openSortSheet()" class="p-3 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-lg text-zinc-600 dark:text-zinc-400 active:scale-95 transition-all cursor-pointer flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="m3 16 4 4 4-4M7 20V4M21 8l-4-4-4 4M17 4v16"/></svg>
+        </button>
+        <!-- Filter Button -->
         <button id="mobileFilterToggleBtn" onclick="openFilterSheet()" class="p-3 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-lg text-zinc-600 dark:text-zinc-400 active:scale-95 transition-all cursor-pointer flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
         </button>
@@ -196,13 +201,13 @@ sort($ogrenimler);
     <div class="overflow-y-auto app-scroll px-6 pb-36 flex-1 space-y-5">
         <div class="flex items-center justify-between">
             <h3 class="text-base font-extrabold text-zinc-900 dark:text-zinc-50">Gelişmiş Filtreleme</h3>
-            <button onclick="clearAllFilters()" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">Temizle</button>
+            <button onclick="clearAllFilters()" class="text-xs font-bold text-zinc-900 dark:text-zinc-100 hover:underline">Temizle</button>
         </div>
         
         <div class="space-y-4">
             <!-- Unvan Filtresi (Multiple) -->
-            <div class="p-3.5 border border-zinc-100 dark:border-zinc-800 rounded-2xl space-y-2.5 bg-zinc-50/30 dark:bg-zinc-950/10">
-                <label class="text-[0.75rem] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest block">Unvan (Çoklu Seçim)</label>
+            <div class="space-y-1.5">
+                <label class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Unvan (Çoklu Seçim)</label>
                 <div class="relative">
                     <select id="filter-unvan" class="mobile-input" multiple>
                         <option value="">Tüm Unvanlar</option>
@@ -214,8 +219,8 @@ sort($ogrenimler);
             </div>
             
             <!-- Durum Filtresi (Multiple) -->
-            <div class="p-3.5 border border-zinc-100 dark:border-zinc-800 rounded-2xl space-y-2.5 bg-zinc-50/30 dark:bg-zinc-950/10">
-                <label class="text-[0.75rem] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest block">Çalışma Durumu (Çoklu Seçim)</label>
+            <div class="space-y-1.5">
+                <label class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Çalışma Durumu (Çoklu Seçim)</label>
                 <div class="relative">
                     <select id="filter-durum" class="mobile-input" multiple>
                         <option value="">Tümü</option>
@@ -229,8 +234,8 @@ sort($ogrenimler);
             </div>
 
             <!-- Öğrenim Durumu Filtresi -->
-            <div class="p-3.5 border border-zinc-100 dark:border-zinc-800 rounded-2xl space-y-2.5 bg-zinc-50/30 dark:bg-zinc-950/10">
-                <label class="text-[0.75rem] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest block">Öğrenim Durumu</label>
+            <div class="space-y-1.5">
+                <label class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Öğrenim Durumu</label>
                 <div class="grid grid-cols-5 gap-2">
                     <div class="col-span-2">
                         <select id="filter-ogrenim-op" class="mobile-input">
@@ -250,8 +255,8 @@ sort($ogrenimler);
             </div>
 
             <!-- Sözleşme Ücret Filtresi -->
-            <div class="p-3.5 border border-zinc-100 dark:border-zinc-800 rounded-2xl space-y-2.5 bg-zinc-50/30 dark:bg-zinc-950/10">
-                <label class="text-[0.75rem] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest block">Sözleşme Ücreti</label>
+            <div class="space-y-1.5">
+                <label class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Sözleşme Ücreti</label>
                 <div class="grid grid-cols-5 gap-2">
                     <div class="col-span-2">
                         <select id="filter-ucret-op" class="mobile-input">
@@ -269,8 +274,8 @@ sort($ogrenimler);
             </div>
 
             <!-- Göreve Başlama Tarihi Filtresi -->
-            <div class="p-3.5 border border-zinc-100 dark:border-zinc-800 rounded-2xl space-y-2.5 bg-zinc-50/30 dark:bg-zinc-950/10">
-                <label class="text-[0.75rem] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest block">Göreve Başlama Tarihi</label>
+            <div class="space-y-1.5">
+                <label class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Göreve Başlama Tarihi</label>
                 <div class="grid grid-cols-5 gap-2">
                     <div class="col-span-2">
                         <select id="filter-baslama-op" class="mobile-input">
@@ -291,5 +296,82 @@ sort($ogrenimler);
         <button onclick="applyPersonnelFilters(); closeAllSheets();" class="w-full py-3.5 bg-zinc-900 dark:bg-zinc-50 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-950 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 mt-4 cursor-pointer active:scale-95 transition-all shadow-sm">
             Filtreyi Uygula
         </button>
+    </div>
+</div>
+
+<!-- ADVANCED SORT BOTTOM SHEET -->
+<div id="sort-sheet" class="bottom-sheet flex flex-col max-h-[82%] bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
+    <div class="w-12 h-1 bg-zinc-300 dark:bg-zinc-800 rounded-full mx-auto my-3 flex-shrink-0"></div>
+    
+    <div class="overflow-y-auto app-scroll px-6 pb-24 flex-1 space-y-5">
+        <div class="flex items-center justify-between">
+            <h3 class="text-base font-extrabold text-zinc-900 dark:text-zinc-50">Sıralama Seçenekleri</h3>
+        </div>
+        
+        <div class="space-y-1">
+            <button onclick="applySorting('name_asc')" class="sort-option-btn w-full px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer flex items-center justify-between transition-colors font-semibold" data-sort="name_asc">
+                <span>Ad Soyada göre (A'dan Z'ye)</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+            <button onclick="applySorting('name_desc')" class="sort-option-btn w-full px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer flex items-center justify-between transition-colors font-semibold" data-sort="name_desc">
+                <span>Ad Soyada göre (Z'den A'ya)</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+            
+            <div class="h-px bg-zinc-100 dark:bg-zinc-800 my-2"></div>
+            
+            <button onclick="applySorting('start_asc')" class="sort-option-btn w-full px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer flex items-center justify-between transition-colors font-semibold" data-sort="start_asc">
+                <span>Göreve Başlama Tarihi (Eskiden Yeniye)</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+            <button onclick="applySorting('start_desc')" class="sort-option-btn w-full px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer flex items-center justify-between transition-colors font-semibold" data-sort="start_desc">
+                <span>Göreve Başlama Tarihi (Yeniden Eskiye)</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+            
+            <div class="h-px bg-zinc-100 dark:bg-zinc-800 my-2"></div>
+
+            <button onclick="applySorting('tenure_asc')" class="sort-option-btn w-full px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer flex items-center justify-between transition-colors font-semibold" data-sort="tenure_asc">
+                <span>Kadroya Geçiş Tarihi (Eskiden Yeniye)</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+            <button onclick="applySorting('tenure_desc')" class="sort-option-btn w-full px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer flex items-center justify-between transition-colors font-semibold" data-sort="tenure_desc">
+                <span>Kadroya Geçiş Tarihi (Yeniden Eskiye)</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+            
+            <div class="h-px bg-zinc-100 dark:bg-zinc-800 my-2"></div>
+
+            <button onclick="applySorting('wage_asc')" class="sort-option-btn w-full px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer flex items-center justify-between transition-colors font-semibold" data-sort="wage_asc">
+                <span>Sözleşme Ücretine göre (Artan)</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+            <button onclick="applySorting('wage_desc')" class="sort-option-btn w-full px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer flex items-center justify-between transition-colors font-semibold" data-sort="wage_desc">
+                <span>Sözleşme Ücretine göre (Azalan)</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+            
+            <div class="h-px bg-zinc-100 dark:bg-zinc-800 my-2"></div>
+
+            <button onclick="applySorting('edu_asc')" class="sort-option-btn w-full px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer flex items-center justify-between transition-colors font-semibold" data-sort="edu_asc">
+                <span>Öğrenim Durumuna göre (A'dan Z'ye)</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+            <button onclick="applySorting('edu_desc')" class="sort-option-btn w-full px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer flex items-center justify-between transition-colors font-semibold" data-sort="edu_desc">
+                <span>Öğrenim Durumuna göre (Z'den A'ya)</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+            
+            <div class="h-px bg-zinc-100 dark:bg-zinc-800 my-2"></div>
+
+            <button onclick="applySorting('title_asc')" class="sort-option-btn w-full px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer flex items-center justify-between transition-colors font-semibold" data-sort="title_asc">
+                <span>Unvana göre (A'dan Z'ye)</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+            <button onclick="applySorting('title_desc')" class="sort-option-btn w-full px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer flex items-center justify-between transition-colors font-semibold" data-sort="title_desc">
+                <span>Unvana göre (Z'den A'ya)</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+        </div>
     </div>
 </div>

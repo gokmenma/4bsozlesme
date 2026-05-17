@@ -23,8 +23,25 @@ class PersonnelController extends Controller {
     public function store() {
         global $db;
         
+        $tenant_id = $_SESSION['tenant_id'] ?? 1;
+        $tc_kimlik = $_POST['tc_kimlik'];
+
+        // Unique TC Check for this tenant
+        $checkStmt = $db->prepare("SELECT id FROM personeller WHERE tenant_id = ? AND tc_kimlik = ? AND deleted_at IS NULL LIMIT 1");
+        $checkStmt->execute([$tenant_id, $tc_kimlik]);
+        if ($checkStmt->fetch()) {
+            if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => 'Bu TC Kimlik numarasına sahip bir personel zaten kayıtlı.']);
+                exit;
+            }
+            $_SESSION['error'] = 'Bu TC Kimlik numarasına sahip bir personel zaten kayıtlı.';
+            header('Location: ' . routeUrl('personel-listesi'));
+            exit;
+        }
+
         $data = [
-            'tc_kimlik' => $_POST['tc_kimlik'],
+            'tc_kimlik' => $tc_kimlik,
             'ad_soyad' => $_POST['ad_soyad'],
             'ucret_id' => $_POST['ucret_id'],
             'durum' => $_POST['durum'] ?? 'aktif',
@@ -33,7 +50,7 @@ class PersonnelController extends Controller {
             'meslek_kodu' => $_POST['meslek_kodu'] ?? '',
             'cinsiyet' => $_POST['cinsiyet'] ?? 'erkek',
             'created_at' => date('Y-m-d H:i:s'),
-            'tenant_id' => $_SESSION['tenant_id'] ?? 1
+            'tenant_id' => $tenant_id
         ];
 
         $columns = implode(', ', array_keys($data));
@@ -92,6 +109,18 @@ class PersonnelController extends Controller {
             exit;
         }
 
+        global $db;
+        $tc_kimlik = $_POST['tc_kimlik'];
+
+        // Unique TC Check for this tenant, excluding the current personnel ID
+        $checkStmt = $db->prepare("SELECT id FROM personeller WHERE tenant_id = ? AND tc_kimlik = ? AND id != ? AND deleted_at IS NULL LIMIT 1");
+        $checkStmt->execute([$tenant_id, $tc_kimlik, $id]);
+        if ($checkStmt->fetch()) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Bu TC Kimlik numarasına sahip başka bir personel zaten kayıtlı.']);
+            exit;
+        }
+
         $personnelModel = new PersonnelModel();
         $personnel = $personnelModel->find($id, $tenant_id);
 
@@ -102,7 +131,7 @@ class PersonnelController extends Controller {
         }
 
         $data = [
-            'tc_kimlik' => $_POST['tc_kimlik'],
+            'tc_kimlik' => $tc_kimlik,
             'ad_soyad' => $_POST['ad_soyad'],
             'ucret_id' => $_POST['ucret_id'],
             'durum' => $_POST['durum'] ?? 'aktif',

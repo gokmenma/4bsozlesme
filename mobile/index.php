@@ -508,7 +508,7 @@ if ($isLoggedIn) {
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="space-y-1.5">
                                         <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-baslama">Giriş Tarihi*</label>
-                                        <input class="mobile-input" type="date" id="form-baslama" name="goreve_baslama_tarihi" required>
+                                        <input class="mobile-input" type="text" id="form-baslama" name="goreve_baslama_tarihi" placeholder="Seçiniz..." required>
                                     </div>
                                     <div class="space-y-1.5">
                                         <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-meslek">Meslek Kodu</label>
@@ -584,6 +584,167 @@ if ($isLoggedIn) {
                         </div>
                     </div>
 
+                    <!-- 5. DEFINITION ADD/EDIT FORM BOTTOM SHEET -->
+                    <div id="def-form-sheet" class="bottom-sheet flex flex-col max-h-[88%] bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
+                        <div class="w-12 h-1 bg-zinc-300 dark:bg-zinc-800 rounded-full mx-auto my-3 flex-shrink-0"></div>
+                        
+                        <div class="overflow-y-auto app-scroll px-6 pb-8 flex-1 space-y-5">
+                            <h3 id="def-form-title" class="text-base font-extrabold text-zinc-900 dark:text-zinc-100">Yeni Ücret Tanımı Ekle</h3>
+                            
+                            <form id="definitionForm" class="space-y-4">
+                                <input type="hidden" id="form-def-id" name="id" value="">
+                                
+                                <div class="space-y-1.5">
+                                    <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-def-unvan">Unvan*</label>
+                                    <input class="mobile-input" type="text" id="form-def-unvan" name="unvan" required placeholder="Örn: Büro Personeli, Mühendis">
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="space-y-1.5">
+                                        <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-def-ogrenim">Öğrenim Durumu*</label>
+                                        <select class="mobile-input" id="form-def-ogrenim" name="ogrenim" required>
+                                            <option value="Lise" selected>Lise</option>
+                                            <option value="Önlisans">Önlisans</option>
+                                            <option value="Lisans">Lisans</option>
+                                            <option value="Yüksek Lisans">Yüksek Lisans</option>
+                                            <option value="Doktora">Doktora</option>
+                                        </select>
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-def-kidem">Kıdem Grubu*</label>
+                                        <select class="mobile-input" id="form-def-kidem" name="kidem_yili" required>
+                                            <option value="0-5 Yıl (Dahil)" selected>0-5 Yıl (Dahil)</option>
+                                            <option value="5-10 Yıl (Dahil)">5-10 Yıl (Dahil)</option>
+                                            <option value="10-15 Yıl (Dahil)">10-15 Yıl (Dahil)</option>
+                                            <option value="15-20 Yıl (Dahil)">15-20 Yıl (Dahil)</option>
+                                            <option value="20 üzeri">20 üzeri</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-1.5">
+                                    <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-def-ucret">Aylık Brüt Ücret (₺)*</label>
+                                    <input class="mobile-input" type="number" step="0.01" id="form-def-ucret" name="ucret" required placeholder="0.00">
+                                </div>
+
+                                <button type="submit" class="w-full py-3.5 bg-zinc-900 dark:bg-zinc-50 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-950 rounded-md font-bold text-xs flex items-center justify-center gap-1.5 mt-2 cursor-pointer active:scale-95 transition-all shadow-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                    Kaydet
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- 6. ADVANCED FILTER BOTTOM SHEET FOR DEFINITIONS -->
+                    <div id="def-filter-sheet" class="bottom-sheet flex flex-col max-h-[82%] bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
+                        <div class="w-12 h-1 bg-zinc-300 dark:bg-zinc-800 rounded-full mx-auto my-3 flex-shrink-0"></div>
+                        
+                        <div class="overflow-y-auto app-scroll px-6 pb-36 flex-1 space-y-5">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-base font-extrabold text-zinc-900 dark:text-zinc-50">Gelişmiş Filtreleme</h3>
+                                <button onclick="clearAllDefFilters()" class="text-xs font-bold text-zinc-900 dark:text-zinc-100 hover:underline">Temizle</button>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <!-- Öğrenim Durumu Filtresi (Multiple) -->
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Öğrenim Durumu (Çoklu Seçim)</label>
+                                    <div class="relative">
+                                        <select id="filter-def-ogrenim" class="mobile-input" multiple>
+                                            <option value="">Tüm Öğrenim Durumları</option>
+                                            <option value="Lise">Lise</option>
+                                            <option value="Önlisans">Önlisans</option>
+                                            <option value="Lisans">Lisans</option>
+                                            <option value="Yüksek Lisans">Yüksek Lisans</option>
+                                            <option value="Doktora">Doktora</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Kıdem Grubu Filtresi (Multiple) -->
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Kıdem Grubu (Çoklu Seçim)</label>
+                                    <div class="relative">
+                                        <select id="filter-def-kidem" class="mobile-input" multiple>
+                                            <option value="">Tümü</option>
+                                            <option value="0-5 Yıl (Dahil)">0-5 Yıl (Dahil)</option>
+                                            <option value="5-10 Yıl (Dahil)">5-10 Yıl (Dahil)</option>
+                                            <option value="10-15 Yıl (Dahil)">10-15 Yıl (Dahil)</option>
+                                            <option value="15-20 Yıl (Dahil)">15-20 Yıl (Dahil)</option>
+                                            <option value="20 üzeri">20 üzeri</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Aylık Ücret Filtresi -->
+                                <div class="space-y-1.5">
+                                    <label class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Aylık Brüt Ücret</label>
+                                    <div class="grid grid-cols-5 gap-2">
+                                        <div class="col-span-2">
+                                            <select id="filter-def-ucret-op" class="mobile-input">
+                                                <option value="equals" selected>Eşittir (=)</option>
+                                                <option value="gt">Büyüktür (>)</option>
+                                                <option value="lt">Küçüktür (&lt;)</option>
+                                                <option value="gte">Büyük Eşit (>=)</option>
+                                                <option value="lte">Küçük Eşit (&lt;=)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-span-3">
+                                            <input type="number" id="filter-def-ucret-val" class="mobile-input text-xs font-semibold" placeholder="Ücret girin (₺)">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button onclick="applyDefinitionFilters(); closeAllSheets();" class="w-full py-3.5 bg-zinc-900 dark:bg-zinc-50 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-950 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 mt-4 cursor-pointer active:scale-95 transition-all shadow-sm">
+                                Filtreyi Uygula
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 7. ADVANCED SORT BOTTOM SHEET FOR DEFINITIONS -->
+                    <div id="def-sort-sheet" class="bottom-sheet flex flex-col max-h-[82%] bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
+                        <div class="w-12 h-1 bg-zinc-300 dark:bg-zinc-800 rounded-full mx-auto my-3 flex-shrink-0"></div>
+                        
+                        <div class="overflow-y-auto app-scroll px-6 pb-24 flex-1 space-y-5">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-base font-extrabold text-zinc-900 dark:text-zinc-50">Sıralama Seçenekleri</h3>
+                            </div>
+                            
+                            <div class="space-y-1">
+                                <button onclick="applyDefSorting('title_asc')" class="def-sort-option-btn w-full px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer flex items-center justify-between transition-colors font-semibold" data-sort="title_asc">
+                                    <span>Unvana göre (A'dan Z'ye)</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </button>
+                                <button onclick="applyDefSorting('title_desc')" class="def-sort-option-btn w-full px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer flex items-center justify-between transition-colors font-semibold" data-sort="title_desc">
+                                    <span>Unvana göre (Z'den A'ya)</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </button>
+                                
+                                <div class="h-px bg-zinc-100 dark:bg-zinc-800 my-2"></div>
+                                
+                                <button onclick="applyDefSorting('wage_asc')" class="def-sort-option-btn w-full px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer flex items-center justify-between transition-colors font-semibold" data-sort="wage_asc">
+                                    <span>Aylık Brüt Ücrete göre (Artan)</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </button>
+                                <button onclick="applyDefSorting('wage_desc')" class="def-sort-option-btn w-full px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer flex items-center justify-between transition-colors font-semibold" data-sort="wage_desc">
+                                    <span>Aylık Brüt Ücrete göre (Azalan)</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </button>
+                                
+                                <div class="h-px bg-zinc-100 dark:bg-zinc-800 my-2"></div>
+                                
+                                <button onclick="applyDefSorting('edu_asc')" class="def-sort-option-btn w-full px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer flex items-center justify-between transition-colors font-semibold" data-sort="edu_asc">
+                                    <span>Öğrenim Durumuna göre (A'dan Z'ye)</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </button>
+                                <button onclick="applyDefSorting('edu_desc')" class="def-sort-option-btn w-full px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-xl cursor-pointer flex items-center justify-between transition-colors font-semibold" data-sort="edu_desc">
+                                    <span>Öğrenim Durumuna göre (Z'den A'ya)</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <?php endif; ?>
@@ -676,6 +837,11 @@ if ($isLoggedIn) {
                     }
                     currentX = originalX + deltaX;
 
+                    // Disable swiping right if this is a definition item card
+                    if (container.classList.contains('definition-item-card')) {
+                        if (currentX > 0) currentX = 0;
+                    }
+
                     // Elastic bound limits matching the full height w-12 columns with pl-4 and gap-4 (total 130px right, -56px left)
                     if (currentX > 140) currentX = 140 + (currentX - 140) * 0.15;
                     if (currentX < -70) currentX = -70 + (currentX + 70) * 0.15;
@@ -691,10 +857,15 @@ if ($isLoggedIn) {
                     const finalX = getTransformX();
                     
                     if (finalX > 45) {
-                        // Snap right (reveal Left buttons: Sözleşme & Dilekçe - total 130px wide)
-                        front.style.transform = 'translateX(130px)';
-                        container.classList.add('swipe-open-right');
-                        container.classList.remove('swipe-open-left');
+                        if (container.classList.contains('definition-item-card')) {
+                            front.style.transform = 'translateX(0px)';
+                            container.classList.remove('swipe-open-right', 'swipe-open-left');
+                        } else {
+                            // Snap right (reveal Left buttons: Sözleşme & Dilekçe - total 130px wide)
+                            front.style.transform = 'translateX(130px)';
+                            container.classList.add('swipe-open-right');
+                            container.classList.remove('swipe-open-left');
+                        }
                     } else if (finalX < -30) {
                         // Snap left (reveal Right button: Sil - 56px wide)
                         front.style.transform = 'translateX(-56px)';
@@ -805,13 +976,13 @@ if ($isLoggedIn) {
                         newScript.remove();
                     });
                     
-                    // Trigger swiping engine if loading personnel
-                    if (tabName === 'personnel') {
+                    // Trigger swiping engine if loading personnel or definitions
+                    if (tabName === 'personnel' || tabName === 'definitions') {
                         initSwipeActions();
                         if (typeof initMobileCustomSelects === 'function') {
                             initMobileCustomSelects();
                         }
-                        if (typeof initMobileFlatpickr === 'function') {
+                        if (tabName === 'personnel' && typeof initMobileFlatpickr === 'function') {
                             initMobileFlatpickr();
                         }
                     }
@@ -1042,6 +1213,22 @@ if ($isLoggedIn) {
             document.getElementById('form-title').innerText = "Yeni Personel Ekle";
             document.getElementById('personnelForm').reset();
             document.getElementById('form-p-id').value = "";
+            
+            // Set default date to today
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const todayStr = `${yyyy}-${mm}-${dd}`;
+            
+            const baslamaInput = document.getElementById('form-baslama');
+            if (baslamaInput) {
+                baslamaInput.value = todayStr;
+                if (baslamaInput._flatpickr) {
+                    baslamaInput._flatpickr.setDate(todayStr);
+                }
+            }
+
             if (typeof syncMobileCustomSelects === 'function') {
                 syncMobileCustomSelects();
             }
@@ -1066,7 +1253,13 @@ if ($isLoggedIn) {
             const dateParts = cardElement.getAttribute('data-baslama').split('.');
             if (dateParts.length === 3) {
                 const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-                document.getElementById('form-baslama').value = formattedDate;
+                const baslamaInput = document.getElementById('form-baslama');
+                if (baslamaInput) {
+                    baslamaInput.value = formattedDate;
+                    if (baslamaInput._flatpickr) {
+                        baslamaInput._flatpickr.setDate(formattedDate);
+                    }
+                }
             }
 
             if (typeof syncMobileCustomSelects === 'function') {
@@ -1362,6 +1555,95 @@ if ($isLoggedIn) {
             closeAllSheets();
         }
 
+        // Sort Sheet opening
+        function openSortSheet() {
+            openSheet('sort-sheet');
+            const currentSort = window.currentMobileSort || 'name_asc';
+            document.querySelectorAll('.sort-option-btn').forEach(btn => {
+                const checkIcon = btn.querySelector('.check-icon');
+                if (btn.getAttribute('data-sort') === currentSort) {
+                    if (checkIcon) checkIcon.classList.remove('hidden');
+                    btn.classList.add('bg-zinc-50', 'dark:bg-zinc-800/60', 'text-indigo-600', 'dark:text-indigo-400');
+                } else {
+                    if (checkIcon) checkIcon.classList.add('hidden');
+                    btn.classList.remove('bg-zinc-50', 'dark:bg-zinc-800/60', 'text-indigo-600', 'dark:text-indigo-400');
+                }
+            });
+        }
+
+        // Apply dynamic sorting to the list of personnel
+        function applySorting(type) {
+            window.currentMobileSort = type;
+            closeAllSheets();
+            
+            const wrapper = document.getElementById('personnel-list-wrapper');
+            if (!wrapper) return;
+            
+            const cards = Array.from(wrapper.querySelectorAll('.personnel-item-card'));
+            
+            cards.sort((a, b) => {
+                let valA, valB;
+                
+                if (type === 'name_asc' || type === 'name_desc') {
+                    valA = (a.getAttribute('data-name') || '').toLocaleLowerCase('tr-TR');
+                    valB = (b.getAttribute('data-name') || '').toLocaleLowerCase('tr-TR');
+                    return type === 'name_asc' ? valA.localeCompare(valB, 'tr') : valB.localeCompare(valA, 'tr');
+                }
+                
+                if (type === 'start_asc' || type === 'start_desc') {
+                    const partsA = (a.getAttribute('data-baslama') || '').split('.');
+                    const partsB = (b.getAttribute('data-baslama') || '').split('.');
+                    valA = partsA.length === 3 ? `${partsA[2]}-${partsA[1]}-${partsA[0]}` : '';
+                    valB = partsB.length === 3 ? `${partsB[2]}-${partsB[1]}-${partsB[0]}` : '';
+                    return type === 'start_asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                }
+
+                if (type === 'tenure_asc' || type === 'tenure_desc') {
+                    const partsA = (a.getAttribute('data-baslama') || '').split('.');
+                    const partsB = (b.getAttribute('data-baslama') || '').split('.');
+                    valA = partsA.length === 3 ? `${partsA[2]}-${partsA[1]}-${partsA[0]}` : '';
+                    valB = partsB.length === 3 ? `${partsB[2]}-${partsB[1]}-${partsB[0]}` : '';
+                    return type === 'tenure_asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
+                }
+
+                if (type === 'wage_asc' || type === 'wage_desc') {
+                    valA = parseFloat(a.getAttribute('data-ucret-raw') || '0');
+                    valB = parseFloat(b.getAttribute('data-ucret-raw') || '0');
+                    return type === 'wage_asc' ? valA - valB : valB - valA;
+                }
+
+                if (type === 'edu_asc' || type === 'edu_desc') {
+                    const eduLevels = {
+                        'ilkokul': 1, 'ortaokul': 2, 'lise': 3, 'önlisans': 4, 'ön lisans': 4,
+                        'lisans': 5, 'yüksek lisans': 6, 'doktora': 7
+                    };
+                    const getEduWeight = (val) => {
+                        const v = (val || '').toLowerCase();
+                        for (const key in eduLevels) {
+                            if (v.includes(key)) return eduLevels[key];
+                        }
+                        return 0;
+                    };
+                    valA = getEduWeight(a.getAttribute('data-ogrenim'));
+                    valB = getEduWeight(b.getAttribute('data-ogrenim'));
+                    return type === 'edu_asc' ? valA - valB : valB - valA;
+                }
+
+                if (type === 'title_asc' || type === 'title_desc') {
+                    valA = (a.getAttribute('data-unvan') || '').toLocaleLowerCase('tr-TR');
+                    valB = (b.getAttribute('data-unvan') || '').toLocaleLowerCase('tr-TR');
+                    return type === 'title_asc' ? valA.localeCompare(valB, 'tr') : valB.localeCompare(valA, 'tr');
+                }
+                
+                return 0;
+            });
+            
+            // Append sorted cards back to wrapper
+            cards.forEach(card => wrapper.appendChild(card));
+            
+            showToast('Sıralama başarıyla uygulandı.', 'success');
+        }
+
         // Apply Personnel Filters dynamically in JS (extremely fast SPA feel with premium operators)
         function applyPersonnelFilters() {
             const unvanSelect = document.getElementById('filter-unvan');
@@ -1504,7 +1786,7 @@ if ($isLoggedIn) {
             const filterBtn = document.getElementById('mobileFilterToggleBtn');
             if (filterBtn) {
                 if (hasActiveFilters) {
-                    filterBtn.className = "p-3 bg-indigo-600 dark:bg-indigo-500 text-white dark:text-zinc-950 border border-indigo-600 dark:border-indigo-500 rounded-lg active:scale-95 transition-all cursor-pointer flex items-center justify-center shadow-md shadow-indigo-500/10";
+                    filterBtn.className = "p-3 bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-950 border border-zinc-900 dark:border-zinc-50 rounded-lg active:scale-95 transition-all cursor-pointer flex items-center justify-center shadow-md shadow-zinc-500/10";
                 } else {
                     filterBtn.className = "p-3 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-lg text-zinc-600 dark:text-zinc-400 active:scale-95 transition-all cursor-pointer flex items-center justify-center";
                 }
@@ -1519,9 +1801,9 @@ if ($isLoggedIn) {
                     if (selectedUnvans.length > 0) {
                         const labels = Array.from(unvanSelect.selectedOptions).map(o => o.text);
                         badgesHtml += `
-                            <div class="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
+                            <div class="inline-flex items-center gap-1.5 bg-zinc-100 text-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700/50 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
                                 <span>Unvan: ${labels.join(', ')}</span>
-                                <button onclick="clearSingleFilter('unvan')" class="hover:text-indigo-900 dark:hover:text-indigo-200 transition-colors ml-0.5 font-bold cursor-pointer">
+                                <button onclick="clearSingleFilter('unvan')" class="hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors ml-0.5 font-bold cursor-pointer">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
                                 </button>
                             </div>
@@ -1531,9 +1813,9 @@ if ($isLoggedIn) {
                     if (selectedDurums.length > 0) {
                         const labels = Array.from(durumSelect.selectedOptions).map(o => o.text);
                         badgesHtml += `
-                            <div class="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
+                            <div class="inline-flex items-center gap-1.5 bg-zinc-100 text-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700/50 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
                                 <span>Durum: ${labels.join(', ')}</span>
-                                <button onclick="clearSingleFilter('durum')" class="hover:text-indigo-900 dark:hover:text-indigo-200 transition-colors ml-0.5 font-bold cursor-pointer">
+                                <button onclick="clearSingleFilter('durum')" class="hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors ml-0.5 font-bold cursor-pointer">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
                                 </button>
                             </div>
@@ -1543,9 +1825,9 @@ if ($isLoggedIn) {
                     if (ogrenim) {
                         const opText = ogrenimOp === 'equals' ? '=' : '≠';
                         badgesHtml += `
-                            <div class="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
+                            <div class="inline-flex items-center gap-1.5 bg-zinc-100 text-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700/50 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
                                 <span>Öğrenim ${opText} ${ogrenim.toUpperCase()}</span>
-                                <button onclick="clearSingleFilter('ogrenim')" class="hover:text-indigo-900 dark:hover:text-indigo-200 transition-colors ml-0.5 font-bold cursor-pointer">
+                                <button onclick="clearSingleFilter('ogrenim')" class="hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors ml-0.5 font-bold cursor-pointer">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
                                 </button>
                             </div>
@@ -1560,9 +1842,9 @@ if ($isLoggedIn) {
                         if (ucretOp === 'lte') opSign = '≤';
                         
                         badgesHtml += `
-                            <div class="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
+                            <div class="inline-flex items-center gap-1.5 bg-zinc-100 text-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700/50 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
                                 <span>Ücret ${opSign} ₺${ucretVal.toLocaleString('tr-TR')}</span>
-                                <button onclick="clearSingleFilter('ucret')" class="hover:text-indigo-900 dark:hover:text-indigo-200 transition-colors ml-0.5 font-bold cursor-pointer">
+                                <button onclick="clearSingleFilter('ucret')" class="hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors ml-0.5 font-bold cursor-pointer">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
                                 </button>
                             </div>
@@ -1581,9 +1863,9 @@ if ($isLoggedIn) {
                         const formattedDate = dateParts.length === 3 ? `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}` : baslamaTarih;
 
                         badgesHtml += `
-                            <div class="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
+                            <div class="inline-flex items-center gap-1.5 bg-zinc-100 text-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700/50 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
                                 <span>Giriş ${opSign} ${formattedDate}</span>
-                                <button onclick="clearSingleFilter('baslama')" class="hover:text-indigo-900 dark:hover:text-indigo-200 transition-colors ml-0.5 font-bold cursor-pointer">
+                                <button onclick="clearSingleFilter('baslama')" class="hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors ml-0.5 font-bold cursor-pointer">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
                                 </button>
                             </div>
@@ -1592,9 +1874,9 @@ if ($isLoggedIn) {
 
                     if (window.filterKadroShortcut === 'gelenler') {
                         badgesHtml += `
-                            <div class="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
+                            <div class="inline-flex items-center gap-1.5 bg-zinc-100 text-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700/50 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
                                 <span>Kadroya Geçiş Süresi Dolanlar</span>
-                                <button onclick="clearSingleFilter('kadro')" class="hover:text-indigo-900 dark:hover:text-indigo-200 transition-colors ml-0.5 font-bold cursor-pointer">
+                                <button onclick="clearSingleFilter('kadro')" class="hover:text-zinc-950 dark:hover:text-zinc-100 transition-colors ml-0.5 font-bold cursor-pointer">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
                                 </button>
                             </div>
@@ -1826,7 +2108,7 @@ if ($isLoggedIn) {
 
         // Mobile Custom Select Dropdown Mechanics (Matches Premium Desktop Styling & UX with Multi-Select support)
         function initMobileCustomSelects() {
-            const selects = document.querySelectorAll('#personnelForm select, #filter-sheet select');
+            const selects = document.querySelectorAll('#personnelForm select, #filter-sheet select, #definitionForm select, #def-filter-sheet select');
             selects.forEach(select => {
                 if (select.getAttribute('data-custom-select-initialized')) return;
                 select.setAttribute('data-custom-select-initialized', 'true');
@@ -1854,7 +2136,7 @@ if ($isLoggedIn) {
                 // Trigger button
                 const trigger = document.createElement('button');
                 trigger.type = 'button';
-                trigger.className = 'mobile-input flex items-center justify-between cursor-pointer w-full text-left font-semibold text-xs transition-all duration-200';
+                trigger.className = 'mobile-input flex items-center justify-between cursor-pointer w-full text-left font-semibold text-sm transition-all duration-200';
                 trigger.id = 'custom-select-trigger-' + id;
                 trigger.innerHTML = `
                     <span class="selected-label truncate text-zinc-400 dark:text-zinc-500">Seçim Yapın</span>
@@ -1870,6 +2152,35 @@ if ($isLoggedIn) {
                 
                 // Populate options
                 const options = select.querySelectorAll('option');
+
+                // Prepend sticky search container if options > 3 or is Unvan or Wage select
+                if (options.length > 3 || id === 'filter-unvan' || id === 'form-ucret-select') {
+                    const searchContainer = document.createElement('div');
+                    searchContainer.className = 'p-2 border-b border-zinc-100 dark:border-zinc-800/40 sticky top-0 bg-white dark:bg-zinc-900 z-10';
+                    searchContainer.innerHTML = `
+                        <div class="relative flex items-center bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-2 py-1.5 gap-1.5 w-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" class="opacity-40 text-zinc-400 shrink-0" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            <input type="text" class="popover-search-input bg-transparent border-0 outline-none text-xs w-full font-semibold text-zinc-800 dark:text-zinc-200" placeholder="Ara..." onclick="event.stopPropagation()">
+                        </div>
+                    `;
+                    popover.appendChild(searchContainer);
+                    
+                    const searchInput = searchContainer.querySelector('.popover-search-input');
+                    if (searchInput) {
+                        searchInput.addEventListener('input', (e) => {
+                            const term = e.target.value.toLowerCase();
+                            popover.querySelectorAll('[data-value]').forEach(div => {
+                                const text = div.querySelector('.option-label').innerText.toLowerCase();
+                                if (text.includes(term)) {
+                                    div.style.setProperty('display', 'flex', 'important');
+                                } else {
+                                    div.style.setProperty('display', 'none', 'important');
+                                }
+                            });
+                        });
+                    }
+                }
+
                 options.forEach(opt => {
                     const val = opt.value;
                     const text = opt.text;
@@ -1878,11 +2189,11 @@ if ($isLoggedIn) {
                     if (isDisabled && !val) return; // skip placeholder in dropdown options
                     
                     const optionDiv = document.createElement('div');
-                    optionDiv.className = 'px-4 py-3 text-xs text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer flex items-center justify-between transition-colors border-b border-zinc-100 dark:border-zinc-800/40 last:border-0 font-medium';
+                    optionDiv.className = 'px-4 py-3 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer flex items-center justify-between transition-colors border-b border-zinc-100 dark:border-zinc-800/40 last:border-0 font-medium';
                     optionDiv.setAttribute('data-value', val);
                     optionDiv.innerHTML = `
-                        <span class="option-label">${text}</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-indigo-500 dark:text-indigo-400"><path d="M20 6 9 17l-5-5"/></svg>
+                        <span class="option-label truncate pr-4 text-zinc-800 dark:text-zinc-200 font-semibold">${text}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-zinc-900 dark:text-zinc-100 shrink-0" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     `;
                     
                     optionDiv.addEventListener('click', (e) => {
@@ -1912,6 +2223,9 @@ if ($isLoggedIn) {
                             if (select.closest('#filter-sheet')) {
                                 applyPersonnelFilters();
                             }
+                            if (select.closest('#def-filter-sheet')) {
+                                applyDefinitionFilters();
+                            }
                         } else {
                             select.value = val;
                             select.dispatchEvent(new Event('change'));
@@ -1920,6 +2234,9 @@ if ($isLoggedIn) {
                             
                             if (select.closest('#filter-sheet')) {
                                 applyPersonnelFilters();
+                            }
+                            if (select.closest('#def-filter-sheet')) {
+                                applyDefinitionFilters();
                             }
                         }
                     });
@@ -1957,7 +2274,7 @@ if ($isLoggedIn) {
         }
 
         function syncMobileCustomSelects() {
-            const selects = document.querySelectorAll('#personnelForm select, #filter-sheet select');
+            const selects = document.querySelectorAll('#personnelForm select, #filter-sheet select, #definitionForm select, #def-filter-sheet select');
             selects.forEach(select => {
                 const id = select.id;
                 const wrapper = document.getElementById('custom-select-wrapper-' + id);
@@ -2043,6 +2360,18 @@ if ($isLoggedIn) {
                     onChange: function() {
                         applyPersonnelFilters();
                     }
+                });
+            }
+
+            const formDateInput = document.getElementById('form-baslama');
+            if (formDateInput && !formDateInput._flatpickr) {
+                flatpickr(formDateInput, {
+                    locale: 'tr',
+                    dateFormat: 'Y-m-d',
+                    altInput: true,
+                    altFormat: 'd.m.Y',
+                    disableMobile: true, // Force standard desktop style UI calendar drop
+                    placeholder: 'Giriş Tarihi Seçin'
                 });
             }
         }
