@@ -105,6 +105,12 @@ if ($isLoggedIn) {
     <!-- Quill snow theme CSS for document rendering -->
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     
+    <!-- Flatpickr Date Picker (Shadcn customized theme) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="<?php echo routeUrl('/assets/css/flatpickr.custom.css'); ?>">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
+    
     <!-- Tailwind CSS 4 -->
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     
@@ -802,6 +808,12 @@ if ($isLoggedIn) {
                     // Trigger swiping engine if loading personnel
                     if (tabName === 'personnel') {
                         initSwipeActions();
+                        if (typeof initMobileCustomSelects === 'function') {
+                            initMobileCustomSelects();
+                        }
+                        if (typeof initMobileFlatpickr === 'function') {
+                            initMobileFlatpickr();
+                        }
                     }
 
                     // Re-initialize tab actions if any
@@ -946,6 +958,9 @@ if ($isLoggedIn) {
         function closeAllSheets() {
             document.querySelectorAll('.bottom-sheet').forEach(el => el.classList.remove('open'));
             document.getElementById('sheet-backdrop').classList.remove('open');
+            if (typeof closeAllCustomSelectPopovers === 'function') {
+                closeAllCustomSelectPopovers();
+            }
         }
 
         // Personnel Detail sheet
@@ -1027,6 +1042,9 @@ if ($isLoggedIn) {
             document.getElementById('form-title').innerText = "Yeni Personel Ekle";
             document.getElementById('personnelForm').reset();
             document.getElementById('form-p-id').value = "";
+            if (typeof syncMobileCustomSelects === 'function') {
+                syncMobileCustomSelects();
+            }
             openSheet('form-sheet');
         }
 
@@ -1049,6 +1067,10 @@ if ($isLoggedIn) {
             if (dateParts.length === 3) {
                 const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
                 document.getElementById('form-baslama').value = formattedDate;
+            }
+
+            if (typeof syncMobileCustomSelects === 'function') {
+                syncMobileCustomSelects();
             }
 
             openSheet('form-sheet');
@@ -1236,6 +1258,9 @@ if ($isLoggedIn) {
         // Filter Sheet opening
         function openFilterSheet() {
             closeAllSheets();
+            if (typeof syncMobileCustomSelects === 'function') {
+                syncMobileCustomSelects();
+            }
             const sheet = document.getElementById('filter-sheet');
             const backdrop = document.getElementById('sheet-backdrop');
             if (sheet && backdrop) {
@@ -1247,43 +1272,126 @@ if ($isLoggedIn) {
         // Switch to personnel tab and automatically filter by tenure-eligible personnel
         function viewAllEligible() {
             switchTab('personnel', () => {
-                const kadroSelect = document.getElementById('filter-kadro');
-                if (kadroSelect) {
-                    kadroSelect.value = 'gelenler';
-                }
+                window.filterKadroShortcut = 'gelenler';
                 applyPersonnelFilters();
             });
+        }
+
+        // Clear a single active filter
+        function clearSingleFilter(type) {
+            if (type === 'unvan') {
+                const unvanSelect = document.getElementById('filter-unvan');
+                if (unvanSelect) {
+                    Array.from(unvanSelect.options).forEach(o => o.selected = false);
+                    const placeholder = unvanSelect.querySelector('option[value=""]');
+                    if (placeholder) placeholder.selected = true;
+                }
+            } else if (type === 'durum') {
+                const durumSelect = document.getElementById('filter-durum');
+                if (durumSelect) {
+                    Array.from(durumSelect.options).forEach(o => o.selected = false);
+                    const placeholder = durumSelect.querySelector('option[value=""]');
+                    if (placeholder) placeholder.selected = true;
+                }
+            } else if (type === 'ogrenim') {
+                const ogrenimSelect = document.getElementById('filter-ogrenim');
+                if (ogrenimSelect) ogrenimSelect.value = '';
+            } else if (type === 'ucret') {
+                const ucretInput = document.getElementById('filter-ucret-val');
+                if (ucretInput) ucretInput.value = '';
+            } else if (type === 'baslama') {
+                const baslamaDateInput = document.getElementById('filter-baslama-tarih');
+                if (baslamaDateInput) {
+                    baslamaDateInput.value = '';
+                    if (baslamaDateInput._flatpickr) {
+                        baslamaDateInput._flatpickr.clear();
+                    }
+                }
+            } else if (type === 'kadro') {
+                window.filterKadroShortcut = null;
+            }
+            
+            if (typeof syncMobileCustomSelects === 'function') {
+                syncMobileCustomSelects();
+            }
+            applyPersonnelFilters();
         }
 
         // Clear all filters
         function clearAllFilters() {
             const unvanSelect = document.getElementById('filter-unvan');
             const durumSelect = document.getElementById('filter-durum');
-            const baslamaSelect = document.getElementById('filter-baslama-yili');
-            const kadroSelect = document.getElementById('filter-kadro');
+            const ogrenimSelect = document.getElementById('filter-ogrenim');
+            const ogrenimOpSelect = document.getElementById('filter-ogrenim-op');
+            const ucretInput = document.getElementById('filter-ucret-val');
+            const ucretOpSelect = document.getElementById('filter-ucret-op');
+            const baslamaDateInput = document.getElementById('filter-baslama-tarih');
+            const baslamaOpSelect = document.getElementById('filter-baslama-op');
+            const searchInput = document.getElementById('personnelSearch');
             
-            if (unvanSelect) unvanSelect.value = '';
-            if (durumSelect) durumSelect.value = '';
-            if (baslamaSelect) baslamaSelect.value = '';
-            if (kadroSelect) kadroSelect.value = '';
+            if (unvanSelect) {
+                Array.from(unvanSelect.options).forEach(o => o.selected = false);
+                const placeholder = unvanSelect.querySelector('option[value=""]');
+                if (placeholder) placeholder.selected = true;
+            }
+            if (durumSelect) {
+                Array.from(durumSelect.options).forEach(o => o.selected = false);
+                const placeholder = durumSelect.querySelector('option[value=""]');
+                if (placeholder) placeholder.selected = true;
+            }
+            if (ogrenimSelect) ogrenimSelect.value = '';
+            if (ogrenimOpSelect) ogrenimOpSelect.value = 'equals';
+            if (ucretInput) ucretInput.value = '';
+            if (ucretOpSelect) ucretOpSelect.value = 'equals';
+            if (baslamaDateInput) {
+                baslamaDateInput.value = '';
+                if (baslamaDateInput._flatpickr) {
+                    baslamaDateInput._flatpickr.clear();
+                }
+            }
+            if (baslamaOpSelect) baslamaOpSelect.value = 'equals';
+            if (searchInput) searchInput.value = '';
+
+            window.filterKadroShortcut = null;
+            
+            if (typeof syncMobileCustomSelects === 'function') {
+                syncMobileCustomSelects();
+            }
             
             applyPersonnelFilters();
             closeAllSheets();
         }
 
-        // Apply Personnel Filters dynamically in JS (extremely fast SPA feel)
+        // Apply Personnel Filters dynamically in JS (extremely fast SPA feel with premium operators)
         function applyPersonnelFilters() {
             const unvanSelect = document.getElementById('filter-unvan');
             const durumSelect = document.getElementById('filter-durum');
-            const baslamaSelect = document.getElementById('filter-baslama-yili');
-            const kadroSelect = document.getElementById('filter-kadro');
+            const ogrenimSelect = document.getElementById('filter-ogrenim');
+            const ogrenimOpSelect = document.getElementById('filter-ogrenim-op');
+            const ucretInput = document.getElementById('filter-ucret-val');
+            const ucretOpSelect = document.getElementById('filter-ucret-op');
+            const baslamaDateInput = document.getElementById('filter-baslama-tarih');
+            const baslamaOpSelect = document.getElementById('filter-baslama-op');
             const searchInput = document.getElementById('personnelSearch');
 
-            const unvan = unvanSelect ? unvanSelect.value.toLowerCase() : '';
-            const durum = durumSelect ? durumSelect.value.toLowerCase() : '';
-            const yil = baslamaSelect ? baslamaSelect.value : '';
-            const kadro = kadroSelect ? kadroSelect.value : '';
             const searchVal = searchInput ? searchInput.value.toLowerCase() : '';
+            
+            // Multiple select values
+            const selectedUnvans = unvanSelect ? Array.from(unvanSelect.selectedOptions)
+                                                      .map(o => o.value.toLowerCase())
+                                                      .filter(v => v !== '') : [];
+            const selectedDurums = durumSelect ? Array.from(durumSelect.selectedOptions)
+                                                        .map(o => o.value.toLowerCase())
+                                                        .filter(v => v !== '') : [];
+            
+            const ogrenim = ogrenimSelect ? ogrenimSelect.value.toLowerCase() : '';
+            const ogrenimOp = ogrenimOpSelect ? ogrenimOpSelect.value : 'equals';
+            
+            const ucretVal = ucretInput && ucretInput.value !== '' ? parseFloat(ucretInput.value) : null;
+            const ucretOp = ucretOpSelect ? ucretOpSelect.value : 'equals';
+
+            const baslamaTarih = baslamaDateInput ? baslamaDateInput.value : ''; // yyyy-mm-dd
+            const baslamaOp = baslamaOpSelect ? baslamaOpSelect.value : 'equals';
 
             const cards = document.querySelectorAll('.personnel-item-card');
             let countVisible = 0;
@@ -1293,31 +1401,84 @@ if ($isLoggedIn) {
                 const cardTc = (card.getAttribute('data-tc') || '').toLowerCase();
                 const cardUnvan = (card.getAttribute('data-unvan') || '').toLowerCase();
                 const cardDurum = (card.getAttribute('data-durum') || '').toLowerCase();
+                const cardOgrenim = (card.getAttribute('data-ogrenim') || '').toLowerCase();
+                const cardUcretRaw = parseFloat(card.getAttribute('data-ucret-raw') || '0');
                 const cardBaslama = card.getAttribute('data-baslama') || ''; // dd.mm.yyyy
                 const cardEligible = card.getAttribute('data-eligible') === '1';
 
+                // Search Match
                 const matchesSearch = cardName.includes(searchVal) || cardTc.includes(searchVal);
-                const matchesUnvan = !unvan || cardUnvan === unvan;
-                const matchesDurum = !durum || cardDurum === durum;
-                
-                let matchesYil = true;
-                if (yil) {
-                    const parts = cardBaslama.split('.');
-                    if (parts.length === 3) {
-                        matchesYil = parts[2] === yil;
-                    } else {
-                        matchesYil = false;
+
+                // Unvan Operator Match (Multi-Select)
+                let matchesUnvan = true;
+                if (selectedUnvans.length > 0) {
+                    matchesUnvan = selectedUnvans.includes(cardUnvan);
+                }
+
+                // Durum Operator Match (Multi-Select)
+                let matchesDurum = true;
+                if (selectedDurums.length > 0) {
+                    matchesDurum = selectedDurums.includes(cardDurum);
+                }
+
+                // Öğrenim Operator Match
+                let matchesOgrenim = true;
+                if (ogrenim) {
+                    if (ogrenimOp === 'equals') {
+                        matchesOgrenim = (cardOgrenim === ogrenim);
+                    } else if (ogrenimOp === 'not_equals') {
+                        matchesOgrenim = (cardOgrenim !== ogrenim);
                     }
                 }
 
-                let matchesKadro = true;
-                if (kadro === 'gelenler') {
-                    matchesKadro = cardEligible;
-                } else if (kadro === 'gelmeyenler') {
-                    matchesKadro = !cardEligible;
+                // Sözleşme Ücret Operator Match
+                let matchesUcret = true;
+                if (ucretVal !== null) {
+                    if (ucretOp === 'equals') {
+                        matchesUcret = (cardUcretRaw === ucretVal);
+                    } else if (ucretOp === 'gt') {
+                        matchesUcret = (cardUcretRaw > ucretVal);
+                    } else if (ucretOp === 'lt') {
+                        matchesUcret = (cardUcretRaw < ucretVal);
+                    } else if (ucretOp === 'gte') {
+                        matchesUcret = (cardUcretRaw >= ucretVal);
+                    } else if (ucretOp === 'lte') {
+                        matchesUcret = (cardUcretRaw <= ucretVal);
+                    }
                 }
 
-                if (matchesSearch && matchesUnvan && matchesDurum && matchesYil && matchesKadro) {
+                // Kadro Shortcut Match
+                let matchesKadro = true;
+                if (window.filterKadroShortcut === 'gelenler') {
+                    matchesKadro = cardEligible;
+                }
+
+                // Göreve Başlama Tarihi Operator Match
+                let matchesBaslama = true;
+                if (baslamaTarih) {
+                    const parts = cardBaslama.split('.');
+                    if (parts.length === 3) {
+                        const cardDateStr = `${parts[2]}-${parts[1]}-${parts[0]}`; // yyyy-mm-dd
+                        const cardTime = new Date(cardDateStr).getTime();
+                        const filterTime = new Date(baslamaTarih).getTime();
+                        
+                        if (baslamaOp === 'equals') {
+                            matchesBaslama = (cardDateStr === baslamaTarih);
+                        } else if (baslamaOp === 'gt') {
+                            matchesBaslama = (cardTime > filterTime);
+                        } else if (baslamaOp === 'lt') {
+                            matchesBaslama = (cardTime < filterTime);
+                        } else if (baslamaOp === 'gte') {
+                            matchesBaslama = (cardTime >= filterTime);
+                        } else if (baslamaOp === 'lte') {
+                            matchesBaslama = (cardTime <= filterTime);
+                        }
+                    } else {
+                        matchesBaslama = false;
+                    }
+                }
+
+                if (matchesSearch && matchesUnvan && matchesDurum && matchesOgrenim && matchesUcret && matchesKadro && matchesBaslama) {
                     card.classList.remove('hidden');
                     countVisible++;
                 } else {
@@ -1331,7 +1492,122 @@ if ($isLoggedIn) {
                 countText.innerText = `Toplam ${countVisible} Çalışan`;
             }
 
-            closeAllSheets();
+            // Check if any filters are active (excluding search)
+            const hasActiveFilters = selectedUnvans.length > 0 || 
+                                     selectedDurums.length > 0 || 
+                                     ogrenim !== '' || 
+                                     ucretVal !== null || 
+                                     baslamaTarih !== '' || 
+                                     window.filterKadroShortcut === 'gelenler';
+
+            // Toggle active state for filter toggle button
+            const filterBtn = document.getElementById('mobileFilterToggleBtn');
+            if (filterBtn) {
+                if (hasActiveFilters) {
+                    filterBtn.className = "p-3 bg-indigo-600 dark:bg-indigo-500 text-white dark:text-zinc-950 border border-indigo-600 dark:border-indigo-500 rounded-lg active:scale-95 transition-all cursor-pointer flex items-center justify-center shadow-md shadow-indigo-500/10";
+                } else {
+                    filterBtn.className = "p-3 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-lg text-zinc-600 dark:text-zinc-400 active:scale-95 transition-all cursor-pointer flex items-center justify-center";
+                }
+            }
+
+            // Render Active Filter Badges dynamically
+            const badgeContainer = document.getElementById('active-filters-badges');
+            if (badgeContainer) {
+                if (hasActiveFilters) {
+                    let badgesHtml = '';
+
+                    if (selectedUnvans.length > 0) {
+                        const labels = Array.from(unvanSelect.selectedOptions).map(o => o.text);
+                        badgesHtml += `
+                            <div class="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
+                                <span>Unvan: ${labels.join(', ')}</span>
+                                <button onclick="clearSingleFilter('unvan')" class="hover:text-indigo-900 dark:hover:text-indigo-200 transition-colors ml-0.5 font-bold cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    if (selectedDurums.length > 0) {
+                        const labels = Array.from(durumSelect.selectedOptions).map(o => o.text);
+                        badgesHtml += `
+                            <div class="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
+                                <span>Durum: ${labels.join(', ')}</span>
+                                <button onclick="clearSingleFilter('durum')" class="hover:text-indigo-900 dark:hover:text-indigo-200 transition-colors ml-0.5 font-bold cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    if (ogrenim) {
+                        const opText = ogrenimOp === 'equals' ? '=' : '≠';
+                        badgesHtml += `
+                            <div class="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
+                                <span>Öğrenim ${opText} ${ogrenim.toUpperCase()}</span>
+                                <button onclick="clearSingleFilter('ogrenim')" class="hover:text-indigo-900 dark:hover:text-indigo-200 transition-colors ml-0.5 font-bold cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    if (ucretVal !== null) {
+                        let opSign = '=';
+                        if (ucretOp === 'gt') opSign = '>';
+                        if (ucretOp === 'lt') opSign = '<';
+                        if (ucretOp === 'gte') opSign = '≥';
+                        if (ucretOp === 'lte') opSign = '≤';
+                        
+                        badgesHtml += `
+                            <div class="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
+                                <span>Ücret ${opSign} ₺${ucretVal.toLocaleString('tr-TR')}</span>
+                                <button onclick="clearSingleFilter('ucret')" class="hover:text-indigo-900 dark:hover:text-indigo-200 transition-colors ml-0.5 font-bold cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    if (baslamaTarih) {
+                        let opSign = '=';
+                        if (baslamaOp === 'gt') opSign = '>';
+                        if (baslamaOp === 'lt') opSign = '<';
+                        if (baslamaOp === 'gte') opSign = '≥';
+                        if (baslamaOp === 'lte') opSign = '≤';
+
+                        // Format date for badge
+                        const dateParts = baslamaTarih.split('-');
+                        const formattedDate = dateParts.length === 3 ? `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}` : baslamaTarih;
+
+                        badgesHtml += `
+                            <div class="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
+                                <span>Giriş ${opSign} ${formattedDate}</span>
+                                <button onclick="clearSingleFilter('baslama')" class="hover:text-indigo-900 dark:hover:text-indigo-200 transition-colors ml-0.5 font-bold cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    if (window.filterKadroShortcut === 'gelenler') {
+                        badgesHtml += `
+                            <div class="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900/30 px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider">
+                                <span>Kadroya Geçiş Süresi Dolanlar</span>
+                                <button onclick="clearSingleFilter('kadro')" class="hover:text-indigo-900 dark:hover:text-indigo-200 transition-colors ml-0.5 font-bold cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    badgeContainer.innerHTML = badgesHtml;
+                    badgeContainer.classList.remove('hidden');
+                } else {
+                    badgeContainer.innerHTML = '';
+                    badgeContainer.classList.add('hidden');
+                }
+            }
         }
 
         // Download Word Document
@@ -1548,9 +1824,243 @@ if ($isLoggedIn) {
             }).filter(row => row !== null);
         }
 
+        // Mobile Custom Select Dropdown Mechanics (Matches Premium Desktop Styling & UX with Multi-Select support)
+        function initMobileCustomSelects() {
+            const selects = document.querySelectorAll('#personnelForm select, #filter-sheet select');
+            selects.forEach(select => {
+                if (select.getAttribute('data-custom-select-initialized')) return;
+                select.setAttribute('data-custom-select-initialized', 'true');
+                
+                const id = select.id;
+                const parent = select.parentElement;
+                
+                // Hide native select visually but keep it focusable for browser validation
+                select.style.position = 'absolute';
+                select.style.width = '1px';
+                select.style.height = '1px';
+                select.style.padding = '0';
+                select.style.margin = '0';
+                select.style.border = '0';
+                select.style.opacity = '0.01';
+                select.style.pointerEvents = 'none';
+                select.style.overflow = 'hidden';
+                select.style.clip = 'rect(0, 0, 0, 0)';
+                
+                // Create custom select wrapper
+                const wrapper = document.createElement('div');
+                wrapper.className = 'relative mobile-custom-select-wrapper w-full';
+                wrapper.id = 'custom-select-wrapper-' + id;
+                
+                // Trigger button
+                const trigger = document.createElement('button');
+                trigger.type = 'button';
+                trigger.className = 'mobile-input flex items-center justify-between cursor-pointer w-full text-left font-semibold text-xs transition-all duration-200';
+                trigger.id = 'custom-select-trigger-' + id;
+                trigger.innerHTML = `
+                    <span class="selected-label truncate text-zinc-400 dark:text-zinc-500">Seçim Yapın</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" class="opacity-50 shrink-0 text-zinc-400 transition-transform duration-200" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                    </svg>
+                `;
+                
+                // Popover container
+                const popover = document.createElement('div');
+                popover.className = 'mobile-custom-select-popover absolute top-full left-0 right-0 mt-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xl z-50 hidden max-h-60 overflow-y-auto app-scroll py-1 animate-fade-in';
+                popover.id = 'custom-select-popover-' + id;
+                
+                // Populate options
+                const options = select.querySelectorAll('option');
+                options.forEach(opt => {
+                    const val = opt.value;
+                    const text = opt.text;
+                    const isDisabled = opt.disabled;
+                    
+                    if (isDisabled && !val) return; // skip placeholder in dropdown options
+                    
+                    const optionDiv = document.createElement('div');
+                    optionDiv.className = 'px-4 py-3 text-xs text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer flex items-center justify-between transition-colors border-b border-zinc-100 dark:border-zinc-800/40 last:border-0 font-medium';
+                    optionDiv.setAttribute('data-value', val);
+                    optionDiv.innerHTML = `
+                        <span class="option-label">${text}</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="check-icon hidden text-indigo-500 dark:text-indigo-400"><path d="M20 6 9 17l-5-5"/></svg>
+                    `;
+                    
+                    optionDiv.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (select.multiple) {
+                            const isPlaceholder = (val === "");
+                            if (isPlaceholder) {
+                                // Clear all selections
+                                Array.from(options).forEach(o => o.selected = false);
+                                opt.selected = true;
+                            } else {
+                                // Deselect placeholder option
+                                const placeholderOpt = select.querySelector('option[value=""]');
+                                if (placeholderOpt) placeholderOpt.selected = false;
+                                
+                                opt.selected = !opt.selected;
+                                
+                                // If nothing selected, revert to placeholder
+                                const anySelected = Array.from(options).some(o => o.value !== "" && o.selected);
+                                if (!anySelected && placeholderOpt) {
+                                    placeholderOpt.selected = true;
+                                }
+                            }
+                            select.dispatchEvent(new Event('change'));
+                            syncMobileCustomSelects();
+                            
+                            if (select.closest('#filter-sheet')) {
+                                applyPersonnelFilters();
+                            }
+                        } else {
+                            select.value = val;
+                            select.dispatchEvent(new Event('change'));
+                            syncMobileCustomSelects();
+                            closeAllCustomSelectPopovers();
+                            
+                            if (select.closest('#filter-sheet')) {
+                                applyPersonnelFilters();
+                            }
+                        }
+                    });
+                    
+                    popover.appendChild(optionDiv);
+                });
+                
+                wrapper.appendChild(trigger);
+                wrapper.appendChild(popover);
+                parent.appendChild(wrapper);
+                
+                // Trigger click handler
+                trigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isHidden = popover.classList.contains('hidden');
+                    closeAllCustomSelectPopovers();
+                    if (isHidden) {
+                        popover.classList.remove('hidden');
+                        trigger.querySelector('svg').classList.add('rotate-180');
+                    }
+                });
+            });
+            
+            // Sync initial state
+            syncMobileCustomSelects();
+        }
+
+        function closeAllCustomSelectPopovers() {
+            document.querySelectorAll('.mobile-custom-select-popover').forEach(popover => {
+                popover.classList.add('hidden');
+            });
+            document.querySelectorAll('.mobile-custom-select-wrapper button svg').forEach(svg => {
+                svg.classList.remove('rotate-180');
+            });
+        }
+
+        function syncMobileCustomSelects() {
+            const selects = document.querySelectorAll('#personnelForm select, #filter-sheet select');
+            selects.forEach(select => {
+                const id = select.id;
+                const wrapper = document.getElementById('custom-select-wrapper-' + id);
+                if (!wrapper) return;
+                
+                const trigger = wrapper.querySelector('button');
+                const popover = wrapper.querySelector('.mobile-custom-select-popover');
+                const selectedLabelSpan = trigger.querySelector('.selected-label');
+                
+                if (select.multiple) {
+                    const selectedOptions = Array.from(select.selectedOptions).filter(o => o.value !== "");
+                    if (selectedOptions.length > 0) {
+                        selectedLabelSpan.innerText = selectedOptions.map(o => o.text).join(', ');
+                        selectedLabelSpan.classList.remove('text-zinc-400', 'dark:text-zinc-500');
+                        selectedLabelSpan.classList.add('text-zinc-900', 'dark:text-zinc-100');
+                    } else {
+                        const placeholderOpt = select.querySelector('option[value=""]') || select.querySelector('option');
+                        selectedLabelSpan.innerText = placeholderOpt ? placeholderOpt.text : 'Tümü';
+                        selectedLabelSpan.classList.add('text-zinc-400', 'dark:text-zinc-500');
+                        selectedLabelSpan.classList.remove('text-zinc-900', 'dark:text-zinc-100');
+                    }
+                    
+                    // Mark active options
+                    popover.querySelectorAll('[data-value]').forEach(item => {
+                        const val = item.getAttribute('data-value');
+                        const check = item.querySelector('.check-icon');
+                        const opt = select.querySelector(`option[value="${val}"]`);
+                        
+                        if (opt && opt.selected && val !== "") {
+                            item.classList.add('bg-zinc-50', 'dark:bg-zinc-800', 'text-zinc-900', 'dark:text-white', 'font-bold');
+                            check.classList.remove('hidden');
+                        } else if (val === "" && (!opt || opt.selected)) {
+                            item.classList.add('bg-zinc-50', 'dark:bg-zinc-800', 'text-zinc-900', 'dark:text-white', 'font-bold');
+                            check.classList.remove('hidden');
+                        } else {
+                            item.classList.remove('bg-zinc-50', 'dark:bg-zinc-800', 'text-zinc-900', 'dark:text-white', 'font-bold');
+                            check.classList.add('hidden');
+                        }
+                    });
+                } else {
+                    const selectedValue = select.value;
+                    const selectedOption = select.querySelector(`option[value="${selectedValue}"]`) || select.querySelector('option:checked');
+                    
+                    if (selectedOption) {
+                        selectedLabelSpan.innerText = selectedOption.text;
+                        if (selectedOption.disabled && !selectedOption.value) {
+                            // Placeholder option selected (no value yet)
+                            selectedLabelSpan.classList.add('text-zinc-400', 'dark:text-zinc-500');
+                            selectedLabelSpan.classList.remove('text-zinc-900', 'dark:text-zinc-100');
+                        } else {
+                            selectedLabelSpan.classList.remove('text-zinc-400', 'dark:text-zinc-500');
+                            selectedLabelSpan.classList.add('text-zinc-900', 'dark:text-zinc-100');
+                        }
+                    }
+                    
+                    // Mark active option
+                    popover.querySelectorAll('[data-value]').forEach(item => {
+                        const val = item.getAttribute('data-value');
+                        const check = item.querySelector('.check-icon');
+                        if (val === selectedValue) {
+                            item.classList.add('bg-zinc-50', 'dark:bg-zinc-800', 'text-zinc-900', 'dark:text-white', 'font-bold');
+                            check.classList.remove('hidden');
+                        } else {
+                            item.classList.remove('bg-zinc-50', 'dark:bg-zinc-800', 'text-zinc-900', 'dark:text-white', 'font-bold');
+                            check.classList.add('hidden');
+                        }
+                    });
+                }
+            });
+        }
+
+        // Initialize custom date picker via Flatpickr
+        function initMobileFlatpickr() {
+            const dateInput = document.getElementById('filter-baslama-tarih');
+            if (dateInput && !dateInput._flatpickr) {
+                flatpickr(dateInput, {
+                    locale: 'tr',
+                    dateFormat: 'Y-m-d',
+                    altInput: true,
+                    altFormat: 'd.m.Y',
+                    disableMobile: true, // Force standard desktop style UI calendar drop
+                    placeholder: 'Tarih Seçin',
+                    onChange: function() {
+                        applyPersonnelFilters();
+                    }
+                });
+            }
+        }
+
+        // Click outside event listener to automatically dismiss custom select popovers
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.mobile-custom-select-wrapper')) {
+                closeAllCustomSelectPopovers();
+            }
+        });
+
         // Initial tab loading on DOM ready if user is logged in
         window.addEventListener('DOMContentLoaded', () => {
             <?php if ($isLoggedIn): ?>
+            // Initialize mobile custom selects on form fields
+            initMobileCustomSelects();
+            initMobileFlatpickr();
+
             const lastActiveTab = localStorage.getItem('last_active_tab') || 'home';
             const lastActiveSubpage = localStorage.getItem('last_active_subpage');
             

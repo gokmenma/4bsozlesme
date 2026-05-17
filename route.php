@@ -43,7 +43,65 @@ function routeUrl(string $path): string
 
 function isStandaloneRoute(string $page): bool
 {
-    return in_array($page, ['/login', '/logout', '/register'], true) || strpos($page, '/mobile') === 0;
+    if (in_array($page, ['/login', '/logout', '/register'], true)) {
+        return true;
+    }
+    if (strpos($page, '/mobile') === 0) {
+        return true;
+    }
+    
+    // AJAX APIs & File Download Endpoints (Should never be redirected to /mobile on real devices)
+    $apiAndDownloadRoutes = [
+        // Personnel APIs
+        '/personel-datatable',
+        '/personel-ekle',
+        '/personel-get',
+        '/personel-guncelle',
+        '/personel-ai-scan',
+        '/personel-sil',
+        '/personel-get-preview',
+        '/personel-download-word',
+        '/personel-import-excel',
+        '/personel-sample-template',
+        
+        // Wage/Salary APIs
+        '/ucret-ekle',
+        '/ucret-guncelle',
+        '/ucret-sil',
+        '/ucret-import',
+        
+        // User/Auth APIs
+        '/kullanici-ekle',
+        '/kullanici-guncelle',
+        '/kullanici-sil',
+        '/sifre-degistir',
+        
+        // Subscription APIs
+        '/abonelik-paket-ekle',
+        '/abonelik-paket-guncelle',
+        '/abonelik-paket-sil',
+        '/abonelik-satinal',
+        '/abonelik-onayla',
+        '/abonelik-sil',
+        '/abonelik-reddet',
+        
+        // Settings/Institution/Profile APIs
+        '/admin-kurum-guncelle',
+        '/admin-kurum-sil',
+        '/profil-guncelle',
+        '/kurum-ekle',
+        '/hesap-sil',
+        '/ayarlar-kaydet',
+        '/onboarding-complete',
+        
+        // Other download/API endpoints
+        '/doner-matrahi-indir'
+    ];
+    if (in_array($page, $apiAndDownloadRoutes, true)) {
+        return true;
+    }
+    
+    return false;
 }
 
 function renderPage(string $page): void

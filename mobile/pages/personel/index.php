@@ -29,6 +29,12 @@ $unvanlar = array_unique(array_filter(array_map(function($p) {
     return $p['unvan'] ?? null;
 }, $personnels)));
 sort($unvanlar);
+
+// Extract unique ogrenimler for advanced filters
+$ogrenimler = array_unique(array_filter(array_map(function($p) {
+    return $p['ogrenim'] ?? null;
+}, $personnels)));
+sort($ogrenimler);
 ?>
 <div class="space-y-4 animate-fade-in pb-16">
     <!-- Search & Filter Bar -->
@@ -39,10 +45,13 @@ sort($unvanlar);
             </div>
             <input id="personnelSearch" type="text" class="mobile-input pl-icon" placeholder="Personel ara (İsim, TC...)" onkeyup="applyPersonnelFilters()">
         </div>
-        <button onclick="openFilterSheet()" class="p-3 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-lg text-zinc-600 dark:text-zinc-400 active:scale-95 transition-all cursor-pointer flex items-center justify-center">
+        <button id="mobileFilterToggleBtn" onclick="openFilterSheet()" class="p-3 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-lg text-zinc-600 dark:text-zinc-400 active:scale-95 transition-all cursor-pointer flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
         </button>
     </div>
+
+    <!-- Active Filter Badges Container -->
+    <div id="active-filters-badges" class="flex flex-wrap gap-1.5 px-0.5 mt-1 hidden"></div>
 
     <!-- Personnel list single card container (Shadcn 3rd image style) -->
     <?php if (empty($personnels)): ?>
@@ -115,7 +124,7 @@ sort($unvanlar);
                      data-ogrenim="<?= htmlspecialchars($p['ogrenim'] ?? '-') ?>"
                      data-kidem="<?= htmlspecialchars($p['kidem_yili'] ?? '-') ?>"
                      data-durum="<?= $p['durum'] ?>"
-                     data-eligible="<?= $is_eligible ? '1' : '0' ?>">
+                     data-ucret-raw="<?= $p['ucret'] ?? 0 ?>" data-eligible="<?= $is_eligible ? '1' : '0' ?>">
                      
                     <!-- Left Background Actions (Sağa Kaydırma) - Elegant Float Brand Actions (3.resimdeki gibi) -->
                     <div class="swipe-left-actions absolute inset-y-0 left-0 flex items-stretch gap-4 pl-4 z-0">
@@ -150,10 +159,12 @@ sort($unvanlar);
                                     </span>
                                 </div>
                                 <!-- Giriş & Kadro Tarihleri -->
-                                <div class="flex items-center gap-x-2 flex-wrap text-[10px] font-bold mt-1 text-zinc-400 dark:text-zinc-500 leading-none">
+                                <div class="flex items-center gap-x-2 flex-wrap text-[10px] font-bold mt-1.5 text-zinc-400 dark:text-zinc-500 leading-none">
                                     <span>Giriş: <?= date('d.m.Y', strtotime($p['goreve_baslama_tarihi'])) ?></span>
                                     <span class="text-zinc-300 dark:text-zinc-800">•</span>
-                                    <span class="text-indigo-600/80 dark:text-indigo-400/80">Kadro: <?= date('d.m.Y', strtotime('+3 years', strtotime($p['goreve_baslama_tarihi']))) ?></span>
+                                    <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase leading-none <?= $is_eligible ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/10' : 'bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/10' ?>">
+                                        Kadro: <?= date('d.m.Y', strtotime('+3 years', strtotime($p['goreve_baslama_tarihi']))) ?>
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -179,66 +190,105 @@ sort($unvanlar);
 </div>
 
 <!-- ADVANCED FILTER BOTTOM SHEET -->
-<div id="filter-sheet" class="bottom-sheet flex flex-col max-h-[75%] bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
+<div id="filter-sheet" class="bottom-sheet flex flex-col max-h-[82%] bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
     <div class="w-12 h-1 bg-zinc-300 dark:bg-zinc-800 rounded-full mx-auto my-3 flex-shrink-0"></div>
     
-    <div class="overflow-y-auto app-scroll px-6 pb-8 flex-1 space-y-5">
+    <div class="overflow-y-auto app-scroll px-6 pb-36 flex-1 space-y-5">
         <div class="flex items-center justify-between">
             <h3 class="text-base font-extrabold text-zinc-900 dark:text-zinc-50">Gelişmiş Filtreleme</h3>
             <button onclick="clearAllFilters()" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">Temizle</button>
         </div>
         
         <div class="space-y-4">
-            <!-- Unvan Filtresi -->
-            <div class="space-y-1.5">
-                <label class="text-[0.78rem] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Unvan</label>
-                <select id="filter-unvan" class="mobile-input">
-                    <option value="">Tüm Unvanlar</option>
-                    <?php foreach ($unvanlar as $u): ?>
-                        <option value="<?= htmlspecialchars($u) ?>"><?= htmlspecialchars($u) ?></option>
-                    <?php endforeach; ?>
-                </select>
+            <!-- Unvan Filtresi (Multiple) -->
+            <div class="p-3.5 border border-zinc-100 dark:border-zinc-800 rounded-2xl space-y-2.5 bg-zinc-50/30 dark:bg-zinc-950/10">
+                <label class="text-[0.75rem] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest block">Unvan (Çoklu Seçim)</label>
+                <div class="relative">
+                    <select id="filter-unvan" class="mobile-input" multiple>
+                        <option value="">Tüm Unvanlar</option>
+                        <?php foreach ($unvanlar as $u): ?>
+                            <option value="<?= htmlspecialchars($u) ?>"><?= htmlspecialchars($u) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             </div>
             
-            <!-- Durum Filtresi -->
-            <div class="space-y-1.5">
-                <label class="text-[0.78rem] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Çalışma Durumu</label>
-                <select id="filter-durum" class="mobile-input">
-                    <option value="">Tümü</option>
-                    <option value="aktif">Aktif</option>
-                    <option value="pasif">Pasif</option>
-                </select>
+            <!-- Durum Filtresi (Multiple) -->
+            <div class="p-3.5 border border-zinc-100 dark:border-zinc-800 rounded-2xl space-y-2.5 bg-zinc-50/30 dark:bg-zinc-950/10">
+                <label class="text-[0.75rem] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest block">Çalışma Durumu (Çoklu Seçim)</label>
+                <div class="relative">
+                    <select id="filter-durum" class="mobile-input" multiple>
+                        <option value="">Tümü</option>
+                        <option value="aktif">Aktif</option>
+                        <option value="pasif">Pasif</option>
+                        <option value="dilekce_alindi">Dilekçe Alındı</option>
+                        <option value="kadroya_gecti">Kadroya Geçti</option>
+                        <option value="kadroya_gecmeyecek">Kadroya Geçmeyecek</option>
+                    </select>
+                </div>
             </div>
 
-            <!-- Kadro Durumu Filtresi -->
-            <div class="space-y-1.5">
-                <label class="text-[0.78rem] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Kadro Durumu</label>
-                <select id="filter-kadro" class="mobile-input">
-                    <option value="">Tümü</option>
-                    <option value="gelenler">Kadroya Geçişi Gelenler (3 Yıl Dolmuş)</option>
-                    <option value="gelmeyenler">Kadroya Geçişi Gelmeyenler</option>
-                </select>
+            <!-- Öğrenim Durumu Filtresi -->
+            <div class="p-3.5 border border-zinc-100 dark:border-zinc-800 rounded-2xl space-y-2.5 bg-zinc-50/30 dark:bg-zinc-950/10">
+                <label class="text-[0.75rem] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest block">Öğrenim Durumu</label>
+                <div class="grid grid-cols-5 gap-2">
+                    <div class="col-span-2">
+                        <select id="filter-ogrenim-op" class="mobile-input">
+                            <option value="equals" selected>Eşittir</option>
+                            <option value="not_equals">Eşit Değil</option>
+                        </select>
+                    </div>
+                    <div class="col-span-3">
+                        <select id="filter-ogrenim" class="mobile-input">
+                            <option value="">Tümü</option>
+                            <?php foreach ($ogrenimler as $o): ?>
+                                <option value="<?= htmlspecialchars($o) ?>"><?= htmlspecialchars($o) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
             </div>
 
-            <!-- Göreve Başlama Yılı Filtresi -->
-            <div class="space-y-1.5">
-                <label class="text-[0.78rem] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Göreve Başlama Yılı</label>
-                <select id="filter-baslama-yili" class="mobile-input">
-                    <option value="">Tüm Yıllar</option>
-                    <?php 
-                    $yillar = array_unique(array_filter(array_map(function($p) {
-                        return !empty($p['goreve_baslama_tarihi']) ? date('Y', strtotime($p['goreve_baslama_tarihi'])) : null;
-                    }, $personnels)));
-                    rsort($yillar);
-                    foreach ($yillar as $y): 
-                    ?>
-                        <option value="<?= $y ?>"><?= $y ?></option>
-                    <?php endforeach; ?>
-                </select>
+            <!-- Sözleşme Ücret Filtresi -->
+            <div class="p-3.5 border border-zinc-100 dark:border-zinc-800 rounded-2xl space-y-2.5 bg-zinc-50/30 dark:bg-zinc-950/10">
+                <label class="text-[0.75rem] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest block">Sözleşme Ücreti</label>
+                <div class="grid grid-cols-5 gap-2">
+                    <div class="col-span-2">
+                        <select id="filter-ucret-op" class="mobile-input">
+                            <option value="equals" selected>Eşittir (=)</option>
+                            <option value="gt">Büyüktür (>)</option>
+                            <option value="lt">Küçüktür (<)</option>
+                            <option value="gte">Büyük Eşit (>=)</option>
+                            <option value="lte">Küçük Eşit (<=)</option>
+                        </select>
+                    </div>
+                    <div class="col-span-3">
+                        <input type="number" id="filter-ucret-val" class="mobile-input text-xs font-semibold" placeholder="Ücret girin (₺)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Göreve Başlama Tarihi Filtresi -->
+            <div class="p-3.5 border border-zinc-100 dark:border-zinc-800 rounded-2xl space-y-2.5 bg-zinc-50/30 dark:bg-zinc-950/10">
+                <label class="text-[0.75rem] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest block">Göreve Başlama Tarihi</label>
+                <div class="grid grid-cols-5 gap-2">
+                    <div class="col-span-2">
+                        <select id="filter-baslama-op" class="mobile-input">
+                            <option value="equals" selected>Eşittir (=)</option>
+                            <option value="gt">Sonra (>)</option>
+                            <option value="lt">Önce (<)</option>
+                            <option value="gte">Sonra veya Eşit (>=)</option>
+                            <option value="lte">Önce veya Eşit (<=)</option>
+                        </select>
+                    </div>
+                    <div class="col-span-3 text-right">
+                        <input type="text" id="filter-baslama-tarih" class="mobile-input text-xs font-semibold py-2.5 px-3 select-none h-[42px] dark:[color-scheme:dark]" placeholder="Tarih Seçin">
+                    </div>
+                </div>
             </div>
         </div>
         
-        <button onclick="applyPersonnelFilters()" class="w-full py-3.5 bg-zinc-900 dark:bg-zinc-50 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-950 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 mt-4 cursor-pointer active:scale-95 transition-all shadow-sm">
+        <button onclick="applyPersonnelFilters(); closeAllSheets();" class="w-full py-3.5 bg-zinc-900 dark:bg-zinc-50 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-950 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 mt-4 cursor-pointer active:scale-95 transition-all shadow-sm">
             Filtreyi Uygula
         </button>
     </div>
