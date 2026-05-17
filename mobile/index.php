@@ -82,7 +82,7 @@ if ($isLoggedIn) {
     <meta name="apple-mobile-web-app-title" content="Sözleşme 4B">
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3208/3208726.png">
+    <link rel="apple-touch-icon" href="<?php echo routeUrl('/mobile/icon-192.png'); ?>">
     
     <script>
         if ('serviceWorker' in navigator) {

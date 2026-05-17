@@ -103,7 +103,7 @@ function renderRoute(string $page): void
         exit;
     }
 
-    if ($page === '/mobile') {
+    if ($page === '/mobile' || $page === '/mobile/' || $page === '/mobile/index.php') {
         include 'mobile/index.php';
         exit;
     }
