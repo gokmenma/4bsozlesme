@@ -41,7 +41,7 @@ function routeUrl(string $path): string
 
 function isStandaloneRoute(string $page): bool
 {
-    return in_array($page, ['/login', '/logout', '/register', '/mobile'], true);
+    return in_array($page, ['/login', '/logout', '/register'], true) || strpos($page, '/mobile') === 0;
 }
 
 function renderPage(string $page): void

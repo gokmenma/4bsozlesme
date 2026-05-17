@@ -35,6 +35,7 @@ jobs:
             **/README.md
             **/database.sql
             **/Database/db.php
+            **/app/core/db.php
           log-level: standard
           dry-run: false
           dangerous-clean-slate: false

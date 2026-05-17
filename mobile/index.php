@@ -830,27 +830,43 @@ if ($isLoggedIn) {
                                 </div>
                             </div>
 
-                            <!-- Action Grid Buttons -->
-                            <div class="grid grid-cols-2 gap-3.5">
-                                <button id="btn-preview-contract" class="py-3.5 bg-zinc-900 dark:bg-zinc-50 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-950 rounded-md font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                    Sözleşme Önizle
-                                </button>
+                            <!-- Premium Action Layout Section -->
+                            <div class="space-y-4 pt-2">
+                                <!-- Section 1: Documents -->
+                                <div class="space-y-2">
+                                    <span class="text-[9px] text-zinc-400 dark:text-zinc-500 font-extrabold uppercase tracking-wider block">YASAL BELGELER & İNDİRME</span>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <button id="btn-preview-contract" class="py-3 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white rounded-xl font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                            Sözleşme Önizle
+                                        </button>
+                                        
+                                        <button id="btn-preview-petition" class="py-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white rounded-xl font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                                            Dilekçe Önizle
+                                        </button>
+                                    </div>
+                                    <button id="btn-download-word" class="w-full py-3 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-xl font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-sm">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5-5 5 5m-5-5v12"/></svg>
+                                        Resmi Word Dosyası İndir (.docx)
+                                    </button>
+                                </div>
                                 
-                                <button id="btn-download-word" class="py-3.5 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5-5 5 5m-5-5v12"/></svg>
-                                    Word İndir
-                                </button>
-                                
-                                <button id="btn-edit-personnel" class="py-3.5 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-md font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 transition-all">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                                    Kartı Düzenle
-                                </button>
-                                
-                                <button id="btn-delete-personnel" class="py-3.5 bg-red-50 dark:bg-zinc-900 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-zinc-800 rounded-md font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 transition-all">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6m4-16v6"/></svg>
-                                    Çalışanı Sil
-                                </button>
+                                <!-- Section 2: Management -->
+                                <div class="space-y-2">
+                                    <span class="text-[9px] text-zinc-400 dark:text-zinc-500 font-extrabold uppercase tracking-wider block">KART YÖNETİMİ</span>
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <button id="btn-edit-personnel" class="py-3 bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-xl font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 transition-all">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                                            Kartı Düzenle
+                                        </button>
+                                        
+                                        <button id="btn-delete-personnel" class="py-3 bg-rose-50 dark:bg-rose-950/20 border border-rose-200/60 dark:border-rose-900/30 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-950/30 rounded-xl font-bold text-xs cursor-pointer flex items-center justify-center gap-1.5 active:scale-95 transition-all">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6m4-16v6"/></svg>
+                                            Çalışanı Sil
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1343,6 +1359,7 @@ if ($isLoggedIn) {
 
             // Attach dynamic event listeners to detail buttons
             document.getElementById('btn-preview-contract').onclick = () => previewContract(id);
+            document.getElementById('btn-preview-petition').onclick = () => previewPetition(id);
             document.getElementById('btn-download-word').onclick = () => downloadWord(id);
             document.getElementById('btn-edit-personnel').onclick = () => openEditFormSheet(cardElement);
             document.getElementById('btn-delete-personnel').onclick = () => confirmDeletePersonnel(id, name);
