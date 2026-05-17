@@ -1,0 +1,19 @@
+{
+  "name": "Sözleşme 4B Mobil Portal",
+  "short_name": "Sözleşme 4B",
+  "description": "4B Sözleşmeli Personel Sözleşme ve Dilekçe Yönetim Portalı",
+  "start_url": "index.php",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "orientation": "portrait",
+  "scope": "./",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3208/3208726.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -75,6 +75,25 @@ if ($isLoggedIn) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Sözleşme 4B Mobil Portal</title>
     
+    <!-- PWA Capabilities & Fullscreen Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Sözleşme 4B">
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3208/3208726.png">
+    
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('PWA Service Worker registered.'))
+                    .catch(err => console.log('Service Worker registration failed: ', err));
+            });
+        }
+    </script>
+    
     <!-- Theme Init -->
     <script src="../assets/js/theme.js"></script>
     
@@ -90,6 +109,9 @@ if ($isLoggedIn) {
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     
     <style>
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+        }
         :root {
             --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
             font-family: var(--font-sans);

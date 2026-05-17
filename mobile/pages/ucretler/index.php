@@ -19,11 +19,6 @@ $stmt_ucret->execute([$tenant_id]);
 $ucretler = $stmt_ucret->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <div class="space-y-4 animate-fade-in">
-    <div>
-        <h2 class="text-lg font-extrabold text-zinc-950 dark:text-zinc-50">Ücret Tanımları</h2>
-        <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">Unvan, Öğrenim & Kıdem Matrahları</p>
-    </div>
-
     <!-- Search Definition -->
     <div class="relative flex items-center">
         <div class="absolute left-4 text-zinc-500">

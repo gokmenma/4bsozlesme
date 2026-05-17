@@ -31,14 +31,6 @@ $unvanlar = array_unique(array_filter(array_map(function($p) {
 sort($unvanlar);
 ?>
 <div class="space-y-4 animate-fade-in pb-16">
-    <!-- Section Header -->
-    <div class="flex items-center justify-between">
-        <div>
-            <h2 class="text-lg font-extrabold text-zinc-950 dark:text-zinc-50">Personel Kadrosu</h2>
-            <p class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider personnel-count-text">Toplam <?= count($personnels) ?> Çalışan</p>
-        </div>
-    </div>
-
     <!-- Search & Filter Bar -->
     <div class="flex items-center gap-2">
         <div class="relative flex-1 flex items-center">
@@ -59,14 +51,14 @@ sort($unvanlar);
             <button onclick="openEkleSheet()" class="px-4 py-2 bg-zinc-50 hover:bg-zinc-200 rounded-md text-xs font-bold mt-2 text-zinc-950">Personel Ekle</button>
         </div>
     <?php else: ?>
-        <div id="personnel-list-wrapper" class="border border-zinc-200 dark:border-zinc-800/80 rounded-xl overflow-hidden shadow-sm divide-y divide-zinc-200/60 dark:divide-zinc-800/50 bg-white dark:bg-zinc-950">
+        <div id="personnel-list-wrapper" class="space-y-3">
             <?php foreach ($personnels as $p): 
                 $tcMasked = substr($p['tc_kimlik'], 0, 3) . '******' . substr($p['tc_kimlik'], -2);
                 
-                // Color-coded premium status badge next to name (exactly like the yellow 'Pending' badge)
+                // Color-coded status badge matching the custom pill design
                 $durumClass = ($p['durum'] === 'aktif') 
-                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/30 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/10' 
-                    : 'bg-amber-50 text-amber-700 border border-amber-200/30 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/10';
+                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/10' 
+                    : 'bg-rose-50 text-rose-600 border border-rose-100 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/10';
 
                 // Initial character calculator for visual avatar circle
                 $words = explode(' ', trim($p['ad_soyad']));
@@ -94,55 +86,51 @@ sort($unvanlar);
                      data-kidem="<?= htmlspecialchars($p['kidem_yili'] ?? '-') ?>"
                      data-durum="<?= $p['durum'] ?>">
                      
-                    <!-- Left Background Actions (Sağa Kaydırma) - Beautiful Premium Solid Actions -->
+                    <!-- Left Background Actions (Sağa Kaydırma) - Elegant Float Brand Actions (3.resimdeki gibi) -->
                     <div class="absolute inset-y-0 left-0 flex items-stretch z-0">
-                        <button onclick="event.stopPropagation(); previewContract('<?= $p['id'] ?>')" class="w-14 h-full bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white flex flex-col items-center justify-center transition-all cursor-pointer gap-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-                            <span class="text-[7.5px] font-extrabold uppercase tracking-wider leading-none">Sözleşme</span>
+                        <button onclick="event.stopPropagation(); previewContract('<?= $p['id'] ?>')" class="w-14 h-full bg-transparent text-indigo-600 dark:text-indigo-400 flex flex-col items-center justify-center transition-all cursor-pointer gap-1.5 hover:scale-110 active:scale-95">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            <span class="text-[9px] font-bold uppercase tracking-wider leading-none">Sözleşme</span>
                         </button>
-                        <button onclick="event.stopPropagation(); previewPetition('<?= $p['id'] ?>')" class="w-14 h-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white flex flex-col items-center justify-center transition-all cursor-pointer gap-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                            <span class="text-[7.5px] font-extrabold uppercase tracking-wider leading-none">Dilekçe</span>
+                        <button onclick="event.stopPropagation(); previewPetition('<?= $p['id'] ?>')" class="w-14 h-full bg-transparent text-emerald-600 dark:text-emerald-400 flex flex-col items-center justify-center transition-all cursor-pointer gap-1.5 hover:scale-110 active:scale-95">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                            <span class="text-[9px] font-bold uppercase tracking-wider leading-none">Dilekçe</span>
                         </button>
                     </div>
 
-                    <!-- Right Background Actions (Sola Kaydırma) - Beautiful Premium Solid Actions -->
+                    <!-- Right Background Actions (Sola Kaydırma) - Elegant Float Brand Actions (3.resimdeki gibi) -->
                     <div class="absolute inset-y-0 right-0 flex items-stretch z-0">
-                        <button onclick="event.stopPropagation(); confirmDeletePersonnel('<?= $p['id'] ?>', '<?= htmlspecialchars($p['ad_soyad']) ?>')" class="w-14 h-full bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white flex flex-col items-center justify-center transition-all cursor-pointer gap-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2m-9 5v6m4-6v6"/></svg>
-                            <span class="text-[7.5px] font-extrabold uppercase tracking-wider leading-none">Sil</span>
+                        <button onclick="event.stopPropagation(); confirmDeletePersonnel('<?= $p['id'] ?>', '<?= htmlspecialchars($p['ad_soyad']) ?>')" class="w-14 h-full bg-transparent text-rose-600 dark:text-rose-400 flex flex-col items-center justify-center transition-all cursor-pointer gap-1.5 hover:scale-110 active:scale-95">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2m-9 5v6m4-6v6"/></svg>
+                            <span class="text-[9px] font-bold uppercase tracking-wider leading-none">Sil</span>
                         </button>
                     </div>
 
-                    <!-- Main Swipeable Row Layer (Exact Organization Members Style) -->
-                    <div class="swipe-front bg-white dark:bg-zinc-950 py-4 px-4 flex items-center justify-between transition-colors hover:bg-zinc-50/50 dark:hover:bg-zinc-900/40 cursor-grab active:cursor-grabbing" 
+                    <!-- Main Swipeable Row Layer (Wages Card Style Match - Bütün kart sınırları ve gölgeleri bu katmana taşındı) -->
+                    <div class="swipe-front bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 shadow-sm flex items-center justify-between transition-colors hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 cursor-grab active:cursor-grabbing" 
                          onclick="openDetailSheet(this.parentElement)">
-                        <div class="flex items-center gap-3.5 select-none pointer-events-none">
-                            <!-- Circular Initials Avatar (Exactly like the 'OH' monogram in the reference image) -->
-                            <div class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 flex items-center justify-center font-semibold text-zinc-600 dark:text-zinc-400 text-sm shadow-sm flex-shrink-0">
-                                <?= $initials ?>
-                            </div>
-                            <div class="space-y-1">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[13.5px] font-semibold text-zinc-900 dark:text-zinc-50 leading-tight"><?= htmlspecialchars($p['ad_soyad']) ?></span>
-                                    <!-- Soft Status Badge (exactly like the 'Pending' tag) -->
-                                    <span class="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider <?= $durumClass ?>">
-                                        <?= htmlspecialchars($p['durum']) ?>
-                                    </span>
-                                </div>
-                                <div class="flex items-center gap-2 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
-                                    <span><?= $tcMasked ?></span>
-                                    <span class="text-zinc-300 dark:text-zinc-800">•</span>
-                                    <span class="text-zinc-900 dark:text-zinc-100 font-bold"><?= number_format($p['ucret'] ?? 0, 2, ',', '.') ?> TL</span>
-                                </div>
+                        <div class="space-y-1.5 select-none pointer-events-none">
+                            <h4 class="text-xs font-bold text-zinc-800 dark:text-zinc-200 leading-tight"><?= htmlspecialchars($p['ad_soyad']) ?></h4>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <!-- Unvan Badge -->
+                                <span class="text-[9px] bg-zinc-100 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 px-2 py-0.5 rounded font-bold uppercase leading-none">
+                                    <?= htmlspecialchars($p['unvan'] ?? 'Unvansız') ?>
+                                </span>
+                                <!-- TC Badge -->
+                                <span class="text-[9px] bg-zinc-50 dark:bg-zinc-950 text-zinc-500 dark:text-zinc-400 border border-zinc-100 dark:border-zinc-800 px-2 py-0.5 rounded font-bold leading-none">
+                                    <?= $tcMasked ?>
+                                </span>
+                                <!-- Durum Badge -->
+                                <span class="text-[9px] border px-2 py-0.5 rounded font-bold uppercase leading-none <?= $durumClass ?>">
+                                    <?= htmlspecialchars($p['durum']) ?>
+                                </span>
                             </div>
                         </div>
                         
-                        <!-- Role Outline Badge on the right (Exactly like Owner/Developer outline pills in reference image) -->
-                        <div class="select-none pointer-events-none flex-shrink-0">
-                            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 bg-white dark:bg-zinc-950 shadow-sm leading-none inline-block">
-                                <?= htmlspecialchars($p['unvan'] ?? 'Unvansız') ?>
-                            </span>
+                        <!-- Right Column (Salary & Label) -->
+                        <div class="text-right select-none pointer-events-none">
+                            <span class="text-xs font-extrabold text-zinc-900 dark:text-zinc-100 block"><?= number_format($p['ucret'] ?? 0, 2, ',', '.') ?> TL</span>
+                            <span class="text-[9px] text-zinc-500 font-semibold block mt-0.5">Aylık Ücret</span>
                         </div>
                     </div>
                 </div>
