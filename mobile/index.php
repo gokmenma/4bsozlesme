@@ -76,7 +76,7 @@ if ($isLoggedIn) {
     <title>Sözleşme 4B Mobil Portal</title>
     
     <!-- PWA Capabilities & Fullscreen Meta Tags -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="<?php echo routeUrl('/mobile/manifest.json'); ?>" crossorigin="use-credentials">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Sözleşme 4B">
@@ -87,7 +87,7 @@ if ($isLoggedIn) {
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
+                navigator.serviceWorker.register('<?php echo routeUrl('/mobile/sw.js'); ?>')
                     .then(reg => console.log('PWA Service Worker registered.'))
                     .catch(err => console.log('Service Worker registration failed: ', err));
             });

@@ -89,6 +89,18 @@ function logoutUser(): void
 
 function renderRoute(string $page): void
 {
+    if ($page === '/mobile/manifest.json') {
+        header('Content-Type: application/json; charset=utf-8');
+        readfile(__DIR__ . '/mobile/manifest.json');
+        exit;
+    }
+
+    if ($page === '/mobile/sw.js') {
+        header('Content-Type: application/javascript; charset=utf-8');
+        readfile(__DIR__ . '/mobile/sw.js');
+        exit;
+    }
+
     if ($page === '/mobile') {
         include 'mobile/index.php';
         exit;
