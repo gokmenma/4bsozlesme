@@ -332,6 +332,24 @@ function renderRoute(string $page): void
         exit;
     }
 
+    if ($page === '/abonelik-onayla' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new SubscriptionController();
+        $controller->approve();
+        exit;
+    }
+
+    if ($page === '/abonelik-sil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new SubscriptionController();
+        $controller->deleteSubscription();
+        exit;
+    }
+
+    if ($page === '/abonelik-reddet' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new SubscriptionController();
+        $controller->reject();
+        exit;
+    }
+
     if ($page === '/kurum-yonetimi') {
         $controller = new SuperadminController();
         $data = $controller->tenants();

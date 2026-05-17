@@ -118,6 +118,9 @@ $pageSubtitle = 'Abonelik paketlerinizi ve ödeme geçmişinizi yönetin';
                         <th class="px-6 py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Tarih</th>
                         <th class="px-6 py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Bitiş</th>
                         <th class="px-6 py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider">Durum</th>
+                        <?php if($_SESSION['role'] === 'superadmin'): ?>
+                            <th class="px-6 py-4 text-xs font-semibold text-zinc-500 uppercase tracking-wider">İşlem</th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800">
@@ -132,12 +135,55 @@ $pageSubtitle = 'Abonelik paketlerinizi ve ödeme geçmişinizi yönetin';
                             <td class="px-6 py-4 text-zinc-600 dark:text-zinc-400"><?php echo date('d.m.Y', strtotime($item['start_date'])); ?></td>
                             <td class="px-6 py-4 text-zinc-600 dark:text-zinc-400"><?php echo date('d.m.Y', strtotime($item['end_date'])); ?></td>
                             <td class="px-6 py-4">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?php 
-                                    echo $item['status'] === 'active' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-400'; 
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold <?php 
+                                    if ($item['payment_status'] === 'pending') {
+                                        echo 'bg-amber-100 text-amber-850 border border-amber-200 dark:bg-amber-955/30 dark:text-amber-405 dark:border-amber-900/30 animate-pulse';
+                                    } elseif ($item['payment_status'] === 'failed') {
+                                        echo 'bg-rose-100 text-rose-850 border border-rose-200 dark:bg-rose-955/30 dark:text-rose-450 dark:border-rose-900/30';
+                                    } elseif ($item['status'] === 'active') {
+                                        echo 'bg-emerald-100 text-emerald-850 border border-emerald-200 dark:bg-emerald-955/30 dark:text-emerald-400 dark:border-emerald-900/30';
+                                    } elseif ($item['status'] === 'expired') {
+                                        echo 'bg-zinc-100 text-zinc-800 border border-zinc-200 dark:bg-zinc-800 dark:text-zinc-400 dark:border-zinc-700';
+                                    } else {
+                                        echo 'bg-red-100 text-red-850 border border-red-200 dark:bg-red-955/30 dark:text-red-400 dark:border-red-900/30';
+                                    }
                                 ?>">
-                                    <?php echo $item['status'] === 'active' ? 'Aktif' : 'Pasif'; ?>
+                                    <?php 
+                                    if ($item['payment_status'] === 'pending') {
+                                        echo 'Onay Bekliyor';
+                                    } elseif ($item['payment_status'] === 'failed') {
+                                        echo 'Reddedildi';
+                                    } elseif ($item['status'] === 'active') {
+                                        echo 'Aktif / Onaylı';
+                                    } elseif ($item['status'] === 'expired') {
+                                        echo 'Süresi Doldu';
+                                    } else {
+                                        echo 'İptal Edildi';
+                                    }
+                                    ?>
                                 </span>
                             </td>
+                            <?php if($_SESSION['role'] === 'superadmin'): ?>
+                                <td class="px-6 py-4">
+                                    <?php if ($item['payment_status'] === 'pending'): ?>
+                                        <div class="flex items-center gap-2">
+                                            <button onclick="approveSubscription(<?php echo $item['id']; ?>, '<?php echo htmlspecialchars($item['tenant_name'] ?: 'Bireysel', ENT_QUOTES); ?>', '<?php echo htmlspecialchars($item['plan_name'], ENT_QUOTES); ?>', '<?php echo number_format($item['amount'], 2, ',', '.'); ?> ₺', '<?php echo htmlspecialchars($item['user_name'] ?: '-', ENT_QUOTES); ?>')" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer select-none">
+                                                Onayla
+                                            </button>
+                                            <button onclick="rejectSubscription(<?php echo $item['id']; ?>, '<?php echo htmlspecialchars($item['tenant_name'] ?: 'Bireysel', ENT_QUOTES); ?>', '<?php echo htmlspecialchars($item['plan_name'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($item['user_name'] ?: '-', ENT_QUOTES); ?>')" class="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer select-none">
+                                                Reddet
+                                            </button>
+                                            <button onclick="deleteSubscriptionPurchase(<?php echo $item['id']; ?>, '<?php echo htmlspecialchars($item['tenant_name'] ?: 'Bireysel', ENT_QUOTES); ?>', '<?php echo htmlspecialchars($item['plan_name'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($item['user_name'] ?: '-', ENT_QUOTES); ?>')" class="px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer select-none">
+                                                Sil
+                                            </button>
+                                        </div>
+                                    <?php else: ?>
+                                        <button onclick="deleteSubscriptionPurchase(<?php echo $item['id']; ?>, '<?php echo htmlspecialchars($item['tenant_name'] ?: 'Bireysel', ENT_QUOTES); ?>', '<?php echo htmlspecialchars($item['plan_name'], ENT_QUOTES); ?>', '<?php echo htmlspecialchars($item['user_name'] ?: '-', ENT_QUOTES); ?>')" class="inline-flex items-center gap-1 px-2 py-1 bg-red-50 hover:bg-red-100 dark:bg-red-950/20 text-red-650 dark:text-red-450 rounded-md text-[10px] font-bold transition-all cursor-pointer border border-red-100 dark:border-red-950/30 select-none">
+                                            Sil
+                                        </button>
+                                    <?php endif; ?>
+                                </td>
+                            <?php endif; ?>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -257,6 +303,121 @@ $pageSubtitle = 'Abonelik paketlerinizi ve ödeme geçmişinizi yönetin';
   </div>
 </dialog>
 
+<!-- Abonelik Onaylama Dialog -->
+<dialog id="dialog-approve-subscription" class="dialog w-full sm:max-w-[425px]" onclick="if (event.target === this) this.close()">
+  <div class="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-2xl" onclick="event.stopPropagation()">
+    <header class="mb-6">
+      <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+        <svg class="h-5 w-5 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Abonelik Onayla
+      </h2>
+      <p class="text-sm text-zinc-500">Bu satın alma işlemini onaylamak istediğinize emin misiniz?</p>
+    </header>
+
+    <div class="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-lg mb-6 border border-zinc-100 dark:border-zinc-700">
+        <div class="flex justify-between mb-2">
+            <span class="text-sm text-zinc-500">Müşteri:</span>
+            <span id="approve-tenant-name" class="text-sm font-bold text-zinc-900 dark:text-zinc-100">-</span>
+        </div>
+        <div class="flex justify-between mb-2">
+            <span class="text-sm text-zinc-500">Satın Alan:</span>
+            <span id="approve-user-name" class="text-sm font-bold text-zinc-900 dark:text-zinc-100">-</span>
+        </div>
+        <div class="flex justify-between mb-2">
+            <span class="text-sm text-zinc-500">Paket:</span>
+            <span id="approve-plan-name" class="text-sm font-bold text-zinc-900 dark:text-zinc-100">-</span>
+        </div>
+        <div class="flex justify-between">
+            <span class="text-sm text-zinc-500">Tutar:</span>
+            <span id="approve-plan-price" class="text-sm font-bold text-emerald-600 dark:text-emerald-450">-</span>
+        </div>
+    </div>
+
+    <footer class="flex justify-end gap-3">
+      <button type="button" class="btn-outline" onclick="this.closest('dialog').close()">Vazgeç</button>
+      <button type="button" id="btn-confirm-approve" class="btn bg-emerald-600 hover:bg-emerald-700 border-emerald-600 hover:border-emerald-700 text-white font-bold rounded-xl px-4 py-2.5 transition-all">Aboneliği Onayla</button>
+    </footer>
+
+    <button type="button" class="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600" onclick="this.closest('dialog').close()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+</dialog>
+
+<!-- Satın Alma Silme Dialog -->
+<dialog id="dialog-delete-subscription" class="dialog bg-transparent p-0" onclick="if (event.target === this) this.close()">
+  <div class="w-full max-w-sm rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 shadow-2xl" onclick="event.stopPropagation()">
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center gap-3 text-red-750">
+        <div class="p-2.5 rounded-xl bg-red-50 dark:bg-red-950/40 text-red-650 dark:text-red-400 shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+        </div>
+        <h3 class="text-sm font-extrabold text-red-700 dark:text-red-400">Satın Alımı Sil</h3>
+      </div>
+      
+      <p class="text-xs text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed">Bu satın alma kaydını tamamen silmek istediğinize emin misiniz? Bu işlem geri alınamaz.</p>
+      
+      <div class="bg-zinc-50/50 dark:bg-zinc-950/20 border border-zinc-150 dark:border-zinc-800 p-4 rounded-xl space-y-2 select-none">
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-zinc-450 text-zinc-500 font-medium">Müşteri:</span>
+          <span id="delete-sub-tenant" class="font-bold text-zinc-900 dark:text-zinc-100">-</span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-zinc-450 text-zinc-500 font-medium">Satın Alan:</span>
+          <span id="delete-sub-user" class="font-bold text-zinc-900 dark:text-zinc-100">-</span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-zinc-450 text-zinc-500 font-medium">Paket:</span>
+          <span id="delete-sub-plan" class="font-bold text-zinc-900 dark:text-zinc-100">-</span>
+        </div>
+      </div>
+      
+      <div class="flex justify-end gap-3 mt-4">
+        <button type="button" onclick="document.getElementById('dialog-delete-subscription').close()" class="px-4 py-2 text-xs font-semibold rounded-xl border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-850 text-zinc-500 dark:text-zinc-400 cursor-pointer transition-colors">Vazgeç</button>
+        <button type="button" id="btn-confirm-delete-sub" class="px-4 py-2.5 text-xs font-bold rounded-xl bg-red-650 hover:bg-red-700 text-white cursor-pointer transition-all active:scale-[0.98] shadow-sm">Onayla ve Sil</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<!-- Abonelik Reddetme Dialog -->
+<dialog id="dialog-reject-subscription" class="dialog bg-transparent p-0" onclick="if (event.target === this) this.close()">
+  <div class="w-full max-w-sm rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 shadow-2xl" onclick="event.stopPropagation()">
+    <div class="flex flex-col gap-4">
+      <div class="flex items-center gap-3 text-amber-750">
+        <div class="p-2.5 rounded-xl bg-amber-50 dark:bg-amber-955/40 text-amber-650 dark:text-amber-450 shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+        </div>
+        <h3 class="text-sm font-extrabold text-amber-700 dark:text-amber-450">Satın Almayı Reddet</h3>
+      </div>
+      
+      <p class="text-xs text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed">Bu satın alma talebini reddetmek istediğinize emin misiniz? Kullanıcının aboneliği başlatılmayacaktır.</p>
+      
+      <div class="bg-zinc-50/50 dark:bg-zinc-950/20 border border-zinc-150 dark:border-zinc-800 p-4 rounded-xl space-y-2 select-none">
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-zinc-450 text-zinc-500 font-medium">Müşteri:</span>
+          <span id="reject-sub-tenant" class="font-bold text-zinc-900 dark:text-zinc-100">-</span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-zinc-450 text-zinc-500 font-medium">Satın Alan:</span>
+          <span id="reject-sub-user" class="font-bold text-zinc-900 dark:text-zinc-100">-</span>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-zinc-450 text-zinc-500 font-medium">Paket:</span>
+          <span id="reject-sub-plan" class="font-bold text-zinc-900 dark:text-zinc-100">-</span>
+        </div>
+      </div>
+      
+      <div class="flex justify-end gap-3 mt-4">
+        <button type="button" onclick="document.getElementById('dialog-reject-subscription').close()" class="px-4 py-2 text-xs font-semibold rounded-xl border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-850 text-zinc-500 dark:text-zinc-400 cursor-pointer transition-colors">Vazgeç</button>
+        <button type="button" id="btn-confirm-reject-sub" class="px-4 py-2.5 text-xs font-bold rounded-xl bg-amber-600 hover:bg-amber-700 text-white cursor-pointer transition-all active:scale-[0.98] shadow-sm">Onayla ve Reddet</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+
 <script>
 function switchTab(tab) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -358,4 +519,111 @@ function purchasePlan(id) {
         });
     });
 }
+
+function approveSubscription(id, tenantName, planName, planPrice, userName) {
+    $('#approve-tenant-name').text(tenantName || '-');
+    $('#approve-user-name').text(userName || '-');
+    $('#approve-plan-name').text(planName || '-');
+    $('#approve-plan-price').text(planPrice || '-');
+    
+    const dialog = document.getElementById('dialog-approve-subscription');
+    dialog.showModal();
+
+    $('#btn-confirm-approve').off('click').on('click', function() {
+        const btn = $(this);
+        const originalText = btn.text();
+        btn.prop('disabled', true).text('İşleniyor...');
+        
+        $.post('<?php echo routeUrl("abonelik-onayla"); ?>', { id: id }, function(response) {
+            try {
+                response = JSON.parse(response);
+            } catch(e) {}
+            
+            dialog.close();
+            
+            if (response.success) {
+                showToast({ category: 'success', title: 'Başarılı', description: response.message || 'Abonelik başarıyla onaylandı.' });
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast({ category: 'error', title: 'Hata', description: response.message || 'Bir hata oluştu.' });
+                btn.prop('disabled', false).text(originalText);
+            }
+        }).fail(function() {
+            dialog.close();
+            showToast({ category: 'error', title: 'Hata', description: 'Sunucu ile iletişim kurulamadı.' });
+            btn.prop('disabled', false).text(originalText);
+        });
+    });
+}
+
+function deleteSubscriptionPurchase(id, tenantName, planName, userName) {
+    $('#delete-sub-tenant').text(tenantName || '-');
+    $('#delete-sub-user').text(userName || '-');
+    $('#delete-sub-plan').text(planName || '-');
+    
+    const dialog = document.getElementById('dialog-delete-subscription');
+    dialog.showModal();
+
+    $('#btn-confirm-delete-sub').off('click').on('click', function() {
+        const btn = $(this);
+        const originalText = btn.text();
+        btn.prop('disabled', true).text('İşleniyor...');
+        
+        $.post('<?php echo routeUrl("abonelik-sil"); ?>', { id: id }, function(response) {
+            try {
+                response = JSON.parse(response);
+            } catch(e) {}
+            
+            dialog.close();
+            
+            if (response.success) {
+                showToast({ category: 'success', title: 'Başarılı', description: response.message || 'Satın alma kaydı silindi.' });
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast({ category: 'error', title: 'Hata', description: response.message || 'Bir hata oluştu.' });
+                btn.prop('disabled', false).text(originalText);
+            }
+        }).fail(function() {
+            dialog.close();
+            showToast({ category: 'error', title: 'Hata', description: 'Sunucu ile iletişim kurulamadı.' });
+            btn.prop('disabled', false).text(originalText);
+        });
+    });
+}
+
+function rejectSubscription(id, tenantName, planName, userName) {
+    $('#reject-sub-tenant').text(tenantName || '-');
+    $('#reject-sub-user').text(userName || '-');
+    $('#reject-sub-plan').text(planName || '-');
+    
+    const dialog = document.getElementById('dialog-reject-subscription');
+    dialog.showModal();
+
+    $('#btn-confirm-reject-sub').off('click').on('click', function() {
+        const btn = $(this);
+        const originalText = btn.text();
+        btn.prop('disabled', true).text('İşleniyor...');
+        
+        $.post('<?php echo routeUrl("abonelik-reddet"); ?>', { id: id }, function(response) {
+            try {
+                response = JSON.parse(response);
+            } catch(e) {}
+            
+            dialog.close();
+            
+            if (response.success) {
+                showToast({ category: 'success', title: 'Başarılı', description: response.message || 'Satın alma talebi reddedildi.' });
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast({ category: 'error', title: 'Hata', description: response.message || 'Bir hata oluştu.' });
+                btn.prop('disabled', false).text(originalText);
+            }
+        }).fail(function() {
+            dialog.close();
+            showToast({ category: 'error', title: 'Hata', description: 'Sunucu ile iletişim kurulamadı.' });
+            btn.prop('disabled', false).text(originalText);
+        });
+    });
+}
 </script>
+

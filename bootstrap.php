@@ -38,3 +38,51 @@ if(!isset($_SESSION['user_id'])){
         exit;
     }
 }
+
+// Active Subscription & Trial Enforcement
+if (isset($_SESSION['user_id']) && isset($page)) {
+    $uStmt = $db->prepare("SELECT role, tenant_id, trial_ends_at FROM users WHERE id = ?");
+    $uStmt->execute([$_SESSION['user_id']]);
+    $uData = $uStmt->fetch();
+
+    if ($uData) {
+        $userRole = $uData['role'] ?? 'user';
+        
+        // Superadmin and allowed routes are NEVER blocked
+        $allowedPages = ['/profil', '/logout', '/abonelik-satinal', '/abonelik-sil', '/abonelik-reddet', '/profil-guncelle', '/sifre-degistir'];
+        if ($userRole !== 'superadmin' && !in_array($page, $allowedPages) && !isStandaloneRoute($page)) {
+            // Check if trial is active
+            $trialValid = false;
+            if (!empty($uData['trial_ends_at'])) {
+                $trialValid = (strtotime($uData['trial_ends_at']) >= strtotime(date('Y-m-d')));
+            }
+            
+            // Check if there is an active subscription
+            $subValid = false;
+            if (!empty($uData['tenant_id'])) {
+                $subStmt = $db->prepare("SELECT id FROM subscriptions WHERE tenant_id = ? AND status = 'active' AND end_date >= ? LIMIT 1");
+                $subStmt->execute([$uData['tenant_id'], date('Y-m-d')]);
+                $subValid = (bool)$subStmt->fetch();
+            }
+            
+            // Block if both are invalid
+            if (!$trialValid && !$subValid) {
+                // If it is an AJAX request, return a JSON error
+                if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+                    header('Content-Type: application/json; charset=utf-8');
+                    echo json_encode([
+                        'success' => false, 
+                        'message' => 'Sistemi kullanmaya devam edebilmek için aktif bir aboneliğinizin veya deneme sürenizin olması gerekmektedir. Lütfen profil sayfanızdan abonelik paketi satın alın.'
+                    ]);
+                    exit;
+                }
+                
+                // Set flash warning message
+                $_SESSION['subscription_error'] = 'Sistemi kullanabilmek için aktif bir aboneliğinizin veya deneme sürenizin olması gerekmektedir. Lütfen aşağıdaki paketlerden birini seçerek aboneliğinizi başlatın.';
+                
+                header("Location: " . routeUrl('/profil'));
+                exit;
+            }
+        }
+    }
+}

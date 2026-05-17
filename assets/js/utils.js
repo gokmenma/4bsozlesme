@@ -78,7 +78,7 @@ window.selectCustomOption = function(id, el) {
 
 // Handle closing when clicking outside (capturing phase to bypass stopPropagation in modals)
 document.addEventListener('click', function(e) {
-    if (!e.target.closest('.custom-select-component') && !e.target.closest('.select')) {
+    if (!e.target.closest('.custom-select-component') && !e.target.closest('.select') && !e.target.closest('.app-select') && !e.target.closest('.app-select-rich')) {
         $('.custom-select-popover').addClass('hidden').removeClass('opacity-100 translate-y-0').addClass('opacity-0 translate-y-[-10px]');
         $('[data-popover]').addClass('hidden').attr('aria-hidden', 'true');
         $('[aria-expanded="true"]').attr('aria-expanded', 'false');
@@ -87,7 +87,7 @@ document.addEventListener('click', function(e) {
 
 // jQuery direct click handler on modals/dialogs as extra fallback
 $(document).on('click', 'dialog, .dialog-content, .modal-content, .modal', function(e) {
-    if (!$(e.target).closest('.custom-select-component').length && !$(e.target).closest('.select').length) {
+    if (!$(e.target).closest('.custom-select-component').length && !$(e.target).closest('.select').length && !$(e.target).closest('.app-select').length && !$(e.target).closest('.app-select-rich').length) {
         $('.custom-select-popover').addClass('hidden').removeClass('opacity-100 translate-y-0').addClass('opacity-0 translate-y-[-10px]');
         $('[data-popover]').addClass('hidden').attr('aria-hidden', 'true');
         $('[aria-expanded="true"]').attr('aria-expanded', 'false');

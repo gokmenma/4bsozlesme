@@ -20,6 +20,7 @@ class ProfileController extends Controller {
         global $db;
         $user = $this->userModel->find($_SESSION['user_id']);
         
+        // Active or last subscription
         $stmt = $db->prepare("SELECT s.*, sp.name as plan_name, sp.price as plan_price, sp.features as plan_features 
                               FROM subscriptions s 
                               JOIN subscription_plans sp ON s.plan_id = sp.id
@@ -28,11 +29,30 @@ class ProfileController extends Controller {
         $stmt->execute([$user['id'], $user['tenant_id'] ?? null]);
         $subscription = $stmt->fetch();
 
+        // Get all active plans that can be purchased
+        $plansStmt = $db->query("SELECT * FROM subscription_plans WHERE is_active = 1");
+        $plans = $plansStmt->fetchAll();
+
+        // Get purchase history for this tenant (or all if superadmin)
+        $historyQuery = "SELECT s.*, sp.name as plan_name, u.name as user_name 
+                         FROM subscriptions s 
+                         JOIN subscription_plans sp ON s.plan_id = sp.id 
+                         LEFT JOIN users u ON s.user_id = u.id";
+        
+        if ($user['role'] !== 'superadmin') {
+            $historyQuery .= " WHERE s.tenant_id = " . (int)$user['tenant_id'];
+        }
+        
+        $historyQuery .= " ORDER BY s.created_at DESC";
+        $history = $db->query($historyQuery)->fetchAll();
+
         return [
             'pageTitle' => 'Profil',
             'pageSubtitle' => 'Hesap bilgilerinizi yönetin',
             'user' => $user,
-            'subscription' => $subscription
+            'subscription' => $subscription,
+            'plans' => $plans,
+            'history' => $history
         ];
     }
 

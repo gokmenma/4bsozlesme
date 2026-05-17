@@ -473,3 +473,12 @@ summary.no-marker::-webkit-details-marker {
 #toaster[popover] > * {
     pointer-events: auto !important;
 }
+
+/* Ensure all native dialogs inherit the application's general font family */
+dialog, 
+dialog *,
+.dialog,
+.dialog * {
+    font-family: inherit !important;
+}
+

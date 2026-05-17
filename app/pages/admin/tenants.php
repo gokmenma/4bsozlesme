@@ -80,6 +80,21 @@ $pageSubtitle = 'Sistemdeki tüm kurumları ve aktiflik durumlarını yönetin';
   </div>
 </dialog>
 
+<!-- Silme Onay Dialog -->
+<dialog id="alert-dialog-delete" class="dialog" aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description" onclick="if (event.target === this) this.close()">
+  <div class="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-2xl max-w-[400px] w-full" onclick="event.stopPropagation()">
+    <header class="mb-6">
+      <h2 id="alert-dialog-title" class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Emin misiniz?</h2>
+      <p id="alert-dialog-description" class="text-sm text-zinc-500 mt-2">Bu işlem geri alınamaz. Bu kurumu ve kuruma bağlı tüm verileri sistemden kalıcı olarak sileceksiniz.</p>
+    </header>
+
+    <footer class="flex justify-end gap-3">
+      <button class="btn-outline" onclick="document.getElementById('alert-dialog-delete').close()">İptal</button>
+      <button class="btn bg-red-600 hover:bg-red-700 text-white border-none" onclick="confirmDelete()">Silmeyi Tamamla</button>
+    </footer>
+  </div>
+</dialog>
+
 <script>
 $(document).ready(function() {
     const table = initDataTable('#tenantTable', {
@@ -192,16 +207,30 @@ function saveTenant() {
     });
 }
 
+let tenantToDelete = null;
+
 function deleteTenant(id) {
-    if (!confirm('Bu kurumu silmek istediğinize emin misiniz? Bu işlem geri alınamaz ve kuruma bağlı tüm veriler etkilenebilir.')) return;
+    tenantToDelete = id;
+    document.getElementById('alert-dialog-delete').showModal();
+}
+
+function confirmDelete() {
+    if (!tenantToDelete) return;
     
-    $.post('<?php echo routeUrl("admin-kurum-sil"); ?>', { id: id }, function(response) {
-        response = JSON.parse(response);
-        if (response.success) {
-            showToast({ category: 'success', title: 'Başarılı', description: response.message });
-            setTimeout(() => location.reload(), 1500);
-        } else {
-            showToast({ category: 'error', title: 'Hata', description: response.message });
+    $.post('<?php echo routeUrl("admin-kurum-sil"); ?>', { id: tenantToDelete }, function(response) {
+        try {
+            response = JSON.parse(response);
+            if (response.success) {
+                showToast({ category: 'success', title: 'Başarılı', description: response.message });
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast({ category: 'error', title: 'Hata', description: response.message });
+            }
+        } catch (err) {
+            showToast({ category: 'error', title: 'Hata', description: 'Sunucudan geçersiz bir yanıt geldi.' });
+        } finally {
+            document.getElementById('alert-dialog-delete').close();
+            tenantToDelete = null;
         }
     });
 }

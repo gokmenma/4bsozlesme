@@ -81,10 +81,43 @@ class SubscriptionController extends Controller {
         $endDate = date('Y-m-d', strtotime("+{$plan['duration_days']} days"));
         $user_id = $_SESSION['user_id'] ?? null;
 
-        $stmt = $this->db->prepare("INSERT INTO subscriptions (tenant_id, user_id, plan_id, start_date, end_date, amount, status) VALUES (?, ?, ?, ?, ?, ?, 'active')");
+        // New subscriptions are initialized with status 'cancelled' (not active) and payment_status 'pending' (waiting for approval)
+        $stmt = $this->db->prepare("INSERT INTO subscriptions (tenant_id, user_id, plan_id, start_date, end_date, amount, status, payment_status) VALUES (?, ?, ?, ?, ?, ?, 'cancelled', 'pending')");
         $result = $stmt->execute([$tenant_id, $user_id, $plan_id, $startDate, $endDate, $plan['price']]);
 
-        echo json_encode(['success' => $result, 'message' => $result ? 'Abonelik başarıyla başlatıldı!' : 'Bir hata oluştu.']);
+        echo json_encode(['success' => $result, 'message' => $result ? 'Satın alma talebiniz alındı! Yönetici onayından sonra aktif olacaktır.' : 'Bir hata oluştu.']);
+    }
+
+    public function approve() {
+        $this->checkSuperadmin();
+        $id = $_POST['id'] ?? null;
+        
+        if (!$id) {
+            echo json_encode(['success' => false, 'message' => 'Geçersiz abonelik kimliği.']);
+            exit;
+        }
+
+        // Set status 'active' and payment_status 'paid'
+        $stmt = $this->db->prepare("UPDATE subscriptions SET status = 'active', payment_status = 'paid' WHERE id = ?");
+        $result = $stmt->execute([$id]);
+
+        echo json_encode(['success' => $result, 'message' => $result ? 'Abonelik başarıyla onaylandı!' : 'Bir hata oluştu.']);
+    }
+
+    public function reject() {
+        $this->checkSuperadmin();
+        $id = $_POST['id'] ?? null;
+        
+        if (!$id) {
+            echo json_encode(['success' => false, 'message' => 'Geçersiz abonelik kimliği.']);
+            exit;
+        }
+
+        // Set status 'cancelled' and payment_status 'failed'
+        $stmt = $this->db->prepare("UPDATE subscriptions SET status = 'cancelled', payment_status = 'failed' WHERE id = ?");
+        $result = $stmt->execute([$id]);
+
+        echo json_encode(['success' => $result, 'message' => $result ? 'Satın alma talebi reddedildi.' : 'Bir hata oluştu.']);
     }
 
     public function storePlan() {
@@ -133,6 +166,44 @@ class SubscriptionController extends Controller {
         $stmt = $this->db->prepare("UPDATE subscription_plans SET is_active = 0 WHERE id = ?");
         $result = $stmt->execute([$id]);
         echo json_encode(['success' => $result]);
+    }
+
+    public function deleteSubscription() {
+        $id = $_POST['id'] ?? null;
+        if (!$id) {
+            echo json_encode(['success' => false, 'message' => 'Geçersiz abonelik kimliği.']);
+            exit;
+        }
+
+        // Get subscription details to check ownership
+        $stmt = $this->db->prepare("SELECT * FROM subscriptions WHERE id = ?");
+        $stmt->execute([$id]);
+        $sub = $stmt->fetch();
+
+        if (!$sub) {
+            echo json_encode(['success' => false, 'message' => 'Abonelik kaydı bulunamadı.']);
+            exit;
+        }
+
+        // Authorization check:
+        // - Superadmin can delete anything.
+        // - Normal user/admin of a tenant can delete only their tenant's subscription IF it is pending (payment_status == 'pending')
+        if ($_SESSION['role'] !== 'superadmin') {
+            if ((int)$sub['tenant_id'] !== (int)$_SESSION['tenant_id']) {
+                echo json_encode(['success' => false, 'message' => 'Bu işlem için yetkiniz yok.']);
+                exit;
+            }
+            if ($sub['payment_status'] !== 'pending') {
+                echo json_encode(['success' => false, 'message' => 'Sadece onay bekleyen satın alımları silebilir veya iptal edebilirsiniz.']);
+                exit;
+            }
+        }
+
+        // Delete the subscription record from database
+        $stmt = $this->db->prepare("DELETE FROM subscriptions WHERE id = ?");
+        $result = $stmt->execute([$id]);
+
+        echo json_encode(['success' => $result, 'message' => $result ? 'Satın alma işlemi başarıyla iptal edildi/silindi.' : 'İşlem sırasında bir hata oluştu.']);
     }
 
     private function checkSuperadmin() {

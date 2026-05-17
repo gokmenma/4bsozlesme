@@ -84,9 +84,9 @@ class UserController extends Controller {
                 exit;
             }
 
-            // Admin ise sadece user veya admin ekleyebilir (superadmin ekleyemez)
-            if ($_SESSION['role'] !== 'superadmin' && $role === 'superadmin') {
-                $role = 'user';
+            // Güvenlik Kilidi: Oturum açan kullanıcı ID'si 1 değilse kimseye superadmin yetkisi atayamaz!
+            if ($_SESSION['user_id'] != 1 && $role === 'superadmin') {
+                $role = 'admin';
             }
 
             $trial_ends_at = date('Y-m-d', strtotime('+1 month'));
@@ -167,9 +167,17 @@ class UserController extends Controller {
                 exit;
             }
 
-            // Admin ise superadmin yapamaz
-            if ($_SESSION['role'] !== 'superadmin' && $role === 'superadmin') {
-                $role = 'user';
+            // Güvenlik Kilidi: ID'si 1 olan ana kurucu kullanıcıyı kimse güncelleyemez, silemez veya yetkilerini değiştiremez!
+            if ($id == 1 && $_SESSION['user_id'] != 1) {
+                echo json_encode(['success' => false, 'message' => 'Ana kurucu kullanıcının bilgilerini veya yetkilerini değiştirme hakkınız yoktur.']);
+                exit;
+            }
+
+            // Güvenlik Kilidi: Oturum açan kullanıcı ID'si 1 değilse kimseye superadmin yetkisi atayamaz!
+            if ($_SESSION['user_id'] != 1 && $role === 'superadmin') {
+                if ($user['role'] !== 'superadmin') {
+                    $role = $user['role']; // Rol yükseltmeyi engelle, eski rolünü koru
+                }
             }
 
             $data = [
@@ -212,6 +220,12 @@ class UserController extends Controller {
             // Yetki kontrolü
             if ($_SESSION['role'] !== 'superadmin' && $user['tenant_id'] != $_SESSION['tenant_id']) {
                 echo json_encode(['success' => false, 'message' => 'Bu kullanıcıyı silme yetkiniz yok.']);
+                exit;
+            }
+
+            // Güvenlik Kilidi: ID'si 1 olan ana kurucu kullanıcıyı hiç kimse silemez!
+            if ($id == 1) {
+                echo json_encode(['success' => false, 'message' => 'Ana kurucu kullanıcı sistemden silinemez!']);
                 exit;
             }
 
