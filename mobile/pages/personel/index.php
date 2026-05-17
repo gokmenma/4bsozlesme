@@ -59,14 +59,14 @@ sort($unvanlar);
             <button onclick="openEkleSheet()" class="px-4 py-2 bg-zinc-50 hover:bg-zinc-200 rounded-md text-xs font-bold mt-2 text-zinc-950">Personel Ekle</button>
         </div>
     <?php else: ?>
-        <div id="personnel-list-wrapper" class="border border-zinc-100 dark:border-zinc-800/80 rounded-xl overflow-hidden shadow-sm divide-y divide-zinc-100 dark:divide-zinc-800/50 bg-white dark:bg-zinc-950">
+        <div id="personnel-list-wrapper" class="border border-zinc-200 dark:border-zinc-800/80 rounded-xl overflow-hidden shadow-sm divide-y divide-zinc-200/60 dark:divide-zinc-800/50 bg-white dark:bg-zinc-950">
             <?php foreach ($personnels as $p): 
                 $tcMasked = substr($p['tc_kimlik'], 0, 3) . '******' . substr($p['tc_kimlik'], -2);
                 
-                // Color-coded premium status badge
+                // Color-coded premium status badge next to name (exactly like the yellow 'Pending' badge)
                 $durumClass = ($p['durum'] === 'aktif') 
-                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-950/20' 
-                    : 'bg-rose-50 text-rose-600 border border-rose-100 dark:bg-rose-950/30 dark:text-rose-400 dark:border-rose-950/20';
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/30 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/10' 
+                    : 'bg-amber-50 text-amber-700 border border-amber-200/30 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/10';
 
                 // Initial character calculator for visual avatar circle
                 $words = explode(' ', trim($p['ad_soyad']));
@@ -77,19 +77,6 @@ sort($unvanlar);
                     $initials = mb_substr($p['ad_soyad'], 0, 2, 'UTF-8');
                 }
                 $initials = mb_strtoupper($initials, 'UTF-8');
-
-                // Color-coded title badge based on job title keywords
-                $unvanLower = mb_strtolower($p['unvan'] ?? '', 'UTF-8');
-                $badgeTheme = 'bg-zinc-50 text-zinc-600 border border-zinc-100 dark:bg-zinc-900 dark:text-zinc-400 dark:border-zinc-800';
-                if (str_contains($unvanLower, 'sağlık') || str_contains($unvanLower, 'medikal') || str_contains($unvanLower, 'hemşire') || str_contains($unvanLower, 'tekniker')) {
-                    $badgeTheme = 'bg-violet-50 text-violet-600 border border-violet-100/50 dark:bg-violet-950/30 dark:text-violet-400 dark:border-violet-950/20';
-                } elseif (str_contains($unvanLower, 'destek') || str_contains($unvanLower, 'büro') || str_contains($unvanLower, 'memur') || str_contains($unvanLower, 'sekreter')) {
-                    $badgeTheme = 'bg-indigo-50 text-indigo-600 border border-indigo-100/50 dark:bg-indigo-950/30 dark:text-indigo-400 dark:border-indigo-950/20';
-                } elseif (str_contains($unvanLower, 'temizlik') || str_contains($unvanLower, 'güvenlik') || str_contains($unvanLower, 'koruma')) {
-                    $badgeTheme = 'bg-amber-50 text-amber-600 border border-amber-100/50 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-950/20';
-                } elseif (str_contains($unvanLower, 'mühendis') || str_contains($unvanLower, 'yazılım') || str_contains($unvanLower, 'programcı') || str_contains($unvanLower, 'teknisyen')) {
-                    $badgeTheme = 'bg-emerald-50 text-emerald-600 border border-emerald-100/50 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-950/20';
-                }
             ?>
                 <div class="swipe-container relative overflow-hidden personnel-item-card"
                      data-id="<?= $p['id'] ?>"
@@ -127,33 +114,35 @@ sort($unvanlar);
                         </button>
                     </div>
 
-                    <!-- Main Swipeable Row Layer (Extremely Clean SaaS Style) -->
-                    <div class="swipe-front bg-white dark:bg-zinc-900 py-3.5 px-4 flex items-center justify-between transition-colors hover:bg-zinc-50/30 dark:hover:bg-zinc-800/10 cursor-grab active:cursor-grabbing" 
+                    <!-- Main Swipeable Row Layer (Exact Organization Members Style) -->
+                    <div class="swipe-front bg-white dark:bg-zinc-950 py-4 px-4 flex items-center justify-between transition-colors hover:bg-zinc-50/50 dark:hover:bg-zinc-900/40 cursor-grab active:cursor-grabbing" 
                          onclick="openDetailSheet(this.parentElement)">
                         <div class="flex items-center gap-3.5 select-none pointer-events-none">
-                            <!-- Circular Initials Avatar with gender-aware styling -->
-                            <?php 
-                            $avatarColor = ($p['cinsiyet'] === 'kadin') 
-                                ? 'bg-rose-50 text-rose-600 border border-rose-100/50 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/10' 
-                                : 'bg-indigo-50 text-indigo-600 border border-indigo-100/50 dark:bg-indigo-950/20 dark:text-indigo-400 dark:border-indigo-900/10';
-                            ?>
-                            <div class="w-10 h-10 rounded-full <?= $avatarColor ?> flex items-center justify-center font-extrabold text-xs shadow-sm flex-shrink-0">
+                            <!-- Circular Initials Avatar (Exactly like the 'OH' monogram in the reference image) -->
+                            <div class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800/80 flex items-center justify-center font-semibold text-zinc-600 dark:text-zinc-400 text-sm shadow-sm flex-shrink-0">
                                 <?= $initials ?>
                             </div>
                             <div class="space-y-1">
-                                <h4 class="text-[13.5px] font-bold text-zinc-900 dark:text-zinc-50 leading-none"><?= htmlspecialchars($p['ad_soyad']) ?></h4>
-                                <div class="flex flex-wrap items-center gap-2 text-[10.5px] text-zinc-500 dark:text-zinc-400 font-medium">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[13.5px] font-semibold text-zinc-900 dark:text-zinc-50 leading-tight"><?= htmlspecialchars($p['ad_soyad']) ?></span>
+                                    <!-- Soft Status Badge (exactly like the 'Pending' tag) -->
+                                    <span class="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider <?= $durumClass ?>">
+                                        <?= htmlspecialchars($p['durum']) ?>
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2 text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">
                                     <span><?= $tcMasked ?></span>
                                     <span class="text-zinc-300 dark:text-zinc-800">•</span>
-                                    <span class="px-1.5 py-0.5 rounded text-[8.5px] font-bold uppercase tracking-wider <?= $badgeTheme ?>">
-                                        <?= htmlspecialchars($p['unvan'] ?? 'Unvansız') ?>
-                                    </span>
+                                    <span class="text-zinc-900 dark:text-zinc-100 font-bold"><?= number_format($p['ucret'] ?? 0, 2, ',', '.') ?> TL</span>
                                 </div>
                             </div>
                         </div>
-                        <div class="text-right select-none pointer-events-none space-y-1">
-                            <span class="text-[12.5px] font-extrabold text-zinc-900 dark:text-zinc-50 block tracking-tight leading-none"><?= number_format($p['ucret'] ?? 0, 2, ',', '.') ?> TL</span>
-                            <span class="<?= $durumClass ?> px-2 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider inline-block leading-none"><?= htmlspecialchars($p['durum']) ?></span>
+                        
+                        <!-- Role Outline Badge on the right (Exactly like Owner/Developer outline pills in reference image) -->
+                        <div class="select-none pointer-events-none flex-shrink-0">
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-300 bg-white dark:bg-zinc-950 shadow-sm leading-none inline-block">
+                                <?= htmlspecialchars($p['unvan'] ?? 'Unvansız') ?>
+                            </span>
                         </div>
                     </div>
                 </div>
