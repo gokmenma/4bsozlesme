@@ -492,6 +492,9 @@ if ($isLoggedIn) {
                                         <select class="mobile-input" id="form-durum" name="durum">
                                             <option value="aktif">Aktif</option>
                                             <option value="pasif">Pasif</option>
+                                            <option value="dilekce_alindi">Dilekçe Alındı</option>
+                                            <option value="kadroya_gecti">Kadroya Geçti</option>
+                                            <option value="kadroya_gecmeyecek">Kadroya Geçmeyecek</option>
                                         </select>
                                     </div>
                                 </div>
@@ -653,6 +656,7 @@ if ($isLoggedIn) {
                             if (otherStyle && otherStyle !== 'translateX(0px)') {
                                 otherFront.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
                                 otherFront.style.transform = 'translateX(0px)';
+                                otherFront.parentElement.classList.remove('swipe-open-right', 'swipe-open-left');
                             }
                         }
                     });
@@ -683,12 +687,17 @@ if ($isLoggedIn) {
                     if (finalX > 45) {
                         // Snap right (reveal Left buttons: Sözleşme & Dilekçe - total 130px wide)
                         front.style.transform = 'translateX(130px)';
+                        container.classList.add('swipe-open-right');
+                        container.classList.remove('swipe-open-left');
                     } else if (finalX < -30) {
                         // Snap left (reveal Right button: Sil - 56px wide)
                         front.style.transform = 'translateX(-56px)';
+                        container.classList.add('swipe-open-left');
+                        container.classList.remove('swipe-open-right');
                     } else {
                         // Reset
                         front.style.transform = 'translateX(0px)';
+                        container.classList.remove('swipe-open-right', 'swipe-open-left');
                     }
                 };
 
@@ -705,6 +714,7 @@ if ($isLoggedIn) {
                         if (originalX !== 0 && !hasDragged) {
                             front.style.transition = 'transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)';
                             front.style.transform = 'translateX(0px)';
+                            container.classList.remove('swipe-open-right', 'swipe-open-left');
                         }
                     }
                 }, true); // Use capture phase to intercept click handlers immediately

@@ -307,9 +307,33 @@ html, body {
 }
 .swipe-front {
     position: relative;
-    z-index: 10;
+    z-index: 20;
     user-select: none;
     touch-action: pan-y; /* Flawless vertical scrolling, clean horizontal swipe */
+}
+
+/* Background Actions Classes */
+.swipe-left-actions, .swipe-right-actions {
+    position: absolute;
+    inset-y: 0;
+    z-index: 5;
+    pointer-events: auto;
+}
+
+/* When swiped open to the right (revealing left actions), promote left actions and demote front */
+.swipe-container.swipe-open-right .swipe-front {
+    z-index: 5 !important;
+}
+.swipe-container.swipe-open-right .swipe-left-actions {
+    z-index: 30 !important;
+}
+
+/* When swiped open to the left (revealing right actions), promote right actions and demote front */
+.swipe-container.swipe-open-left .swipe-front {
+    z-index: 5 !important;
+}
+.swipe-container.swipe-open-left .swipe-right-actions {
+    z-index: 30 !important;
 }
 
 /* Document Preview Page Simulated Look */
@@ -562,4 +586,44 @@ select, input, textarea {
     user-select: auto !important;
     -webkit-user-select: auto !important;
     pointer-events: auto !important;
+}
+
+/* Premium Native-Style Custom Dropdown Select (Desktop-Matched) */
+select.mobile-input {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-color: #ffffff !important;
+    border: 1px solid #e4e4e7 !important;
+    color: #18181b !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px center !important;
+    background-size: 16px !important;
+    padding-right: 40px !important; /* Ensure text doesn't overlap arrow */
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    padding: 10px 14px;
+    width: 100%;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+select.mobile-input:focus {
+    border-color: #18181b !important;
+    box-shadow: 0 0 0 1px #18181b !important;
+}
+
+/* Dark Mode Overrides */
+.dark select.mobile-input {
+    background-color: #18181b !important;
+    border: 1px solid #27272a !important;
+    color: #f4f4f5 !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E") !important;
+}
+
+.dark select.mobile-input:focus {
+    border-color: #f4f4f5 !important;
+    box-shadow: 0 0 0 1px #f4f4f5 !important;
 }

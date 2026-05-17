@@ -56,9 +56,32 @@ sort($unvanlar);
                 $tcMasked = substr($p['tc_kimlik'], 0, 3) . '******' . substr($p['tc_kimlik'], -2);
                 
                 // Color-coded status badge matching the custom pill design
-                $durumClass = ($p['durum'] === 'aktif') 
-                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/10' 
-                    : 'bg-rose-50 text-rose-600 border border-rose-100 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/10';
+                $durumLabel = 'Pasif';
+                $durumClass = 'bg-rose-50 text-rose-600 border border-rose-100 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/10';
+                
+                switch ($p['durum']) {
+                    case 'aktif':
+                        $durumLabel = 'Aktif';
+                        $durumClass = 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/10';
+                        break;
+                    case 'dilekce_alindi':
+                        $durumLabel = 'Dilekçe Alındı';
+                        $durumClass = 'bg-indigo-50 text-indigo-600 border border-indigo-100 dark:bg-indigo-950/20 dark:text-indigo-400 dark:border-indigo-900/10';
+                        break;
+                    case 'kadroya_gecti':
+                        $durumLabel = 'Kadroya Geçti';
+                        $durumClass = 'bg-sky-50 text-sky-600 border border-sky-100 dark:bg-sky-950/20 dark:text-sky-400 dark:border-sky-900/10';
+                        break;
+                    case 'kadroya_gecmeyecek':
+                        $durumLabel = 'Kadroya Geçmeyecek';
+                        $durumClass = 'bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/10';
+                        break;
+                    case 'pasif':
+                    default:
+                        $durumLabel = 'Pasif';
+                        $durumClass = 'bg-rose-50 text-rose-600 border border-rose-100 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/10';
+                        break;
+                }
 
                 // Initial character calculator for visual avatar circle
                 $words = explode(' ', trim($p['ad_soyad']));
@@ -95,7 +118,7 @@ sort($unvanlar);
                      data-eligible="<?= $is_eligible ? '1' : '0' ?>">
                      
                     <!-- Left Background Actions (Sağa Kaydırma) - Elegant Float Brand Actions (3.resimdeki gibi) -->
-                    <div class="absolute inset-y-0 left-0 flex items-stretch gap-4 pl-4 z-0">
+                    <div class="swipe-left-actions absolute inset-y-0 left-0 flex items-stretch gap-4 pl-4 z-0">
                         <button onclick="event.stopPropagation(); previewContract('<?= $p['id'] ?>')" class="w-12 h-full bg-transparent text-zinc-600 dark:text-zinc-400 flex flex-col items-center justify-center transition-all cursor-pointer gap-1.5 hover:scale-110 active:scale-95">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
                             <span class="text-[9px] font-bold uppercase tracking-wider leading-none">Sözleşme</span>
@@ -107,7 +130,7 @@ sort($unvanlar);
                     </div>
 
                     <!-- Right Background Actions (Sola Kaydırma) - Elegant Float Brand Actions (3.resimdeki gibi) -->
-                    <div class="absolute inset-y-0 right-0 flex items-stretch z-0">
+                    <div class="swipe-right-actions absolute inset-y-0 right-0 flex items-stretch z-0">
                         <button onclick="event.stopPropagation(); confirmDeletePersonnel('<?= $p['id'] ?>', '<?= htmlspecialchars($p['ad_soyad']) ?>')" class="w-14 h-full bg-transparent text-rose-600 dark:text-rose-400 flex flex-col items-center justify-center transition-all cursor-pointer gap-1.5 hover:scale-110 active:scale-95">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2m-9 5v6m4-6v6"/></svg>
                             <span class="text-[9px] font-bold uppercase tracking-wider leading-none">Sil</span>
@@ -116,7 +139,7 @@ sort($unvanlar);
 
                     <!-- Main Swipeable Row Layer -->
                     <div class="swipe-front bg-white dark:bg-zinc-900 py-4 px-4 flex items-center justify-between transition-colors hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 cursor-grab active:cursor-grabbing" 
-                         onclick="openDetailSheet(this.parentElement)">
+                         onclick="openEditFormSheet(this.parentElement)">
                         <div class="space-y-1 select-none pointer-events-none">
                             <h4 class="text-xs font-bold text-zinc-800 dark:text-zinc-200 leading-tight"><?= htmlspecialchars($p['ad_soyad']) ?></h4>
                             <div class="space-y-1">
@@ -126,18 +149,21 @@ sort($unvanlar);
                                         <?= htmlspecialchars($p['unvan'] ?? 'Unvansız') ?>
                                     </span>
                                 </div>
-                                <!-- İşe Başlama Tarihi Label -->
-                                <span class="text-[10px] text-zinc-400 dark:text-zinc-500 font-bold block mt-0.5">
-                                    Giriş: <?= date('d.m.Y', strtotime($p['goreve_baslama_tarihi'])) ?>
-                                </span>
+                                <!-- Giriş & Kadro Tarihleri -->
+                                <div class="flex items-center gap-x-2 flex-wrap text-[10px] font-bold mt-1 text-zinc-400 dark:text-zinc-500 leading-none">
+                                    <span>Giriş: <?= date('d.m.Y', strtotime($p['goreve_baslama_tarihi'])) ?></span>
+                                    <span class="text-zinc-300 dark:text-zinc-800">•</span>
+                                    <span class="text-indigo-600/80 dark:text-indigo-400/80">Kadro: <?= date('d.m.Y', strtotime('+3 years', strtotime($p['goreve_baslama_tarihi']))) ?></span>
+                                </div>
                             </div>
                         </div>
                         
                         <!-- Right Column (Salary & Durum Badge) -->
-                        <div class="text-right flex flex-col items-end justify-center select-none pointer-events-none space-y-1.5">
+                        <div class="text-right flex flex-col items-end justify-center select-none pointer-events-none space-y-2">
+                            <span class="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 block uppercase leading-none mb-2"><?= htmlspecialchars($p['ogrenim'] ?? '-') ?></span>
                             <span class="text-xs font-extrabold text-zinc-900 dark:text-zinc-100 block">₺<?= number_format($p['ucret'] ?? 0, 2, ',', '.') ?></span>
                             <span class="text-[9px] border px-2 py-0.5 rounded font-bold uppercase leading-none inline-block <?= $durumClass ?>">
-                                <?= htmlspecialchars($p['durum']) ?>
+                                <?= htmlspecialchars($durumLabel) ?>
                             </span>
                         </div>
                     </div>
