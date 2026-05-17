@@ -2,7 +2,23 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+        // Screen-size based mobile/tablet redirect
+        if (window.innerWidth < 1024) {
+            const basePath = '<?php echo appBasePath(); ?>';
+            window.location.href = basePath + '/mobile';
+        }
+    </script>
+    <!-- Premium Google Fonts: Geist -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
+
     <style>
+        * {
+            font-family: 'Geist', sans-serif !important;
+        }
+        
         /* Custom Select Styles - Critical for hiding/showing */
         .select, .select-rich, .app-select, .app-select-rich {
             position: relative;

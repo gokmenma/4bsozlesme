@@ -11,6 +11,15 @@ $username = 'root';
 $password = ''; // XAMPP varsayılanı boştur
 $charset = 'utf8mb4';
 
+
+// $dbname = 'mbeyazil_sozlesme';
+// $username = 'mbeyazil_4bsozlesme';
+// $password = 'h?]C=qC9qLJ.Cv{C'; // XAMPP varsayılanı boştur
+
+
+
+
+
 $dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
 
 $options = [

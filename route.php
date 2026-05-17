@@ -41,7 +41,7 @@ function routeUrl(string $path): string
 
 function isStandaloneRoute(string $page): bool
 {
-    return in_array($page, ['/login', '/logout', '/register'], true);
+    return in_array($page, ['/login', '/logout', '/register', '/mobile'], true);
 }
 
 function renderPage(string $page): void
@@ -89,6 +89,61 @@ function logoutUser(): void
 
 function renderRoute(string $page): void
 {
+    if ($page === '/mobile') {
+        include 'mobile/index.php';
+        exit;
+    }
+
+    if ($page === '/mobile/pages/home/index.php') {
+        include 'mobile/pages/home/index.php';
+        exit;
+    }
+
+    if ($page === '/mobile/pages/personel/index.php') {
+        include 'mobile/pages/personel/index.php';
+        exit;
+    }
+
+    if ($page === '/mobile/pages/ucretler/index.php') {
+        include 'mobile/pages/ucretler/index.php';
+        exit;
+    }
+
+    if ($page === '/mobile/pages/profil/index.php') {
+        include 'mobile/pages/profil/index.php';
+        exit;
+    }
+
+    if ($page === '/mobile/pages/other/index.php') {
+        include 'mobile/pages/other/index.php';
+        exit;
+    }
+
+    if ($page === '/mobile/pages/other/tenants.php') {
+        include 'mobile/pages/other/tenants.php';
+        exit;
+    }
+
+    if ($page === '/mobile/pages/other/users.php') {
+        include 'mobile/pages/other/users.php';
+        exit;
+    }
+
+    if ($page === '/mobile/pages/other/subscription.php') {
+        include 'mobile/pages/other/subscription.php';
+        exit;
+    }
+
+    if ($page === '/mobile/pages/other/template.php') {
+        include 'mobile/pages/other/template.php';
+        exit;
+    }
+
+    if ($page === '/mobile/pages/other/settings.php') {
+        include 'mobile/pages/other/settings.php';
+        exit;
+    }
+
     if ($page === '/login') {
         include 'login.php';
         exit;
