@@ -51,7 +51,7 @@ sort($unvanlar);
             <button onclick="openEkleSheet()" class="px-4 py-2 bg-zinc-50 hover:bg-zinc-200 rounded-md text-xs font-bold mt-2 text-zinc-950">Personel Ekle</button>
         </div>
     <?php else: ?>
-        <div id="personnel-list-wrapper" class="space-y-3">
+        <div id="personnel-list-wrapper">
             <?php foreach ($personnels as $p): 
                 $tcMasked = substr($p['tc_kimlik'], 0, 3) . '******' . substr($p['tc_kimlik'], -2);
                 
@@ -115,8 +115,8 @@ sort($unvanlar);
                     </div>
 
                     <!-- Main Swipeable Row Layer -->
-                    <div class="swipe-front bg-white dark:bg-zinc-900 p-4 flex items-center justify-between transition-colors hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 cursor-grab active:cursor-grabbing" 
-                         onclick="openEditFormSheet(this.parentElement)">
+                    <div class="swipe-front bg-white dark:bg-zinc-900 py-4 px-4 flex items-center justify-between transition-colors hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 cursor-grab active:cursor-grabbing" 
+                         onclick="openDetailSheet(this.parentElement)">
                         <div class="space-y-1 select-none pointer-events-none">
                             <h4 class="text-xs font-bold text-zinc-800 dark:text-zinc-200 leading-tight"><?= htmlspecialchars($p['ad_soyad']) ?></h4>
                             <div class="space-y-1">

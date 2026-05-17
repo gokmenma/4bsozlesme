@@ -601,9 +601,19 @@ if ($isLoggedIn) {
             
             if (wrapperWidth < targetWidth) {
                 const zoomFactor = (wrapperWidth - 16) / targetWidth;
-                page.style.zoom = zoomFactor;
+                
+                // Use scale transform for full cross-browser mobile & iOS Safari support instead of zoom
+                page.style.transform = `scale(${zoomFactor})`;
+                page.style.transformOrigin = 'top center';
+                
+                // Adjust layout footprint height to match scaled height and prevent bottom empty spaces
+                const originalHeight = page.offsetHeight || 1123;
+                const scaledHeight = originalHeight * zoomFactor;
+                page.style.marginBottom = `-${originalHeight - scaledHeight}px`;
             } else {
-                page.style.zoom = 1;
+                page.style.transform = 'none';
+                page.style.transformOrigin = 'top center';
+                page.style.marginBottom = '0';
             }
         }
         window.addEventListener('resize', adjustPreviewZoom);

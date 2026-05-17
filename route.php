@@ -17,7 +17,9 @@ function currentRoute(): string
 function appBasePath(): string
 {
     $basePath = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '')), '/');
-
+    if (substr($basePath, -7) === '/mobile') {
+        $basePath = substr($basePath, 0, -7);
+    }
     return ($basePath === '/' || $basePath === '.') ? '' : $basePath;
 }
 
