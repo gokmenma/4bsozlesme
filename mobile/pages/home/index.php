@@ -121,7 +121,12 @@ if (!empty($uData['trial_ends_at'])) {
 
     <!-- Tenure approaching warning panel -->
     <div class="space-y-3">
-        <h3 class="text-sm font-bold text-zinc-400 uppercase tracking-wider">Kadro Hakkı Gelenler (3 Yıl)</h3>
+        <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-zinc-400 uppercase tracking-wider">Kadro Hakkı Gelenler (3 Yıl)</h3>
+            <?php if (!empty($eligiblePersonnel)): ?>
+                <button onclick="viewAllEligible()" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline active:scale-95 transition-all cursor-pointer">Tümünü Gör</button>
+            <?php endif; ?>
+        </div>
         <div class="space-y-3">
             <?php if (empty($eligiblePersonnel)): ?>
                 <div class="glass-card p-5 rounded-lg text-center space-y-2">
@@ -138,7 +143,7 @@ if (!empty($uData['trial_ends_at'])) {
                              <p class="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400"><?= htmlspecialchars($p['unvan'] ?? 'Unvansız') ?></p>
                         </div>
                         <div class="text-right">
-                             <span class="badge-aktif px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider block">Kadroya Hak Kazandı</span>
+                             <span class="badge-aktif px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider block">Kadro: <?= date('d.m.Y', strtotime($p['goreve_baslama_tarihi'] . ' +3 years')) ?></span>
                              <span class="text-[9px] font-semibold text-zinc-500 dark:text-zinc-400 block mt-1">Başlama: <?= date('d.m.Y', strtotime($p['goreve_baslama_tarihi'])) ?></span>
                         </div>
                     </div>

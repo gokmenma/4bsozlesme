@@ -108,446 +108,13 @@ if ($isLoggedIn) {
     <!-- Tailwind CSS 4 -->
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     
-    <style>
-        * {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
-        }
-        :root {
-            --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-            font-family: var(--font-sans);
-            --background: 0 0% 100%;
-            --foreground: 240 10% 3.9%;
-            --card: 0 0% 100%;
-            --card-foreground: 240 10% 3.9%;
-            --popover: 0 0% 100%;
-            --popover-foreground: 240 10% 3.9%;
-            --primary: 240 5.9% 10%;
-            --primary-foreground: 0 0% 98%;
-            --secondary: 240 4.8% 95.9%;
-            --secondary-foreground: 240 5.9% 10%;
-            --muted: 240 4.8% 95.9%;
-            --muted-foreground: 240 3.8% 46.1%;
-            --accent: 240 4.8% 95.9%;
-            --accent-foreground: 240 5.9% 10%;
-            --border: 240 5.9% 90%;
-            --input: 240 5.9% 96%;
-            --ring: 240 5.9% 10%;
-        }
-
-        .dark {
-            --background: 240 10% 3.9%;
-            --foreground: 0 0% 98%;
-            --card: 240 10% 9%;
-            --card-foreground: 0 0% 98%;
-            --popover: 240 10% 9%;
-            --popover-foreground: 0 0% 98%;
-            --primary: 240 5.9% 90%;
-            --primary-foreground: 240 5.9% 10%;
-            --secondary: 240 3.7% 15.9%;
-            --secondary-foreground: 0 0% 98%;
-            --muted: 240 3.7% 15.9%;
-            --muted-foreground: 240 5% 64.9%;
-            --accent: 240 3.7% 15.9%;
-            --accent-foreground: 0 0% 98%;
-            --border: 240 3.7% 15.9%;
-            --input: 240 3.7% 12%;
-            --ring: 240 4.9% 83.9%;
-        }
-
-        /* Prevent elastic scroll on iOS */
-        html, body {
-            overflow: hidden;
-            height: 100%;
-            font-size: 0.875rem;
-            background-color: hsl(var(--background));
-            color: hsl(var(--foreground));
-            transition: background-color 0.2s ease, color 0.2s ease;
-        }
-
-        /* Desktop Mockup Framework */
-        .desktop-bg {
-            background: radial-gradient(circle at 50% 50%, #f4f4f5 0%, #e4e4e7 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            transition: background 0.2s ease;
-        }
-        .dark .desktop-bg {
-            background: radial-gradient(circle at 50% 50%, #18181b 0%, #09090b 100%);
-        }
-
-        .phone-frame {
-            position: relative;
-            width: 410px;
-            height: 840px;
-            background: hsl(var(--background));
-            border-radius: 40px;
-            padding: 12px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1),
-                        inset 0 0 2px 1px rgba(0, 0, 0, 0.05),
-                        0 0 0 4px #e4e4e7;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        .dark .phone-frame {
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
-                        inset 0 0 2px 1px rgba(255, 255, 255, 0.05),
-                        0 0 0 4px #27272a;
-        }
-
-        /* Real Notch look */
-        .notch {
-            position: absolute;
-            top: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 150px;
-            height: 30px;
-            background: hsl(var(--background));
-            border-radius: 0 0 20px 20px;
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            border-bottom: 1px solid hsl(var(--border));
-            border-left: 1px solid hsl(var(--border));
-            border-right: 1px solid hsl(var(--border));
-            transition: background-color 0.2s ease, border-color 0.2s ease;
-        }
-
-        .notch-camera {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: hsl(var(--background));
-            border: 2px solid hsl(var(--border));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .notch-camera-inner {
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: hsl(var(--border));
-        }
-
-        .notch-speaker {
-            width: 50px;
-            height: 4px;
-            border-radius: 2px;
-            background: hsl(var(--border));
-        }
-
-        .screen-content {
-            flex: 1;
-            background: hsl(var(--background));
-            border-radius: 28px;
-            overflow: hidden;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            transition: background-color 0.2s ease;
-        }
-
-        /* Responsive Breakpoint to make phone go fullscreen on mobile/tablet */
-        @media (max-width: 1023px) {
-            .desktop-bg {
-                background: none !important;
-                padding: 0 !important;
-                min-height: 100% !important;
-            }
-            .phone-frame {
-                width: 100% !important;
-                height: 100% !important;
-                max-height: 100% !important;
-                border-radius: 0 !important;
-                border: none !important;
-                padding: 0 !important;
-                box-shadow: none !important;
-            }
-            .notch {
-                display: none !important;
-            }
-            .screen-content {
-                border-radius: 0 !important;
-            }
-        }
-
-        /* Shadcn Cards */
-        .glass-card {
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            transition: all 0.2s ease-in-out;
-        }
-
-        .glass-card:active {
-            transform: scale(0.98);
-            border-color: hsl(var(--border));
-            opacity: 0.9;
-        }
-
-        /* Custom Scrollbar for inner app */
-        .app-scroll::-webkit-scrollbar {
-            width: 4px;
-        }
-        .app-scroll::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .app-scroll::-webkit-scrollbar-thumb {
-            background: rgba(120, 120, 120, 0.2);
-            border-radius: 2px;
-        }
-
-        /* Bottom Sheet Styling */
-        .bottom-sheet {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: hsl(var(--card));
-            border-top: 1px solid hsl(var(--border));
-            border-radius: 20px 20px 0 0;
-            transform: translateY(105%);
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 50;
-            box-shadow: 0 -10px 40px -10px rgba(0, 0, 0, 0.15);
-        }
-        .dark .bottom-sheet {
-            box-shadow: 0 -10px 40px -10px rgba(0, 0, 0, 0.7);
-        }
-
-        .bottom-sheet.open {
-            transform: translateY(0);
-        }
-
-        .bottom-sheet-backdrop {
-            position: absolute;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            z-index: 40;
-        }
-        .dark .bottom-sheet-backdrop {
-            background: rgba(9, 9, 11, 0.8);
-        }
-
-        .bottom-sheet-backdrop.open {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        /* Custom Input */
-        .mobile-input {
-            background: hsl(var(--input));
-            border: 1px solid hsl(var(--border));
-            border-radius: 8px;
-            color: hsl(var(--foreground));
-            padding: 10px 14px;
-            font-size: 0.9rem;
-            width: 100%;
-            transition: all 0.2s ease;
-            outline: none;
-        }
-        .mobile-input:focus {
-            border-color: hsl(var(--foreground));
-            box-shadow: 0 0 0 2px rgba(120, 120, 120, 0.1);
-        }
-
-        /* Status Badges */
-        .badge-aktif {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            border-radius: 6px;
-        }
-        .badge-pasif {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            border-radius: 6px;
-        }
-        .badge-kadro {
-            background: rgba(59, 130, 246, 0.1);
-            color: #3b82f6;
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            border-radius: 6px;
-        }
-
-        /* Toast Popup */
-        .mobile-toast {
-            position: absolute;
-            top: 24px;
-            left: 16px;
-            right: 16px;
-            padding: 14px 20px;
-            border-radius: 12px;
-            background: hsl(var(--card));
-            border: 1px solid hsl(var(--border));
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-            transform: translateY(-150%);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .dark .mobile-toast {
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-        }
-        .mobile-toast.open {
-            transform: translateY(0);
-        }
-
-        /* Swipe Actions Layout Styles */
-        .swipe-container {
-            position: relative;
-            overflow: hidden;
-        }
-        .swipe-front {
-            position: relative;
-            z-index: 10;
-            user-select: none;
-            touch-action: pan-y; /* Flawless vertical scrolling, clean horizontal swipe */
-        }
-
-        /* Document Preview Page Simulated Look */
-        .document-preview-wrapper {
-            background-color: #f4f4f5;
-            padding: 1rem 0.5rem;
-            display: flex;
-            justify-content: center;
-            min-height: 100%;
-            overflow-y: auto;
-        }
-        .dark .document-preview-wrapper {
-            background-color: #09090b;
-        }
-        .document-preview-page {
-            width: 100%;
-            max-width: 794px; /* A4 Ratio */
-            background-color: #ffffff;
-            color: #000000;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            padding: 2.5rem 1.5rem;
-            font-family: 'Times New Roman', Times, serif !important;
-            line-height: 1.6;
-            font-size: 10.5pt;
-            text-align: justify;
-            box-sizing: border-box;
-            border-radius: 4px;
-        }
-        .document-preview-page * {
-            font-family: 'Times New Roman', Times, serif !important;
-            color: #000000 !important;
-        }
-        .document-preview-page.has-border {
-            border: 3px double #000000;
-        }
-        /* Custom styles for Quill dynamic HTML to look identical to premium print sheets */
-        .document-preview-page .ql-editor {
-            padding: 0 !important;
-        }
-        .document-preview-page .ql-editor p {
-            margin-bottom: 8px;
-            text-indent: 1.5cm;
-        }
-        .document-preview-page .ql-editor p[style*="text-align: center"],
-        .document-preview-page .ql-editor p[style*="text-align:center"] {
-            text-indent: 0 !important;
-        }
-
-        /* Dark Mode Custom CSS Overrides */
-        .dark body {
-            background-color: #09090b !important;
-            color: #f4f4f5 !important;
-        }
-        .dark .bg-white {
-            background-color: #18181b !important;
-        }
-        .dark .glass-card {
-            background: rgba(24, 24, 27, 0.8) !important;
-            border-color: rgba(39, 39, 42, 0.5) !important;
-        }
-        .dark .text-zinc-900 {
-            color: #f4f4f5 !important;
-        }
-        .dark .text-zinc-800 {
-            color: #e4e4e7 !important;
-        }
-        .dark .text-zinc-700 {
-            color: #d4d4d8 !important;
-        }
-        .dark .text-zinc-600 {
-            color: #a1a1aa !important;
-        }
-        .dark .border-zinc-200 {
-            border-color: #27272a !important;
-        }
-        .dark input, .dark select, .dark textarea {
-            background-color: #09090b !important;
-            color: #f4f4f5 !important;
-            border-color: #27272a !important;
-        }
-
-        /* Unified List styles matching 3rd image */
-        #personnel-list-wrapper {
-            background-color: #ffffff;
-            border: 1px solid #e4e4e7;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
-        }
-        .dark #personnel-list-wrapper {
-            background-color: #18181b !important;
-            border-color: #27272a !important;
-            box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.4);
-        }
-
-        /* Swipe container overrides for single list integration */
-        .swipe-container {
-            background-color: #f4f4f5 !important;
-            border: none !important;
-            border-radius: 0 !important;
-        }
-        .dark .swipe-container {
-            background-color: #09090b !important;
-        }
-        
-        .swipe-front {
-            border: none !important;
-            border-radius: 0 !important;
-            background-color: #ffffff !important;
-        }
-        .dark .swipe-front {
-            background-color: #18181b !important;
-        }
-
-        /* Soft gray buttons in unified list in Dark Mode */
-        .dark .bg-zinc-100 {
-            background-color: #27272a !important;
-            border-color: rgba(63, 63, 70, 0.3) !important;
-        }
-        .dark .hover\:bg-zinc-200:hover {
-            background-color: #3f3f46 !important;
-        }
-        
-        /* Select click pointer and selection disable override for mobile browsers */
-        select, input, textarea {
-            user-select: auto !important;
-            -webkit-user-select: auto !important;
-            pointer-events: auto !important;
-        }
+    <!-- Tailwind CSS 4 Class-Based Dark Mode Configuration -->
+    <style type="text/tailwindcss">
+        @import "tailwindcss";
+        @custom-variant dark (&:where(.dark, .dark *));
     </style>
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="h-full flex items-center justify-center select-none">
 
@@ -732,7 +299,7 @@ if ($isLoggedIn) {
 
                                     <!-- Kurum Yönetimi (Superadmin only) -->
                                     <?php if ($isSuperAdmin): ?>
-                                    <button onclick="closeAllSheets(); switchTab('other'); loadOtherSubpage('tenants');" class="w-full p-4 rounded-xl glass-card flex items-center gap-3.5 text-left transition-all active:scale-[0.98] border border-zinc-200/60 dark:border-zinc-800/80 cursor-pointer">
+                                    <button onclick="closeAllSheets(); loadOtherSubpage('tenants');" class="w-full p-4 rounded-xl glass-card flex items-center gap-3.5 text-left transition-all active:scale-[0.98] border border-zinc-200/60 dark:border-zinc-800/80 cursor-pointer">
                                         <div class="w-9 h-9 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 border border-emerald-500/20 shadow-sm">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg>
                                         </div>
@@ -745,7 +312,7 @@ if ($isLoggedIn) {
                                     <?php endif; ?>
 
                                     <!-- Kullanıcı Yönetimi -->
-                                    <button onclick="closeAllSheets(); switchTab('other'); loadOtherSubpage('users');" class="w-full p-4 rounded-xl glass-card flex items-center gap-3.5 text-left transition-all active:scale-[0.98] border border-zinc-200/60 dark:border-zinc-800/80 cursor-pointer">
+                                    <button onclick="closeAllSheets(); loadOtherSubpage('users');" class="w-full p-4 rounded-xl glass-card flex items-center gap-3.5 text-left transition-all active:scale-[0.98] border border-zinc-200/60 dark:border-zinc-800/80 cursor-pointer">
                                         <div class="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-900 dark:text-zinc-100 border border-zinc-200/40 dark:border-zinc-800/60 shadow-sm">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                                         </div>
@@ -757,7 +324,7 @@ if ($isLoggedIn) {
                                     </button>
 
                                     <!-- Abonelik & Paketler -->
-                                    <button onclick="closeAllSheets(); switchTab('other'); loadOtherSubpage('subscription');" class="w-full p-4 rounded-xl glass-card flex items-center gap-3.5 text-left transition-all active:scale-[0.98] border border-zinc-200/60 dark:border-zinc-800/80 cursor-pointer">
+                                    <button onclick="closeAllSheets(); loadOtherSubpage('subscription');" class="w-full p-4 rounded-xl glass-card flex items-center gap-3.5 text-left transition-all active:scale-[0.98] border border-zinc-200/60 dark:border-zinc-800/80 cursor-pointer">
                                         <div class="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-900 dark:text-zinc-100 border border-zinc-200/40 dark:border-zinc-800/60 shadow-sm">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
                                         </div>
@@ -768,20 +335,9 @@ if ($isLoggedIn) {
                                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-400" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
                                     </button>
 
-                                    <!-- Sözleşme Taslakları -->
-                                    <button onclick="closeAllSheets(); switchTab('other'); loadOtherSubpage('template');" class="w-full p-4 rounded-xl glass-card flex items-center gap-3.5 text-left transition-all active:scale-[0.98] border border-zinc-200/60 dark:border-zinc-800/80 cursor-pointer">
-                                        <div class="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-900 dark:text-zinc-100 border border-zinc-200/40 dark:border-zinc-800/60 shadow-sm">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <h5 class="text-xs font-bold leading-tight">Sözleşme Taslakları</h5>
-                                            <p class="text-[9px] text-zinc-400 dark:text-zinc-500 tracking-tight mt-0.5">Sözleşme şablonu ve yasal maddeler</p>
-                                        </div>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-400" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
-                                    </button>
 
                                     <!-- Sistem Ayarları -->
-                                    <button onclick="closeAllSheets(); switchTab('other'); loadOtherSubpage('settings');" class="w-full p-4 rounded-xl glass-card flex items-center gap-3.5 text-left transition-all active:scale-[0.98] border border-zinc-200/60 dark:border-zinc-800/80 cursor-pointer">
+                                    <button onclick="closeAllSheets(); loadOtherSubpage('settings');" class="w-full p-4 rounded-xl glass-card flex items-center gap-3.5 text-left transition-all active:scale-[0.98] border border-zinc-200/60 dark:border-zinc-800/80 cursor-pointer">
                                         <div class="w-9 h-9 rounded-lg bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-900 dark:text-zinc-100 border border-zinc-200/40 dark:border-zinc-800/60 shadow-sm">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                                         </div>
@@ -958,7 +514,7 @@ if ($isLoggedIn) {
 
                                 <button type="submit" class="w-full py-3.5 bg-zinc-900 dark:bg-zinc-50 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-950 rounded-md font-bold text-xs flex items-center justify-center gap-1.5 mt-2 cursor-pointer active:scale-95 transition-all shadow-sm">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                                    Kaydet & Gönder
+                                    Kaydet
                                 </button>
                             </form>
                         </div>
@@ -1034,6 +590,24 @@ if ($isLoggedIn) {
         let selectedPersonnelCard = null;
         let isTcMasked = true;
 
+        // Dynamic simulated A4 zoom scaling to perfectly fit mobile viewports like a real PDF viewer
+        function adjustPreviewZoom() {
+            const wrapper = document.querySelector('.document-preview-wrapper');
+            const page = document.getElementById('preview-content-area');
+            if (!wrapper || !page) return;
+            
+            const wrapperWidth = wrapper.clientWidth;
+            const targetWidth = 794; // Fixed standard A4 width
+            
+            if (wrapperWidth < targetWidth) {
+                const zoomFactor = (wrapperWidth - 16) / targetWidth;
+                page.style.zoom = zoomFactor;
+            } else {
+                page.style.zoom = 1;
+            }
+        }
+        window.addEventListener('resize', adjustPreviewZoom);
+
         // Swiping gesture handler for personnel list items (pure standard PointerEvents)
         function initSwipeActions() {
             const containers = document.querySelectorAll('.swipe-container');
@@ -1082,8 +656,8 @@ if ($isLoggedIn) {
                     }
                     currentX = originalX + deltaX;
 
-                    // Elastic bound limits matching the full height w-14 columns (total 112px right, -56px left)
-                    if (currentX > 125) currentX = 125 + (currentX - 125) * 0.15;
+                    // Elastic bound limits matching the full height w-12 columns with pl-4 and gap-4 (total 130px right, -56px left)
+                    if (currentX > 140) currentX = 140 + (currentX - 140) * 0.15;
                     if (currentX < -70) currentX = -70 + (currentX + 70) * 0.15;
 
                     front.style.transform = `translateX(${currentX}px)`;
@@ -1097,8 +671,8 @@ if ($isLoggedIn) {
                     const finalX = getTransformX();
                     
                     if (finalX > 45) {
-                        // Snap right (reveal Left buttons: Önizle & Dilekçe - total 112px wide)
-                        front.style.transform = 'translateX(112px)';
+                        // Snap right (reveal Left buttons: Sözleşme & Dilekçe - total 130px wide)
+                        front.style.transform = 'translateX(130px)';
                     } else if (finalX < -30) {
                         // Snap left (reveal Right button: Sil - 56px wide)
                         front.style.transform = 'translateX(-56px)';
@@ -1225,8 +799,26 @@ if ($isLoggedIn) {
             }
         }
 
-        // Load other actions subpages dynamically
         async function loadOtherSubpage(subpageName) {
+            // Update active tab style to 'other'
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-zinc-950', 'dark:text-zinc-50');
+                btn.classList.add('text-zinc-400', 'dark:text-zinc-500');
+            });
+            document.querySelectorAll('[id^="nav-indicator-"]').forEach(ind => ind.classList.add('hidden'));
+
+            const activeBtn = document.getElementById('nav-other');
+            if (activeBtn) {
+                activeBtn.classList.add('text-zinc-950', 'dark:text-zinc-50');
+                activeBtn.classList.remove('text-zinc-400', 'dark:text-zinc-500');
+            }
+            const activeInd = document.getElementById('nav-indicator-other');
+            if (activeInd) {
+                activeInd.classList.remove('hidden');
+            }
+
+            currentTab = 'other';
+
             const wrapper = document.getElementById('dynamic-content-wrapper');
             if (wrapper) {
                 // Show loader
@@ -1281,6 +873,13 @@ if ($isLoggedIn) {
                     `;
                 }
             }
+        }
+
+        function goBackToOtherMenu() {
+            switchTab('home');
+            setTimeout(() => {
+                openSheet('other-menu-sheet');
+            }, 150);
         }
 
         // Inline Theme Toggle Helper
@@ -1541,119 +1140,19 @@ if ($isLoggedIn) {
             `;
             contentArea.classList.remove('has-border');
 
+            document.body.setAttribute('data-doc-type', 'dilekce');
+
             // Set UI details
             document.getElementById('preview-title').innerText = "Dilekçe Önizleme";
             
             // Hide word download button, bind print
             document.getElementById('btn-preview-download').classList.add('hidden');
-            document.getElementById('btn-preview-print').onclick = () => printDocumentMarkup(name, "Dilekçe", contentHtml, false);
+            document.getElementById('btn-preview-print').onclick = () => {
+                window.print();
+            };
 
             document.getElementById('preview-modal').classList.remove('hidden');
-        }
-
-        // Clean Print helper
-        function printDocumentMarkup(name, docType, contentHtml, hasBorder = false) {
-            const printWindow = window.open('', '_blank');
-            
-            let printStyles = '';
-            if (docType === 'Dilekçe') {
-                printStyles = `
-                    @page { size: A4 portrait; margin: 2cm !important; }
-                    * { box-sizing: border-box !important; }
-                    body { 
-                        font-family: "Times New Roman", Times, serif !important; 
-                        margin: 0 !important; 
-                        padding: 0 !important; 
-                        background: white !important;
-                        -webkit-print-color-adjust: exact !important;
-                        print-color-adjust: exact !important;
-                    }
-                    p, div, span, strong, em, li {
-                        font-family: "Times New Roman", Times, serif !important;
-                        font-size: 11pt !important;
-                        line-height: 1.6 !important;
-                    }
-                    .ql-editor {
-                        padding: 0 !important;
-                        font-family: "Times New Roman", Times, serif !important;
-                        font-size: 11pt !important;
-                        line-height: 1.6 !important;
-                        text-align: justify;
-                    }
-                    .ql-editor p {
-                        margin-bottom: 8px;
-                        text-indent: 1.5cm;
-                    }
-                    .ql-editor p[style*="text-align: center"],
-                    .ql-editor p[style*="text-align:center"] {
-                        text-indent: 0 !important;
-                    }
-                `;
-            } else {
-                // Contract print styles
-                printStyles = `
-                    @page { size: A4 portrait; margin: 0 !important; }
-                    * { box-sizing: border-box !important; }
-                    html, body { 
-                        margin: 0 !important; 
-                        padding: 0 !important; 
-                        background: white !important;
-                        font-family: 'Times New Roman', Times, serif;
-                        -webkit-print-color-adjust: exact !important;
-                        print-color-adjust: exact !important;
-                    }
-                    .page-container { 
-                        width: 210mm !important; 
-                        height: auto !important; 
-                        min-height: 297mm !important;
-                        padding: 2.5cm 2cm 2.5cm !important;
-                        margin: 0 auto !important; 
-                        background: white !important; 
-                        position: relative !important;
-                        box-sizing: border-box !important;
-                        overflow: visible !important;
-                    }
-                    .page-container.has-border {
-                        border: 3px double #000;
-                    }
-                    .ql-editor {
-                        padding: 0 !important;
-                        font-family: "Times New Roman", Times, serif !important;
-                        line-height: 1.6 !important;
-                        text-align: justify;
-                    }
-                `;
-            }
-
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html lang="tr">
-                    <head>
-                        <meta charset="UTF-8">
-                        <title>${docType} - ${name}</title>
-                        <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-                        <style>${printStyles}</style>
-                    </head>
-                    <body>
-                        <div class="page-container ${hasBorder ? 'has-border' : ''}">
-                            <div class="ql-container ql-snow" style="border:none">
-                                <div class="ql-editor">
-                                    ${contentHtml}
-                                </div>
-                            </div>
-                        </div>
-                        <script>
-                            window.onload = function() {
-                                setTimeout(() => {
-                                    window.print();
-                                    window.close();
-                                }, 800);
-                            };
-                        <\/script>
-                    </body>
-                </html>
-            `);
-            printWindow.document.close();
+            setTimeout(adjustPreviewZoom, 50);
         }
 
         // Preview Contract Logic via AJAX
@@ -1678,6 +1177,8 @@ if ($isLoggedIn) {
                 .then(res => res.json())
                 .then(data => {
                     if (data.success) {
+                        document.body.setAttribute('data-doc-type', 'sozlesme');
+                        
                         contentArea.innerHTML = `
                             <div class="ql-container ql-snow" style="border:none">
                                 <div class="ql-editor">${data.content}</div>
@@ -1692,7 +1193,10 @@ if ($isLoggedIn) {
                         
                         // Bind download and print buttons
                         document.getElementById('btn-preview-download').onclick = () => downloadWord(id);
-                        document.getElementById('btn-preview-print').onclick = () => printDocumentMarkup(data.personnel_name, "Sözleşme", data.content, data.has_border);
+                        document.getElementById('btn-preview-print').onclick = () => {
+                            window.print();
+                        };
+                        setTimeout(adjustPreviewZoom, 50);
                     } else {
                         showToast(data.error || 'Önizleme yüklenirken bir hata oluştu.', 'error');
                         closePreviewModal();
@@ -1706,6 +1210,7 @@ if ($isLoggedIn) {
 
         function closePreviewModal() {
             document.getElementById('preview-modal').classList.add('hidden');
+            document.body.removeAttribute('data-doc-type');
         }
 
         // Filter Sheet opening
@@ -1719,15 +1224,28 @@ if ($isLoggedIn) {
             }
         }
 
+        // Switch to personnel tab and automatically filter by tenure-eligible personnel
+        function viewAllEligible() {
+            switchTab('personnel', () => {
+                const kadroSelect = document.getElementById('filter-kadro');
+                if (kadroSelect) {
+                    kadroSelect.value = 'gelenler';
+                }
+                applyPersonnelFilters();
+            });
+        }
+
         // Clear all filters
         function clearAllFilters() {
             const unvanSelect = document.getElementById('filter-unvan');
             const durumSelect = document.getElementById('filter-durum');
             const baslamaSelect = document.getElementById('filter-baslama-yili');
+            const kadroSelect = document.getElementById('filter-kadro');
             
             if (unvanSelect) unvanSelect.value = '';
             if (durumSelect) durumSelect.value = '';
             if (baslamaSelect) baslamaSelect.value = '';
+            if (kadroSelect) kadroSelect.value = '';
             
             applyPersonnelFilters();
             closeAllSheets();
@@ -1738,11 +1256,13 @@ if ($isLoggedIn) {
             const unvanSelect = document.getElementById('filter-unvan');
             const durumSelect = document.getElementById('filter-durum');
             const baslamaSelect = document.getElementById('filter-baslama-yili');
+            const kadroSelect = document.getElementById('filter-kadro');
             const searchInput = document.getElementById('personnelSearch');
 
             const unvan = unvanSelect ? unvanSelect.value.toLowerCase() : '';
             const durum = durumSelect ? durumSelect.value.toLowerCase() : '';
             const yil = baslamaSelect ? baslamaSelect.value : '';
+            const kadro = kadroSelect ? kadroSelect.value : '';
             const searchVal = searchInput ? searchInput.value.toLowerCase() : '';
 
             const cards = document.querySelectorAll('.personnel-item-card');
@@ -1754,6 +1274,7 @@ if ($isLoggedIn) {
                 const cardUnvan = (card.getAttribute('data-unvan') || '').toLowerCase();
                 const cardDurum = (card.getAttribute('data-durum') || '').toLowerCase();
                 const cardBaslama = card.getAttribute('data-baslama') || ''; // dd.mm.yyyy
+                const cardEligible = card.getAttribute('data-eligible') === '1';
 
                 const matchesSearch = cardName.includes(searchVal) || cardTc.includes(searchVal);
                 const matchesUnvan = !unvan || cardUnvan === unvan;
@@ -1769,7 +1290,14 @@ if ($isLoggedIn) {
                     }
                 }
 
-                if (matchesSearch && matchesUnvan && matchesDurum && matchesYil) {
+                let matchesKadro = true;
+                if (kadro === 'gelenler') {
+                    matchesKadro = cardEligible;
+                } else if (kadro === 'gelmeyenler') {
+                    matchesKadro = !cardEligible;
+                }
+
+                if (matchesSearch && matchesUnvan && matchesDurum && matchesYil && matchesKadro) {
                     card.classList.remove('hidden');
                     countVisible++;
                 } else {
@@ -2006,12 +1534,15 @@ if ($isLoggedIn) {
             const lastActiveTab = localStorage.getItem('last_active_tab') || 'home';
             const lastActiveSubpage = localStorage.getItem('last_active_subpage');
             
-            if (lastActiveTab === 'other' && lastActiveSubpage) {
-                switchTab('other', () => {
+            let targetTab = lastActiveTab;
+            if (targetTab === 'other') {
+                if (lastActiveSubpage) {
                     loadOtherSubpage(lastActiveSubpage);
-                });
+                } else {
+                    switchTab('home');
+                }
             } else {
-                switchTab(lastActiveTab);
+                switchTab(targetTab);
             }
             <?php endif; ?>
         });

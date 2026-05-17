@@ -37,7 +37,7 @@ sort($unvanlar);
             <div class="absolute left-4 text-zinc-500">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             </div>
-            <input id="personnelSearch" type="text" class="mobile-input pl-11" placeholder="Personel ara (İsim, TC...)" onkeyup="applyPersonnelFilters()">
+            <input id="personnelSearch" type="text" class="mobile-input pl-icon" placeholder="Personel ara (İsim, TC...)" onkeyup="applyPersonnelFilters()">
         </div>
         <button onclick="openFilterSheet()" class="p-3 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-lg text-zinc-600 dark:text-zinc-400 active:scale-95 transition-all cursor-pointer flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
@@ -69,6 +69,13 @@ sort($unvanlar);
                     $initials = mb_substr($p['ad_soyad'], 0, 2, 'UTF-8');
                 }
                 $initials = mb_strtoupper($initials, 'UTF-8');
+
+                // Kadro hakkı gelme kontrolü (3 yıl dolmuş olması)
+                $is_eligible = false;
+                if (!empty($p['goreve_baslama_tarihi'])) {
+                    $eligible_date = strtotime('+3 years', strtotime($p['goreve_baslama_tarihi']));
+                    $is_eligible = ($eligible_date <= time());
+                }
             ?>
                 <div class="swipe-container relative overflow-hidden personnel-item-card"
                      data-id="<?= $p['id'] ?>"
@@ -84,15 +91,16 @@ sort($unvanlar);
                      data-ucret="<?= number_format($p['ucret'] ?? 0, 2, ',', '.') ?> TL"
                      data-ogrenim="<?= htmlspecialchars($p['ogrenim'] ?? '-') ?>"
                      data-kidem="<?= htmlspecialchars($p['kidem_yili'] ?? '-') ?>"
-                     data-durum="<?= $p['durum'] ?>">
+                     data-durum="<?= $p['durum'] ?>"
+                     data-eligible="<?= $is_eligible ? '1' : '0' ?>">
                      
                     <!-- Left Background Actions (Sağa Kaydırma) - Elegant Float Brand Actions (3.resimdeki gibi) -->
-                    <div class="absolute inset-y-0 left-0 flex items-stretch z-0">
-                        <button onclick="event.stopPropagation(); previewContract('<?= $p['id'] ?>')" class="w-14 h-full bg-transparent text-indigo-600 dark:text-indigo-400 flex flex-col items-center justify-center transition-all cursor-pointer gap-1.5 hover:scale-110 active:scale-95">
+                    <div class="absolute inset-y-0 left-0 flex items-stretch gap-4 pl-4 z-0">
+                        <button onclick="event.stopPropagation(); previewContract('<?= $p['id'] ?>')" class="w-12 h-full bg-transparent text-zinc-600 dark:text-zinc-400 flex flex-col items-center justify-center transition-all cursor-pointer gap-1.5 hover:scale-110 active:scale-95">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
                             <span class="text-[9px] font-bold uppercase tracking-wider leading-none">Sözleşme</span>
                         </button>
-                        <button onclick="event.stopPropagation(); previewPetition('<?= $p['id'] ?>')" class="w-14 h-full bg-transparent text-emerald-600 dark:text-emerald-400 flex flex-col items-center justify-center transition-all cursor-pointer gap-1.5 hover:scale-110 active:scale-95">
+                        <button onclick="event.stopPropagation(); previewPetition('<?= $p['id'] ?>')" class="w-12 h-full bg-transparent text-zinc-600 dark:text-zinc-400 flex flex-col items-center justify-center transition-all cursor-pointer gap-1.5 hover:scale-110 active:scale-95">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
                             <span class="text-[9px] font-bold uppercase tracking-wider leading-none">Dilekçe</span>
                         </button>
@@ -106,31 +114,31 @@ sort($unvanlar);
                         </button>
                     </div>
 
-                    <!-- Main Swipeable Row Layer (Wages Card Style Match - Bütün kart sınırları ve gölgeleri bu katmana taşındı) -->
-                    <div class="swipe-front bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200/80 dark:border-zinc-800/80 shadow-sm flex items-center justify-between transition-colors hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 cursor-grab active:cursor-grabbing" 
-                         onclick="openDetailSheet(this.parentElement)">
-                        <div class="space-y-1.5 select-none pointer-events-none">
+                    <!-- Main Swipeable Row Layer -->
+                    <div class="swipe-front bg-white dark:bg-zinc-900 p-4 flex items-center justify-between transition-colors hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 cursor-grab active:cursor-grabbing" 
+                         onclick="openEditFormSheet(this.parentElement)">
+                        <div class="space-y-1 select-none pointer-events-none">
                             <h4 class="text-xs font-bold text-zinc-800 dark:text-zinc-200 leading-tight"><?= htmlspecialchars($p['ad_soyad']) ?></h4>
-                            <div class="flex items-center gap-1.5 flex-wrap">
+                            <div class="space-y-1">
                                 <!-- Unvan Badge -->
-                                <span class="text-[9px] bg-zinc-100 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 px-2 py-0.5 rounded font-bold uppercase leading-none">
-                                    <?= htmlspecialchars($p['unvan'] ?? 'Unvansız') ?>
-                                </span>
-                                <!-- TC Badge -->
-                                <span class="text-[9px] bg-zinc-50 dark:bg-zinc-950 text-zinc-500 dark:text-zinc-400 border border-zinc-100 dark:border-zinc-800 px-2 py-0.5 rounded font-bold leading-none">
-                                    <?= $tcMasked ?>
-                                </span>
-                                <!-- Durum Badge -->
-                                <span class="text-[9px] border px-2 py-0.5 rounded font-bold uppercase leading-none <?= $durumClass ?>">
-                                    <?= htmlspecialchars($p['durum']) ?>
+                                <div class="inline-block">
+                                    <span class="text-[9px] bg-zinc-100 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 px-2 py-0.5 rounded font-bold uppercase leading-none">
+                                        <?= htmlspecialchars($p['unvan'] ?? 'Unvansız') ?>
+                                    </span>
+                                </div>
+                                <!-- İşe Başlama Tarihi Label -->
+                                <span class="text-[10px] text-zinc-400 dark:text-zinc-500 font-bold block mt-0.5">
+                                    Giriş: <?= date('d.m.Y', strtotime($p['goreve_baslama_tarihi'])) ?>
                                 </span>
                             </div>
                         </div>
                         
-                        <!-- Right Column (Salary & Label) -->
-                        <div class="text-right select-none pointer-events-none">
-                            <span class="text-xs font-extrabold text-zinc-900 dark:text-zinc-100 block"><?= number_format($p['ucret'] ?? 0, 2, ',', '.') ?> TL</span>
-                            <span class="text-[9px] text-zinc-500 font-semibold block mt-0.5">Aylık Ücret</span>
+                        <!-- Right Column (Salary & Durum Badge) -->
+                        <div class="text-right flex flex-col items-end justify-center select-none pointer-events-none space-y-1.5">
+                            <span class="text-xs font-extrabold text-zinc-900 dark:text-zinc-100 block">₺<?= number_format($p['ucret'] ?? 0, 2, ',', '.') ?></span>
+                            <span class="text-[9px] border px-2 py-0.5 rounded font-bold uppercase leading-none inline-block <?= $durumClass ?>">
+                                <?= htmlspecialchars($p['durum']) ?>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -173,6 +181,16 @@ sort($unvanlar);
                     <option value="">Tümü</option>
                     <option value="aktif">Aktif</option>
                     <option value="pasif">Pasif</option>
+                </select>
+            </div>
+
+            <!-- Kadro Durumu Filtresi -->
+            <div class="space-y-1.5">
+                <label class="text-[0.78rem] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Kadro Durumu</label>
+                <select id="filter-kadro" class="mobile-input">
+                    <option value="">Tümü</option>
+                    <option value="gelenler">Kadroya Geçişi Gelenler (3 Yıl Dolmuş)</option>
+                    <option value="gelmeyenler">Kadroya Geçişi Gelmeyenler</option>
                 </select>
             </div>
 
