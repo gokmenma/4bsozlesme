@@ -193,6 +193,24 @@
         html.dark .hover\:bg-zinc-100:hover {
             background-color: #27272a !important;
         }
+
+        /* Force Black Focus Color Ring Globally for Inputs, Selects and Textareas */
+        input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+        select:focus,
+        textarea:focus {
+            border-color: #18181b !important;
+            outline: none !important;
+            box-shadow: 0 0 0 2px rgba(24, 24, 27, 0.15) !important;
+        }
+        
+        /* Dark Mode support */
+        html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+        html.dark select:focus,
+        html.dark textarea:focus {
+            border-color: #f4f4f5 !important;
+            outline: none !important;
+            box-shadow: 0 0 0 2px rgba(244, 244, 245, 0.15) !important;
+        }
     </style>
     <title><?php echo isset($pageTitle) ? $pageTitle . " | Sözleşme Yönetimi" : "Sözleşme Yönetimi"; ?></title>
     

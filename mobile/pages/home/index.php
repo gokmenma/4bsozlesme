@@ -51,42 +51,98 @@ if (!empty($uData['trial_ends_at'])) {
 
     <!-- KPI Stats 2x2 Grid -->
     <div class="grid grid-cols-2 gap-4">
-        <div class="glass-card p-4 rounded-xl flex flex-col justify-between h-28 relative">
+        <!-- Card 1: Toplam Personel -->
+        <div class="glass-card p-4 rounded-xl flex flex-col justify-between relative">
             <div class="w-8 h-8 rounded-md bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-zinc-600 dark:text-zinc-400">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m7-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8m13 10v-2a4 4 0 0 0-3-3.87m-4-12a4 4 0 0 1 0 7.75"/></svg>
             </div>
-            <div>
+            <div class="mt-3">
                 <span class="text-[0.72rem] font-bold text-zinc-400 uppercase tracking-wider block">Toplam Personel</span>
                 <span class="text-2xl font-extrabold text-zinc-950 dark:text-zinc-50 leading-none mt-1 block"><?= $stats['total_personnel'] ?></span>
             </div>
+            
+            <!-- Mobile Breakdown Sub-section -->
+            <div class="grid grid-cols-1 gap-1.5 pt-2.5 mt-2.5 border-t border-zinc-100/70 dark:border-zinc-800/40 text-[9px] font-semibold text-zinc-500 dark:text-zinc-400">
+                <div class="flex items-center justify-between">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                        Kadroya Geçen
+                    </span>
+                    <span class="font-bold text-zinc-800 dark:text-zinc-200"><?= $stats['kadroya_gecti'] ?></span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                        Pasif Kayıtlar
+                    </span>
+                    <span class="font-bold text-zinc-800 dark:text-zinc-200"><?= $stats['pasif'] ?></span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        Aktif Görevde
+                    </span>
+                    <span class="font-bold text-zinc-800 dark:text-zinc-200"><?= $stats['active_personnel'] ?></span>
+                </div>
+            </div>
         </div>
         
-        <div class="glass-card p-4 rounded-xl flex flex-col justify-between h-28 relative">
-            <div class="w-8 h-8 rounded-md bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-emerald-500 dark:text-emerald-400">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+        <!-- Card 2: Aktif Çalışan -->
+        <div class="glass-card p-4 rounded-xl flex flex-col justify-between relative">
+            <div class="flex items-center justify-between">
+                <div class="w-8 h-8 rounded-md bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-emerald-500 dark:text-emerald-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
+                </div>
+                <div class="absolute top-4 right-4 w-2 h-2 bg-emerald-500 rounded-full animate-ping"></div>
             </div>
-            <div>
+            <div class="mt-3">
                 <span class="text-[0.72rem] font-bold text-zinc-400 uppercase tracking-wider block">Aktif Çalışan</span>
                 <span class="text-2xl font-extrabold text-zinc-950 dark:text-zinc-50 leading-none mt-1 block"><?= $stats['active_personnel'] ?></span>
              </div>
-             <div class="absolute top-4 right-4 w-2 h-2 bg-emerald-500 rounded-full animate-ping"></div>
+             
+             <!-- Mobile Breakdown Sub-section -->
+             <div class="grid grid-cols-1 gap-1.5 pt-2.5 mt-2.5 border-t border-zinc-100/70 dark:border-zinc-800/40 text-[9px] font-semibold text-zinc-500 dark:text-zinc-400">
+                <div class="flex items-center justify-between">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Aktif Çalışan
+                    </span>
+                    <span class="font-bold text-zinc-800 dark:text-zinc-200"><?= $stats['active_only'] ?></span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                        Dilekçe Alınan
+                    </span>
+                    <span class="font-bold text-zinc-800 dark:text-zinc-200"><?= $stats['dilekce_alindi'] ?></span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+                        Kadroya Geçmeyecek
+                    </span>
+                    <span class="font-bold text-zinc-800 dark:text-zinc-200"><?= $stats['kadroya_gecmeyecek'] ?></span>
+                </div>
+             </div>
         </div>
 
-        <div class="glass-card p-4 rounded-xl flex flex-col justify-between h-28">
+        <!-- Card 3: Bu Ay Eklenen -->
+        <div class="glass-card p-4 rounded-xl flex flex-col justify-between min-h-[7rem]">
             <div class="w-8 h-8 rounded-md bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-sky-500 dark:text-sky-400">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2m7-10a4 4 0 1 0 0-8 4 4 0 0 0 0 8"/></svg>
             </div>
-            <div>
+            <div class="mt-3">
                 <span class="text-[0.72rem] font-bold text-zinc-400 uppercase tracking-wider block">Bu Ay Eklenen</span>
                 <span class="text-2xl font-extrabold text-zinc-950 dark:text-zinc-50 leading-none mt-1 block"><?= $stats['new_personnel_this_month'] ?></span>
             </div>
         </div>
 
-        <div class="glass-card p-4 rounded-xl flex flex-col justify-between h-28">
+        <!-- Card 4: Üret Tanımları -->
+        <div class="glass-card p-4 rounded-xl flex flex-col justify-between min-h-[7rem]">
             <div class="w-8 h-8 rounded-md bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center text-amber-500 dark:text-amber-400">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
             </div>
-            <div>
+            <div class="mt-3">
                 <span class="text-[0.72rem] font-bold text-zinc-400 uppercase tracking-wider block">Üret Tanımları</span>
                 <span class="text-2xl font-extrabold text-zinc-950 dark:text-zinc-50 leading-none mt-1 block"><?= $stats['total_wages'] ?></span>
             </div>

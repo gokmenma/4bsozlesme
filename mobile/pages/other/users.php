@@ -106,7 +106,7 @@ $users = array_map(function($u) use ($db) {
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
         </div>
-        <input type="text" id="userSearchMobile" onkeyup="filterUsers()" class="block w-full pl-9 pr-3 py-2.5 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white/50 dark:bg-zinc-900/60 text-xs placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-semibold" placeholder="Kullanıcı adı veya e-posta ara...">
+        <input type="text" id="userSearchMobile" onkeyup="filterUsers()" class="block w-full pl-9 pr-3 py-2.5 mobile-input bg-white/50 dark:bg-zinc-900/60 text-xs placeholder-zinc-500 transition-all font-semibold" placeholder="Kullanıcı adı veya e-posta ara...">
     </div>
 
     <!-- Users Cards Container -->
@@ -148,7 +148,7 @@ $users = array_map(function($u) use ($db) {
                 </div>
 
                 <!-- Info Grid -->
-                <div class="grid grid-cols-2 gap-2 text-[9px] text-zinc-500 dark:text-zinc-400 font-semibold border-t border-zinc-150 dark:border-zinc-900 pt-2.5 mt-0.5 leading-relaxed">
+                <div class="grid grid-cols-2 gap-2 text-[9px] text-zinc-500 dark:text-zinc-400 font-semibold border-t border-zinc-100/70 dark:border-zinc-800/40 pt-2.5 mt-0.5 leading-relaxed">
                     <div>
                         <span class="text-zinc-450 dark:text-zinc-500 block text-[7px] uppercase tracking-wider">Kurum</span>
                         <span class="font-bold text-zinc-850 dark:text-zinc-200 truncate block"><?= htmlspecialchars($u['tenant_name'] ?? 'Genel Yönetim') ?></span>
@@ -203,7 +203,7 @@ $users = array_map(function($u) use ($db) {
                 $canDelete = ($u['id'] != 1 && $u['id'] != $_SESSION['user_id']);
                 ?>
                 <?php if ($canEdit || $canDelete): ?>
-                    <div class="flex justify-end gap-2 border-t border-zinc-150 dark:border-zinc-900 pt-2.5 mt-0.5">
+                    <div class="flex justify-end gap-2 border-t border-zinc-100/70 dark:border-zinc-800/40 pt-2.5 mt-0.5">
                         <?php if ($canEdit): ?>
                             <button onclick="openEditUserSheet(<?= $u['id'] ?>)" class="px-2.5 py-1.5 bg-zinc-150 dark:bg-zinc-900 border border-zinc-200/60 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-800 rounded-lg text-[9px] font-extrabold uppercase tracking-wider flex items-center gap-1 cursor-pointer active:scale-95 transition-all">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>

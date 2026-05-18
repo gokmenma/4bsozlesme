@@ -15,7 +15,7 @@ class DashboardController extends Controller {
         $stmt = $db->prepare("
             SELECT durum, COUNT(*) as count 
             FROM personeller 
-            WHERE deleted_at IS NULL AND tenant_id = ? AND durum IN ('aktif', 'dilekce_alindi', 'kadroya_gecmeyecek')
+            WHERE deleted_at IS NULL AND tenant_id = ?
             GROUP BY durum
         ");
         $stmt->execute([$tenant_id]);
@@ -24,6 +24,8 @@ class DashboardController extends Controller {
         $activeOnlyCount = 0;
         $dilekceAlindiCount = 0;
         $kadroyaGecmeyecekCount = 0;
+        $kadroyaGectiCount = 0;
+        $pasifCount = 0;
         
         foreach ($rows as $row) {
             if ($row['durum'] === 'aktif') {
@@ -32,6 +34,10 @@ class DashboardController extends Controller {
                 $dilekceAlindiCount = (int)$row['count'];
             } elseif ($row['durum'] === 'kadroya_gecmeyecek') {
                 $kadroyaGecmeyecekCount = (int)$row['count'];
+            } elseif ($row['durum'] === 'kadroya_gecti') {
+                $kadroyaGectiCount = (int)$row['count'];
+            } elseif ($row['durum'] === 'pasif') {
+                $pasifCount = (int)$row['count'];
             }
         }
         
@@ -95,6 +101,8 @@ class DashboardController extends Controller {
                 'active_only' => $activeOnlyCount,
                 'dilekce_alindi' => $dilekceAlindiCount,
                 'kadroya_gecmeyecek' => $kadroyaGecmeyecekCount,
+                'kadroya_gecti' => $kadroyaGectiCount,
+                'pasif' => $pasifCount,
                 'new_personnel_this_month' => $newPersonnelThisMonth,
                 'total_wages' => $totalWages
             ],
