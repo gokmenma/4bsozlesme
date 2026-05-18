@@ -472,7 +472,7 @@ function initDataTable(selector, customOptions = {}) {
 
     let initialOrder = customOptions.order || [[0, 'asc']];
     let initialSearch = '';
-    let initialPageLength = customOptions.pageLength || 10;
+    let initialPageLength = customOptions.pageLength || 25;
     let savedState = {};
     const tableId = $table.attr('id') || 'defaultTable';
     const stateKey = 'dtState_' + tableId;
