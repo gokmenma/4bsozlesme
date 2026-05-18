@@ -698,7 +698,7 @@ $(document).ready(function() {
                 data: 'ad_soyad',
                 className: 'cursor-pointer font-medium text-zinc-900 dark:text-zinc-100',
                 render: (data, type, row) => `
-                    <button onclick="editPersonnel(${row.id})" class="cursor-pointer hover:text-primary transition-colors text-left">
+                    <button onclick="editPersonnel(${row.id})" class="cursor-pointer hover:text-primary transition-colors text-left whitespace-nowrap">
                         ${data}
                     </button>`
             },

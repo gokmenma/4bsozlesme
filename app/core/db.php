@@ -5,11 +5,11 @@
  * PDO (PHP Data Objects) kullanılarak güvenli bağlantı sağlanır.
  */
 
-$host = 'localhost';
-$dbname = 'sozlesme';
-$username = 'root';
-$password = ''; // XAMPP varsayılanı boştur
-$charset = 'utf8mb4';
+$host = getenv('DB_HOST') ?: 'localhost';
+$dbname = getenv('DB_NAME') ?: 'sozlesme';
+$username = getenv('DB_USER') ?: 'root';
+$password = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '';
+$charset = getenv('DB_CHARSET') ?: 'utf8mb4';
 
 
 // $dbname = 'mbeyazil_sozlesme';

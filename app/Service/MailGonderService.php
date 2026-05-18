@@ -24,16 +24,28 @@ class MailGonderService {
         try {
             // SMTP Sunucu Ayarları
             $mail->isSMTP();
-            $mail->Host       = 'smtp.gmail.com';
+            $mail->Host       = getenv('SMTP_HOST') ?: 'smtp.gmail.com';
             $mail->SMTPAuth   = true;
-            $mail->Username   = 'beyzade83@gmail.com';             // Gmail adresiniz
-            $mail->Password   = 'ehdcrmwlrpgyzjay';                // Google Uygulama Şifreniz
+            $mail->Username   = getenv('SMTP_USER') ?: 'beyzade83@gmail.com';             // Gmail adresiniz
+            $mail->Password   = getenv('SMTP_PASS') ?: 'ehdcrmwlrpgyzjay';                // Google Uygulama Şifreniz
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;    // TLS şifreleme
-            $mail->Port       = 587;                               // SMTP portu
+            $mail->Port       = (int)(getenv('SMTP_PORT') ?: 587);                        // SMTP portu
             $mail->CharSet    = 'UTF-8';                           // Türkçe karakter desteği
 
+            // Yerel XAMPP/SSL Hatalarını Önlemek İçin SSL Doğrulamasını Devre Dışı Bırak
+            $mail->SMTPOptions = [
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true
+                ]
+            ];
+
             // Alıcılar
-            $mail->setFrom('beyzade83@gmail.com', 'Kadro Bildirim Sistemi');
+            $mail->setFrom(
+                getenv('SMTP_FROM_EMAIL') ?: 'beyzade83@gmail.com', 
+                getenv('SMTP_FROM_NAME') ?: 'Kadro Bildirim Sistemi'
+            );
             $mail->addAddress($toEmail, $toName);
 
             // E-posta İçeriği

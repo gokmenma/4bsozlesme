@@ -84,11 +84,35 @@ if ($currentUserTrialEnds) {
     </div>
     <div class="flex flex-col gap-1">
       <div class="text-2xl font-bold"><?= $stats['active_personnel'] ?></div>
-      <div class="mt-4 space-y-1">
-        <p class="text-xs font-medium flex items-center justify-between">
+      <div class="mt-2 space-y-1.5">
+        <p class="text-xs font-medium text-muted-foreground">
           Görevde olan personel
         </p>
-        <p class="text-xs text-muted-foreground">Aktif sözleşme durumu</p>
+        
+        <!-- Premium Breakdown Sub-section -->
+        <div class="grid grid-cols-1 gap-1.5 pt-2 mt-2 border-t border-border/60">
+          <div class="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
+            <span class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Aktif Çalışan
+            </span>
+            <span class="font-semibold text-foreground"><?= $stats['active_only'] ?></span>
+          </div>
+          <div class="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
+            <span class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+              Dilekçe Alınan
+            </span>
+            <span class="font-semibold text-foreground"><?= $stats['dilekce_alindi'] ?></span>
+          </div>
+          <div class="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
+            <span class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
+              Kadroya Geçmeyecek
+            </span>
+            <span class="font-semibold text-foreground"><?= $stats['kadroya_gecmeyecek'] ?></span>
+          </div>
+        </div>
       </div>
     </div>
   </div>

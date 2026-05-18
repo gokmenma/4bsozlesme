@@ -11,10 +11,31 @@ class DashboardController extends Controller {
         $stmt->execute([$tenant_id]);
         $totalPersonnel = $stmt->fetch()['total'];
         
-        // 2. Aktif Personeller
-        $stmt = $db->prepare("SELECT COUNT(*) as total FROM personeller WHERE deleted_at IS NULL AND durum = 'aktif' AND tenant_id = ?");
+        // 2. Aktif Personeller (aktif, dilekce_alindi ve kadroya_gecmeyecek)
+        $stmt = $db->prepare("
+            SELECT durum, COUNT(*) as count 
+            FROM personeller 
+            WHERE deleted_at IS NULL AND tenant_id = ? AND durum IN ('aktif', 'dilekce_alindi', 'kadroya_gecmeyecek')
+            GROUP BY durum
+        ");
         $stmt->execute([$tenant_id]);
-        $activePersonnel = $stmt->fetch()['total'];
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        $activeOnlyCount = 0;
+        $dilekceAlindiCount = 0;
+        $kadroyaGecmeyecekCount = 0;
+        
+        foreach ($rows as $row) {
+            if ($row['durum'] === 'aktif') {
+                $activeOnlyCount = (int)$row['count'];
+            } elseif ($row['durum'] === 'dilekce_alindi') {
+                $dilekceAlindiCount = (int)$row['count'];
+            } elseif ($row['durum'] === 'kadroya_gecmeyecek') {
+                $kadroyaGecmeyecekCount = (int)$row['count'];
+            }
+        }
+        
+        $activePersonnel = $activeOnlyCount + $dilekceAlindiCount + $kadroyaGecmeyecekCount;
         
         // 3. Bu Ay Eklenen Personel
         $firstDayOfMonth = date('Y-m-01 00:00:00');
@@ -71,6 +92,9 @@ class DashboardController extends Controller {
             'stats' => [
                 'total_personnel' => $totalPersonnel,
                 'active_personnel' => $activePersonnel,
+                'active_only' => $activeOnlyCount,
+                'dilekce_alindi' => $dilekceAlindiCount,
+                'kadroya_gecmeyecek' => $kadroyaGecmeyecekCount,
                 'new_personnel_this_month' => $newPersonnelThisMonth,
                 'total_wages' => $totalWages
             ],
