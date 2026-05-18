@@ -45,7 +45,7 @@ if (!document.getElementById('toaster')) {
         </div>
     </div>
 
-    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden relative flex flex-col h-[calc(100vh-200px)]">
+    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden relative flex flex-col max-h-[calc(100vh-200px)] min-h-0 h-fit">
         <?php echo renderTablePreloader(); ?>
 
         <div id="table-container" class="flex-1 flex flex-col overflow-hidden" style="display: none;">
@@ -478,10 +478,39 @@ if (!document.getElementById('toaster')) {
 
     <footer class="flex justify-end gap-3 shrink-0">
       <button type="button" class="px-3 py-2 text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 font-medium" onclick="this.closest('dialog').close()">İptal</button>
-      <button type="button" onclick="printPetition()" class="btn bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 flex items-center gap-2 px-4 py-2 text-sm rounded-xl shadow-md transition-all font-medium">
+      <button type="button" onclick="showPetitionStatusConfirmation()" class="btn bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 flex items-center gap-2 px-4 py-2 text-sm rounded-xl shadow-md transition-all font-medium">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
         Yazdır
       </button>
+    </footer>
+  </div>
+</dialog>
+
+<!-- Dilekçe Alındı Durum Güncelleme Onay Dialog -->
+<dialog id="dialog-confirm-petition-status" class="dialog w-full sm:max-w-[480px]" onclick="if (event.target === this) this.close()">
+  <div class="dialog-content bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-2xl flex flex-col gap-4 text-left" onclick="event.stopPropagation()" style="text-align: left !important;">
+    <header class="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800" style="display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; width: 100% !important; text-align: left !important;">
+      <div style="text-align: left !important; display: flex !important; align-items: center !important; gap: 12px !important;">
+        <div class="p-2.5 bg-primary/10 text-primary rounded-xl flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        </div>
+        <div style="text-align: left !important;">
+          <h3 class="text-base font-bold text-zinc-900 dark:text-zinc-100 m-0 leading-tight">Durum Güncelleme Onayı</h3>
+          <p class="text-xs text-zinc-500 m-0 mt-0.5">Dilekçe alındı işlemi</p>
+        </div>
+      </div>
+      <button type="button" class="text-zinc-400 hover:text-zinc-600 rounded-lg p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors" onclick="document.getElementById('dialog-confirm-petition-status').close()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+      </button>
+    </header>
+    
+    <section class="text-sm text-zinc-600 dark:text-zinc-400 py-1" style="text-align: left !important;">
+      <p><strong><span id="confirm-personnel-name">Personel</span></strong> isimli personelin durumu <strong>"Dilekçe Alındı"</strong> olarak güncellensin mi?</p>
+    </section>
+    
+    <footer class="flex justify-end gap-3 pt-3 border-t border-zinc-100 dark:border-zinc-800" style="display: flex !important; justify-content: flex-end !important; gap: 12px !important; width: 100% !important;">
+      <button type="button" class="btn-outline text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-200 px-4 py-2 text-sm font-medium rounded-xl border border-zinc-200 dark:border-zinc-700 bg-transparent transition-all" onclick="proceedWithPrint()">Hayır, Sadece Yazdır</button>
+      <button type="button" id="btn-confirm-petition-status" onclick="updateStatusAndPrint()" class="btn bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 flex items-center gap-2 px-4 py-2 text-sm rounded-xl shadow-md transition-all font-medium">Evet, Güncelle ve Yazdır</button>
     </footer>
   </div>
 </dialog>
@@ -1198,6 +1227,78 @@ function printPetition() {
 
     printWindow.document.write(html);
     printWindow.document.close();
+}
+
+function showPetitionStatusConfirmation() {
+    if (!petitionQuill || !currentPetitionPersonnel) return;
+    const name = currentPetitionPersonnel.ad_soyad || 'Personel';
+    document.getElementById('confirm-personnel-name').innerText = name;
+    document.getElementById('dialog-confirm-petition-status').showModal();
+}
+
+function proceedWithPrint() {
+    const dialog = document.getElementById('dialog-confirm-petition-status');
+    if (dialog && dialog.open) {
+        dialog.close();
+    }
+    printPetition();
+}
+
+function updateStatusAndPrint() {
+    if (!currentPetitionPersonnel) return;
+    
+    const btn = document.getElementById('btn-confirm-petition-status');
+    const originalText = btn.innerText;
+    btn.disabled = true;
+    btn.innerText = 'Güncelleniyor...';
+    
+    const formData = {
+        id: currentPetitionPersonnel.id,
+        tc_kimlik: currentPetitionPersonnel.tc_kimlik,
+        ad_soyad: currentPetitionPersonnel.ad_soyad,
+        ucret_id: currentPetitionPersonnel.ucret_id,
+        durum: 'dilekce_alindi',
+        goreve_baslama_tarihi: currentPetitionPersonnel.goreve_baslama_tarihi,
+        telefon: currentPetitionPersonnel.telefon || '',
+        meslek_kodu: currentPetitionPersonnel.meslek_kodu || '',
+        cinsiyet: currentPetitionPersonnel.cinsiyet || 'erkek'
+    };
+    
+    $.post('<?php echo routeUrl("personel-guncelle"); ?>', formData, function(response) {
+        btn.disabled = false;
+        btn.innerText = originalText;
+        
+        if (response.success) {
+            showToast({ 
+                category: 'success', 
+                title: 'Başarılı', 
+                description: 'Personel durumu "Dilekçe Alındı" olarak güncellendi.', 
+                duration: 2000 
+            });
+            
+            if (window.personnelTable) {
+                window.personnelTable.ajax.reload(null, false);
+            }
+            
+            proceedWithPrint();
+        } else {
+            showToast({ 
+                category: 'error', 
+                title: 'Hata', 
+                description: response.error || 'Durum güncellenirken bir sorun oluştu.', 
+                duration: 2500 
+            });
+        }
+    }).fail(function() {
+        btn.disabled = false;
+        btn.innerText = originalText;
+        showToast({ 
+            category: 'error', 
+            title: 'Hata', 
+            description: 'Sunucu ile iletişim kurulurken bir sorun oluştu.', 
+            duration: 2500 
+        });
+    });
 }
 
 function savePetitionTemplate() {

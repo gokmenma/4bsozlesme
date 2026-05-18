@@ -472,6 +472,7 @@ function initDataTable(selector, customOptions = {}) {
 
     let initialOrder = customOptions.order || [[0, 'asc']];
     let initialSearch = '';
+    let initialPageLength = customOptions.pageLength || 10;
     let savedState = {};
     const tableId = $table.attr('id') || 'defaultTable';
     const stateKey = 'dtState_' + tableId;
@@ -481,6 +482,7 @@ function initDataTable(selector, customOptions = {}) {
             savedState = JSON.parse(raw);
             if (savedState.order) initialOrder = savedState.order;
             if (savedState.search) initialSearch = savedState.search;
+            if (savedState.pageLength) initialPageLength = parseInt(savedState.pageLength, 10);
         }
     } catch (e) {
         console.error('Error loading table state:', e);
@@ -519,7 +521,7 @@ function initDataTable(selector, customOptions = {}) {
                 "sortDescending": ": azalan sütun sıralamasını aktifleştir"
             }
         },
-        pageLength: 10,
+        pageLength: initialPageLength,
         processing: true,
         responsive: true,
         dom: '<"flex flex-col sm:flex-row justify-between items-center p-4 gap-4"f><"flex-1 overflow-auto"rt><"mt-auto border-t border-zinc-200 dark:border-zinc-800 flex flex-row justify-between items-center py-0 px-4 bg-zinc-50/50 dark:bg-zinc-800/30"lip>',
@@ -571,8 +573,11 @@ function initDataTable(selector, customOptions = {}) {
 
     const table = $table.DataTable(options);
 
-    // Save initial / changed order
+    // Save initial / changed order or length
     table.on('order', function() {
+        saveTableStateForTable($table);
+    });
+    table.on('length', function() {
         saveTableStateForTable($table);
     });
 
@@ -924,6 +929,7 @@ function saveTableStateForTable($table) {
     const stateToSave = {
         search: $table.DataTable().search(),
         order: $table.DataTable().order(),
+        pageLength: $table.DataTable().page.len(),
         columnFilterState: columnFilterState
     };
     try {

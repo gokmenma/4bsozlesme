@@ -6,7 +6,8 @@
     display: flex !important;
     flex-direction: column !important;
     flex: 1 !important;
-    height: 100% !important;
+    height: auto !important;
+    max-height: 100% !important;
     min-height: 0 !important; /* Sayfa yüksekliği boyunca */
     background: transparent !important;
 }
@@ -70,7 +71,7 @@ table.dataTable {
 table.dataTable thead th {
     background-color: #f9fafb !important;
     border-bottom: 1px solid #e5e7eb !important;
-    padding: 1rem !important;
+    padding: 0.6rem 0.5rem !important;
     font-weight: 600 !important;
     text-align: left !important;
     font-size: 0.75rem !important;
@@ -86,7 +87,7 @@ table.dataTable thead th {
 }
 
 table.dataTable tbody td {
-    padding: 1rem !important;
+    padding: 0.6rem 0.5rem !important;
     border-bottom: 1px solid #f3f4f6 !important;
     font-size: 0.875rem !important;
     background-color: inherit !important;
@@ -96,6 +97,25 @@ table.dataTable tbody td {
     border-color: #27272a !important;
     background-color: #18181b !important;
     color: #d4d4d8 !important;
+}
+
+/* Checkbox ve hızlı işlem kolonlarının genişliğini sıkıştır ve kenarlardan uzaklaştır */
+table.dataTable thead th:first-child,
+table.dataTable tbody td:first-child {
+    padding-left: 1.25rem !important;
+    padding-right: 0.25rem !important;
+}
+
+table.dataTable thead th:nth-child(2),
+table.dataTable tbody td:nth-child(2) {
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+}
+
+/* En sağ kolonu sağ kenardan uzaklaştır */
+table.dataTable thead th:last-child,
+table.dataTable tbody td:last-child {
+    padding-right: 1.25rem !important;
 }
 
 .dark table.dataTable tbody tr:hover td {
