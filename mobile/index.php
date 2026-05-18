@@ -1377,8 +1377,20 @@ if ($isLoggedIn) {
             });
         }
 
+        // Tab caching & scroll position preservation system for premium native feel
+        const tabCache = {};
+        const tabScrollPositions = {};
+
         // Switch bottom navigation tabs smoothly and fetch content dynamically
         async function switchTab(tabName, callback = null, params = {}) {
+            // Save scroll position of the outgoing tab
+            if (currentTab && currentTab !== tabName) {
+                const wrapper = document.getElementById('dynamic-content-wrapper');
+                if (wrapper) {
+                    tabScrollPositions[currentTab] = wrapper.scrollTop;
+                }
+            }
+
             // Reset bottom navigation active indicators
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('text-zinc-950', 'dark:text-zinc-50');
@@ -1395,6 +1407,24 @@ if ($isLoggedIn) {
             const activeInd = document.getElementById('nav-indicator-' + tabName);
             if (activeInd) {
                 activeInd.classList.remove('hidden');
+            }
+
+            // Determine if a reload is forced (e.g. clicking the active tab, explicit forceReload, or period change query)
+            const forceReload = (tabName === currentTab) || params.forceReload || params.donem;
+
+            // If a period changed or active tab is reloaded, invalidate caches
+            if (params.donem) {
+                // Clear all caches if period changed to ensure fresh wages/records
+                for (let key in tabCache) {
+                    delete tabCache[key];
+                }
+            } else if (tabName === currentTab) {
+                // Invalidate all OTHER tabs to ensure stats/dropdowns update after actions
+                for (let key in tabCache) {
+                    if (key !== tabName) {
+                        delete tabCache[key];
+                    }
+                }
             }
 
             currentTab = tabName;
@@ -1417,9 +1447,38 @@ if ($isLoggedIn) {
                 topbarTitle.innerText = displayTitle;
             }
 
-            // Fetch dynamic tab content
             const wrapper = document.getElementById('dynamic-content-wrapper');
             if (wrapper) {
+                // If content is cached and we are NOT forcing a reload, render it instantly
+                if (tabCache[tabName] && !forceReload) {
+                    wrapper.innerHTML = tabCache[tabName];
+                    
+                    // Restore scroll position
+                    if (tabScrollPositions[tabName]) {
+                        wrapper.scrollTop = tabScrollPositions[tabName];
+                    }
+
+                    // Trigger swiping engine if loading personnel or definitions or kanban
+                    if (tabName === 'personnel' || tabName === 'definitions' || tabName === 'kanban') {
+                        initSwipeActions();
+                        if (typeof initMobileCustomSelects === 'function') {
+                            initMobileCustomSelects();
+                        }
+                        if ((tabName === 'personnel' || tabName === 'kanban') && typeof initMobileFlatpickr === 'function') {
+                            initMobileFlatpickr();
+                        }
+                        if (tabName === 'kanban') {
+                            if (typeof initMobileTouchDrag === 'function') initMobileTouchDrag();
+                            if (typeof updateMobileKanbanNavButtons === 'function') updateMobileKanbanNavButtons();
+                        }
+                    }
+
+                    if (callback) {
+                        callback();
+                    }
+                    return;
+                }
+
                 // Show a premium glassmorphic loader
                 wrapper.innerHTML = `
                     <div class="flex flex-col items-center justify-center py-20 space-y-3 animate-fade-in">
@@ -1447,6 +1506,9 @@ if ($isLoggedIn) {
                     
                     const html = await response.text();
                     
+                    // Save in in-memory cache
+                    tabCache[tabName] = html;
+
                     const tempDiv = document.createElement('div');
                     tempDiv.innerHTML = html;
                     wrapper.innerHTML = html;

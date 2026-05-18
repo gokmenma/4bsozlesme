@@ -347,6 +347,11 @@ class KanbanController extends Controller {
         $board_id = intval($_POST['board_id'] ?? $_POST['id'] ?? $_POST['b_id'] ?? 0);
         $title = trim($_POST['title'] ?? $_POST['t'] ?? $_POST['name'] ?? '');
 
+        if (!$tenant_id) {
+            echo json_encode(['success' => false, 'error' => 'Oturum bilgileri eksik. Lütfen tekrar giriş yapın.']);
+            exit;
+        }
+
         if (!$board_id) {
             echo json_encode(['success' => false, 'error' => 'Sütun ID eksik.']);
             exit;
@@ -358,7 +363,11 @@ class KanbanController extends Controller {
         }
 
         try {
-            $this->taskModel->updateBoardTitle($board_id, $title, $tenant_id);
+            $updated = $this->taskModel->updateBoardTitle($board_id, $title, $tenant_id);
+            if (!$updated) {
+                echo json_encode(['success' => false, 'error' => 'Sütun bulunamadı veya bu sütunu düzenleme yetkiniz yok.']);
+                exit;
+            }
             echo json_encode(['success' => true, 'message' => 'Sütun başlığı başarıyla güncellendi.']);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'error' => 'Güncelleme sırasında hata oluştu: ' . $e->getMessage()]);

@@ -125,7 +125,9 @@ $colorMap = ['bg-indigo-500 text-indigo-50', 'bg-emerald-500 text-emerald-50', '
 </style>
 
     <!-- 5. Column Views & Premium Kanban Cards (Identical to the Screenshot Design) -->
-    <div id="mobile-tasks-container" class="space-y-4">
+    <div class="relative w-full overflow-visible">
+        <!-- Horizontal scroll container -->
+        <div id="mobile-tasks-container" class="space-y-4" onscroll="updateMobileKanbanNavButtons()">
         <?php foreach ($boards as $index => $board):
             $boardId = intval($board['id']);
             $colTasks = array_filter($tasks, fn($t) => intval($t['board_id'] ?? 0) === $boardId);
@@ -308,8 +310,18 @@ $colorMap = ['bg-indigo-500 text-indigo-50', 'bg-emerald-500 text-emerald-50', '
                 <?php endif; ?>
             </div>
         <?php endforeach; ?>
+        </div>
+
+        <!-- Left navigation button -->
+        <button id="mobile-kanban-prev-btn" onclick="scrollMobileKanban('left')" class="absolute left-[-12px] top-1/2 -translate-y-1/2 z-30 size-9 rounded-full flex items-center justify-center backdrop-blur-md bg-white/90 dark:bg-zinc-900/90 border border-zinc-200/50 dark:border-zinc-800/50 shadow-md text-zinc-900 dark:text-zinc-100 active:scale-90 transition-all opacity-0 pointer-events-none cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+        </button>
+
+        <!-- Right navigation button -->
+        <button id="mobile-kanban-next-btn" onclick="scrollMobileKanban('right')" class="absolute right-[-12px] top-1/2 -translate-y-1/2 z-30 size-9 rounded-full flex items-center justify-center backdrop-blur-md bg-white/90 dark:bg-zinc-900/90 border border-zinc-200/50 dark:border-zinc-800/50 shadow-md text-zinc-900 dark:text-zinc-100 active:scale-90 transition-all cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+        </button>
     </div>
-</div>
 
 <!-- 6. COLLAPSIBLE FILTER BOTTOM SHEET (Native iOS/Android App Look) -->
 <div id="mobile-filter-sheet" class="bottom-sheet flex flex-col max-h-[40%] bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
@@ -633,10 +645,171 @@ function saveMobileNewBoard(event) {
     });
 }
 
+// Carousel horizontal scrolling navigations
+function scrollMobileKanban(direction) {
+    const container = document.getElementById('mobile-tasks-container');
+    if (!container) return;
+    
+    const offset = window.innerWidth - 16;
+    const targetScroll = container.scrollLeft + (direction === 'left' ? -offset : offset);
+    
+    container.scrollTo({
+        left: targetScroll,
+        behavior: 'smooth'
+    });
+}
+
+function updateMobileKanbanNavButtons() {
+    const container = document.getElementById('mobile-tasks-container');
+    const prevBtn = document.getElementById('mobile-kanban-prev-btn');
+    const nextBtn = document.getElementById('mobile-kanban-next-btn');
+    if (!container || !prevBtn || !nextBtn) return;
+    
+    const scrollLeft = container.scrollLeft;
+    const maxScrollLeft = container.scrollWidth - container.clientWidth;
+    
+    if (scrollLeft <= 10) {
+        prevBtn.classList.add('opacity-0', 'pointer-events-none');
+    } else {
+        prevBtn.classList.remove('opacity-0', 'pointer-events-none');
+    }
+    
+    if (scrollLeft >= maxScrollLeft - 10) {
+        nextBtn.classList.add('opacity-0', 'pointer-events-none');
+    } else {
+        nextBtn.classList.remove('opacity-0', 'pointer-events-none');
+    }
+}
+
+// Premium Touch-based Drag & Drop for Mobile
+let touchDraggedNode = null;
+let touchClone = null;
+let touchStartX = 0;
+let touchStartY = 0;
+let isTouchDragging = false;
+let touchScrollInterval = null;
+
+function initMobileTouchDrag() {
+    const container = document.getElementById('mobile-tasks-container');
+    if (!container) return;
+    
+    container.querySelectorAll('.mobile-task-card').forEach(card => {
+        card.removeEventListener('touchstart', handleTouchStart);
+        card.removeEventListener('touchmove', handleTouchMove);
+        card.removeEventListener('touchend', handleTouchEnd);
+        
+        card.addEventListener('touchstart', handleTouchStart, { passive: false });
+        card.addEventListener('touchmove', handleTouchMove, { passive: false });
+        card.addEventListener('touchend', handleTouchEnd, { passive: false });
+    });
+}
+
+function handleTouchStart(e) {
+    if (e.target.closest('button') || e.target.closest('a') || e.target.closest('input') || e.target.closest('label') || e.target.closest('span')) return;
+    
+    const card = e.currentTarget;
+    touchDraggedNode = card;
+    
+    const touch = e.touches[0];
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    isTouchDragging = false;
+}
+
+function handleTouchMove(e) {
+    if (!touchDraggedNode) return;
+    
+    const touch = e.touches[0];
+    const diffX = touch.clientX - touchStartX;
+    const diffY = touch.clientY - touchStartY;
+    
+    if (!isTouchDragging && (Math.abs(diffX) > 12 || Math.abs(diffY) > 12)) {
+        isTouchDragging = true;
+        
+        touchClone = touchDraggedNode.cloneNode(true);
+        touchClone.style.position = 'fixed';
+        touchClone.style.width = touchDraggedNode.offsetWidth + 'px';
+        touchClone.style.opacity = '0.9';
+        touchClone.style.pointerEvents = 'none';
+        touchClone.style.zIndex = '9999';
+        touchClone.style.transform = 'scale(1.04)';
+        touchClone.style.boxShadow = '0 20px 25px -5px rgb(0 0 0 / 0.15), 0 8px 10px -6px rgb(0 0 0 / 0.15)';
+        document.body.appendChild(touchClone);
+        
+        touchDraggedNode.style.opacity = '0.3';
+    }
+    
+    if (isTouchDragging) {
+        e.preventDefault();
+        
+        touchClone.style.left = (touch.clientX - touchClone.offsetWidth / 2) + 'px';
+        touchClone.style.top = (touch.clientY - touchClone.offsetHeight / 2) + 'px';
+        
+        const edgeThreshold = 60;
+        const container = document.getElementById('mobile-tasks-container');
+        if (container) {
+            clearInterval(touchScrollInterval);
+            if (touch.clientX < edgeThreshold) {
+                touchScrollInterval = setInterval(() => {
+                    container.scrollLeft -= 10;
+                }, 16);
+            } else if (touch.clientX > window.innerWidth - edgeThreshold) {
+                touchScrollInterval = setInterval(() => {
+                    container.scrollLeft += 10;
+                }, 16);
+            }
+        }
+    }
+}
+
+function handleTouchEnd(e) {
+    clearInterval(touchScrollInterval);
+    
+    if (!touchDraggedNode) return;
+    
+    if (isTouchDragging) {
+        e.preventDefault();
+        
+        const touch = e.changedTouches[0];
+        if (touchClone) {
+            touchClone.remove();
+            touchClone = null;
+        }
+        
+        touchDraggedNode.style.opacity = '';
+        
+        const element = document.elementFromPoint(touch.clientX, touch.clientY);
+        const targetColumn = element ? element.closest('.mobile-status-list') : null;
+        
+        if (targetColumn) {
+            const targetBoardId = targetColumn.id.replace('col-list-', '');
+            const sourceBoardId = touchDraggedNode.getAttribute('data-board-id');
+            const taskId = touchDraggedNode.getAttribute('data-id');
+            
+            if (parseInt(targetBoardId) !== parseInt(sourceBoardId)) {
+                targetColumn.appendChild(touchDraggedNode);
+                touchDraggedNode.setAttribute('data-board-id', targetBoardId);
+                
+                updateMobileTaskStatus(taskId, targetBoardId);
+            }
+        }
+    }
+    
+    touchDraggedNode = null;
+    isTouchDragging = false;
+}
+
 // Initializes swiping gestures on list loading
 if (typeof initSwipeActions === 'function') {
     initSwipeActions();
 }
+if (typeof initMobileTouchDrag === 'function') {
+    initMobileTouchDrag();
+}
+// Initial buttons visibility check
+setTimeout(() => {
+    updateMobileKanbanNavButtons();
+}, 200);
 
 // Enable local flatpickr on mobile due date field
 if (typeof flatpickr === 'function') {

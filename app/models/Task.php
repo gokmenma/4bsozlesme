@@ -227,6 +227,12 @@ class Task extends Model {
      * Sütun (board) başlığını günceller
      */
     public function updateBoardTitle($board_id, $title, $tenant_id) {
+        $check = $this->db->prepare("SELECT id FROM kanban_boards WHERE id = ? AND tenant_id = ? LIMIT 1");
+        $check->execute([$board_id, $tenant_id]);
+        if (!$check->fetch(PDO::FETCH_ASSOC)) {
+            return false;
+        }
+
         $stmt = $this->db->prepare("UPDATE kanban_boards SET title = ? WHERE id = ? AND tenant_id = ?");
         return $stmt->execute([$title, $board_id, $tenant_id]);
     }
