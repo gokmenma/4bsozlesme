@@ -111,6 +111,7 @@ if ($isLoggedIn) {
     <link rel="stylesheet" href="<?php echo routeUrl('/assets/css/flatpickr.custom.css'); ?>">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     
     <!-- Tailwind CSS 4 -->
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
