@@ -9,9 +9,14 @@ class PersonnelController extends Controller {
         
         $personnels = [];
 
-        // Ücret tanımlarını çekelim (yeni personel formu için)
-        $stmt_ucret = $db->prepare("SELECT id, unvan, ucret, ogrenim, kidem_yili FROM ucretler WHERE deleted_at IS NULL AND tenant_id = ? ORDER BY unvan ASC");
-        $stmt_ucret->execute([$tenant_id]);
+        // Varsayılan bütçe dönemini alalım
+        $defModel = new Definition();
+        $settings = $defModel->getSettings($tenant_id);
+        $active_period = $settings['default_wage_period'] ?? '2026-1';
+
+        // Ücret tanımlarını çekelim (sadece aktif olan dönemin kayıtları)
+        $stmt_ucret = $db->prepare("SELECT id, unvan, ucret, ogrenim, kidem_yili FROM ucretler WHERE deleted_at IS NULL AND tenant_id = ? AND donem = ? ORDER BY unvan ASC");
+        $stmt_ucret->execute([$tenant_id, $active_period]);
         $ucretler = $stmt_ucret->fetchAll();
 
         return [
