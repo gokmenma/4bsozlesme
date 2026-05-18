@@ -258,7 +258,7 @@ class KanbanController extends Controller {
         }
 
         $tenant_id = $_SESSION['tenant_id'] ?? 0;
-        $title = trim($_POST['title'] ?? '');
+        $title = trim($_POST['title'] ?? $_POST['t'] ?? $_POST['name'] ?? '');
 
         if (empty($title)) {
             echo json_encode(['success' => false, 'error' => 'Lütfen sütun başlığı girin.']);
@@ -286,7 +286,7 @@ class KanbanController extends Controller {
         }
 
         $tenant_id = $_SESSION['tenant_id'] ?? 0;
-        $board_id = intval($_POST['board_id'] ?? 0);
+        $board_id = intval($_POST['board_id'] ?? $_POST['id'] ?? $_POST['b_id'] ?? 0);
 
         if (!$board_id) {
             echo json_encode(['success' => false, 'error' => 'Sütun ID eksik.']);
@@ -344,8 +344,8 @@ class KanbanController extends Controller {
         }
 
         $tenant_id = $_SESSION['tenant_id'] ?? 0;
-        $board_id = intval($_POST['board_id'] ?? 0);
-        $title = trim($_POST['title'] ?? '');
+        $board_id = intval($_POST['board_id'] ?? $_POST['id'] ?? $_POST['b_id'] ?? 0);
+        $title = trim($_POST['title'] ?? $_POST['t'] ?? $_POST['name'] ?? '');
 
         if (!$board_id) {
             echo json_encode(['success' => false, 'error' => 'Sütun ID eksik.']);

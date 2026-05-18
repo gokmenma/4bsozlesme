@@ -524,8 +524,8 @@ function saveMobileBoardTitle() {
     
     const basePath = '<?php echo appBasePath(); ?>';
     const formData = new FormData();
-    formData.append('board_id', mobileActiveBoardId);
-    formData.append('title', newTitle);
+    formData.append('id', mobileActiveBoardId);
+    formData.append('t', newTitle);
     
     fetch(basePath + '/kanban-board-baslik-guncelle', {
         method: 'POST',
@@ -559,7 +559,7 @@ function deleteMobileBoard() {
     
     const basePath = '<?php echo appBasePath(); ?>';
     const formData = new FormData();
-    formData.append('board_id', mobileActiveBoardId);
+    formData.append('id', mobileActiveBoardId);
     
     fetch(basePath + '/kanban-board-sil', {
         method: 'POST',
@@ -607,7 +607,7 @@ function saveMobileNewBoard(event) {
     
     const basePath = '<?php echo appBasePath(); ?>';
     const formData = new FormData();
-    formData.append('title', title);
+    formData.append('t', title);
     
     fetch(basePath + '/kanban-board-ekle', {
         method: 'POST',
