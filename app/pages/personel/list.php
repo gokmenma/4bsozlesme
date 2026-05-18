@@ -448,12 +448,12 @@ if (!document.getElementById('toaster')) {
 <!-- Dilekçe Yazdır Dialog -->
 <dialog id="dialog-petition" class="dialog w-full sm:max-w-[1550px] w-[96vw]" onclick="if (event.target === this) this.close()">
   <div class="dialog-content bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-2xl flex flex-col gap-4 max-h-[96vh] h-[92vh]" onclick="event.stopPropagation()">
-    <header class="flex items-center justify-between">
-      <div>
-        <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Dilekçe Yazdır</h2>
-        <p class="text-sm text-zinc-500">Dilekçe içeriğini düzenleyip yazdırabilirsiniz.</p>
+    <header class="flex items-center justify-between" style="display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: space-between !important; text-align: left !important; width: 100% !important;">
+      <div style="text-align: left !important;">
+        <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100" style="text-align: left !important;">Dilekçe Yazdır</h2>
+        <p class="text-sm text-zinc-500" style="text-align: left !important;">Dilekçe içeriğini düzenleyip yazdırabilirsiniz.</p>
       </div>
-      <div class="flex items-center justify-end gap-3">
+      <div class="flex items-center justify-end gap-3" style="display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: flex-end !important; gap: 12px !important;">
         <button type="button" onclick="savePetitionTemplate()" class="btn btn-secondary flex items-center gap-2 text-sm px-4 py-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 rounded-xl transition-all shadow-sm font-medium">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
           Şablonu Varsayılan Yap
@@ -466,6 +466,11 @@ if (!document.getElementById('toaster')) {
         </button>
       </div>
     </header>
+
+    <div class="bg-indigo-50 dark:bg-indigo-950/40 text-indigo-800 dark:text-indigo-200 px-4 py-3 rounded-xl flex items-center gap-3 border border-indigo-100 dark:border-indigo-900/60 shadow-sm text-xs select-none">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 text-indigo-600 dark:text-indigo-400"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span><strong>Bilgi:</strong> Şablonu dilediğiniz gibi düzenleyip kaydedebilirsiniz. Kadın personeller için dilekçe yazdırılırken, <em>"Askerlik Durum Belgesi"</em> eki sistem tarafından **otomatik olarak çıkartılarak** listeniz ardışık olarak yeniden numaralandırılacaktır.</span>
+    </div>
 
     <div class="flex-1 min-h-0 overflow-hidden border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900">
       <div id="petition-quill-editor" style="height: 100%;"></div>
@@ -906,6 +911,44 @@ $(document).ready(function() {
     checkActiveFiltersForTable($(table.table().node()));
 });
 
+// Gender-based template preprocessor for petitions
+function processGenderTemplate(templateHtml, gender) {
+    if (!templateHtml) return '';
+    const isFemale = gender && gender.toLowerCase() === 'kadin';
+    if (!isFemale) return templateHtml; // If male, keep exactly as is
+
+    // Use a temp DOM parser to safely edit elements
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(templateHtml, 'text/html');
+    
+    // 1. Identify and remove any node containing "askerlik" or "terhis"
+    const elements = doc.body.querySelectorAll('p, div, li, span');
+    elements.forEach(el => {
+        const text = el.textContent.toLowerCase();
+        if (text.includes('askerlik') || text.includes('terhis')) {
+            el.remove();
+        }
+    });
+
+    // 2. Renumber remaining numbering (e.g. 1-, 2-, 3-, 4-) sequentially starting from 1
+    const remainingElements = doc.body.querySelectorAll('p, div, li, span');
+    let index = 1;
+    remainingElements.forEach(el => {
+        const txt = el.textContent.trim();
+        // Match numbers like "3-", "3.", "3 -", "3. "
+        const textMatch = txt.match(/^(\d+)\s*([-.]+)\s*(.*)/);
+        if (textMatch) {
+            // Retrieve exact punctuation (- or .)
+            const punct = textMatch[2];
+            // Replace starting number in the actual HTML of the element
+            el.innerHTML = el.innerHTML.replace(/^\s*\d+\s*([-.]+)\s*/, index + punct + ' ');
+            index++;
+        }
+    });
+
+    return doc.body.innerHTML;
+}
+
 // Dropdown Mantığı
 function toggleDropdown(btn) {
     if (window.event) window.event.stopPropagation();
@@ -1049,13 +1092,6 @@ function openPetitionModal(p) {
     const tcKimlikStr = p.tc_kimlik || '...................................................';
 
     const cinsiyet = p.cinsiyet ? p.cinsiyet.toLowerCase() : 'erkek';
-    let eklerContent = '';
-    if (cinsiyet === 'kadin') {
-        eklerContent = '<p style="margin-bottom: 12pt;">3- Tam teşekküllü devlet hastanesi ya da Üniversite hastanesinden alınacak sağlık kurulu (heyet) raporu (aslı ve fotokopisi ya da e-devlet çıktısı)</p>';
-    } else {
-        eklerContent = '<p style="margin-bottom: 4pt;">3- Askerlik Durum Belgesi (güncel e-devlet çıktısı) / Askerliğini yapanlar için Terhis Belgesi aslı ve fotokopisi,</p>' +
-                       '<p style="margin-bottom: 12pt;">4- Tam teşekküllü devlet hastanesi ya da Üniversite hastanesinden alınacak sağlık kurulu (heyet) raporu (aslı ve fotokopisi ya da e-devlet çıktısı)</p>';
-    }
 
     const defaultContent = 
         '<p style="text-align: center; font-size: 11pt; margin-bottom: 2pt;"><strong>DÜZCE ÜNİVERSİTESİ REKTÖRLÜĞÜNE</strong></p>' +
@@ -1068,37 +1104,37 @@ function openPetitionModal(p) {
         '<p style="margin-bottom: 4pt;"><strong><u>EK:</u></strong></p>' +
         '<p style="margin-bottom: 4pt;">1- Nüfus Cüzdanı Fotokopisi</p>' +
         '<p style="margin-bottom: 4pt;">2- Son öğrenim durumunu gösterir diploma aslı ve fotokopisi veya Mezun Belgesi (güncel e-devlet çıktısı)</p>' +
-        eklerContent +
+        '<p style="margin-bottom: 4pt;">3- Askerlik Durum Belgesi (güncel e-devlet çıktısı) / Askerliğini yapanlar için Terhis Belgesi aslı ve fotokopisi,</p>' +
+        '<p style="margin-bottom: 12pt;">4- Tam teşekküllü devlet hastanesi ya da Üniversite hastanesinden alınacak sağlık kurulu (heyet) raporu (aslı ve fotokopisi ya da e-devlet çıktısı)</p>' +
         '<p style="margin-bottom: 8pt;"><strong><u>ADRES:</u></strong> ...................................................................</p>' +
         '<p style="margin-bottom: 8pt;"><strong><u>TEL:</u></strong> ' + telefonStr + '</p>';
 
     let customTemplate = `<?php echo addslashes(str_replace(["\r", "\n"], '', $custom_petition)); ?>`;
-    if (customTemplate) {
-        if (cinsiyet === 'kadin') {
-            const paragraphs = customTemplate.match(/<p[^>]*>.*?<\/p>/gi);
-            if (paragraphs) {
-                customTemplate = paragraphs.filter(p => !p.toLowerCase().includes('askerlik')).join('');
-                // Update item numbering for women
-                customTemplate = customTemplate.replace(/4-\s*Tam teşekküllü/gi, '3- Tam teşekküllü');
-            }
-        }
-        customTemplate = customTemplate
-            .replace(/\{\{UNVAN\}\}/g, unvanStr)
-            .replace(/\{\{AD_SOYAD\}\}/g, adSoyadStr)
-            .replace(/\{\{TC_NO\}\}/g, tcKimlikStr)
-            .replace(/\{\{GOREVE_BASLAMA\}\}/g, baslamaStr)
-            .replace(/\{\{TELEFON\}\}/g, telefonStr)
-            .replace(/\{\{TODAY\}\}/g, todayStr);
-        petitionQuill.root.innerHTML = customTemplate;
-    } else {
-        petitionQuill.root.innerHTML = defaultContent;
-    }
+    let processedTemplate = customTemplate ? customTemplate : defaultContent;
+    
+    // NOTE: We do NOT apply gender preprocessing here so that the Master template
+    // containing the Askerlik clause remains fully editable and savable by everyone.
+
+    // Replace tokens
+    processedTemplate = processedTemplate
+        .replace(/\{\{UNVAN\}\}/g, unvanStr)
+        .replace(/\{\{AD_SOYAD\}\}/g, adSoyadStr)
+        .replace(/\{\{TC_NO\}\}/g, tcKimlikStr)
+        .replace(/\{\{GOREVE_BASLAMA\}\}/g, baslamaStr)
+        .replace(/\{\{TELEFON\}\}/g, telefonStr)
+        .replace(/\{\{TODAY\}\}/g, todayStr);
+
+    petitionQuill.root.innerHTML = processedTemplate;
     dialog.showModal();
 }
 
 function printPetition() {
     if (!petitionQuill || !currentPetitionPersonnel) return;
-    const content = petitionQuill.root.innerHTML;
+    let content = petitionQuill.root.innerHTML;
+
+    // Apply gender preprocessing to strip military clauses only during print generation
+    const cinsiyet = currentPetitionPersonnel.cinsiyet ? currentPetitionPersonnel.cinsiyet.toLowerCase() : 'erkek';
+    content = processGenderTemplate(content, cinsiyet);
 
     const printWindow = window.open('', '_blank');
     const name = currentPetitionPersonnel.ad_soyad || 'Personel';
@@ -1166,7 +1202,6 @@ function printPetition() {
 
 function savePetitionTemplate() {
     if (!petitionQuill || !currentPetitionPersonnel) return;
-    
     let content = petitionQuill.root.innerHTML;
     const p = currentPetitionPersonnel;
     const baslamaStr = p.goreve_baslama_tarihi 

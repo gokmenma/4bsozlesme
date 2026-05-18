@@ -1365,6 +1365,44 @@ if ($isLoggedIn) {
             });
         }
 
+        // Gender-based template preprocessor for petitions
+        function processGenderTemplate(templateHtml, gender) {
+            if (!templateHtml) return '';
+            const isFemale = gender && gender.toLowerCase() === 'kadin';
+            if (!isFemale) return templateHtml; // If male, keep exactly as is
+
+            // Use a temp DOM parser to safely edit elements
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(templateHtml, 'text/html');
+            
+            // 1. Identify and remove any node containing "askerlik" or "terhis"
+            const elements = doc.body.querySelectorAll('p, div, li, span');
+            elements.forEach(el => {
+                const text = el.textContent.toLowerCase();
+                if (text.includes('askerlik') || text.includes('terhis')) {
+                    el.remove();
+                }
+            });
+
+            // 2. Renumber remaining numbering (e.g. 1-, 2-, 3-, 4-) sequentially starting from 1
+            const remainingElements = doc.body.querySelectorAll('p, div, li, span');
+            let index = 1;
+            remainingElements.forEach(el => {
+                const txt = el.textContent.trim();
+                // Match numbers like "3-", "3.", "3 -", "3. "
+                const textMatch = txt.match(/^(\d+)\s*([-.]+)\s*(.*)/);
+                if (textMatch) {
+                    // Retrieve exact punctuation (- or .)
+                    const punct = textMatch[2];
+                    // Replace starting number in the actual HTML of the element
+                    el.innerHTML = el.innerHTML.replace(/^\s*\d+\s*([-.]+)\s*/, index + punct + ' ');
+                    index++;
+                }
+            });
+
+            return doc.body.innerHTML;
+        }
+
         // Global custom petition template passed from PHP
         const customPetitionTemplate = `<?php echo addslashes(str_replace(["\r", "\n"], '', $custom_petition)); ?>`;
 
@@ -1386,14 +1424,6 @@ if ($isLoggedIn) {
             const yyyy = today.getFullYear();
             const todayStr = dd + '.' + mm + '.' + yyyy;
 
-            let eklerContent = '';
-            if (cinsiyet === 'kadin') {
-                eklerContent = '<p style="margin-bottom: 12pt;">3- Tam teşekküllü devlet hastanesi ya da Üniversite hastanesinden alınacak sağlık kurulu (heyet) raporu (aslı ve fotokopisi ya da e-devlet çıktısı)</p>';
-            } else {
-                eklerContent = '<p style="margin-bottom: 4pt;">3- Askerlik Durum Belgesi (güncel e-devlet çıktısı) / Askerliğini yapanlar için Terhis Belgesi aslı ve fotokopisi,</p>' +
-                               '<p style="margin-bottom: 12pt;">4- Tam teşekküllü devlet hastanesi ya da Üniversite hastanesinden alınacak sağlık kurulu (heyet) raporu (aslı ve fotokopisi ya da e-devlet çıktısı)</p>';
-            }
-
             const defaultContent = 
                 '<p style="text-align: center; font-size: 11pt; margin-bottom: 2pt;"><strong>DÜZCE ÜNİVERSİTESİ REKTÖRLÜĞÜNE</strong></p>' +
                 '<p style="text-align: center; font-size: 11pt; margin-bottom: 12pt;">(...................................................................)</p>' +
@@ -1405,28 +1435,24 @@ if ($isLoggedIn) {
                 '<p style="margin-bottom: 4pt;"><strong><u>EK:</u></strong></p>' +
                 '<p style="margin-bottom: 4pt;">1- Nüfus Cüzdanı Fotokopisi</p>' +
                 '<p style="margin-bottom: 4pt;">2- Son öğrenim durumunu gösterir diploma aslı ve fotokopisi veya Mezun Belgesi (güncel e-devlet çıktısı)</p>' +
-                eklerContent +
+                '<p style="margin-bottom: 4pt;">3- Askerlik Durum Belgesi (güncel e-devlet çıktısı) / Askerliğini yapanlar için Terhis Belgesi aslı ve fotokopisi,</p>' +
+                '<p style="margin-bottom: 12pt;">4- Tam teşekküllü devlet hastanesi ya da Üniversite hastanesinden alınacak sağlık kurulu (heyet) raporu (aslı ve fotokopisi ya da e-devlet çıktısı)</p>' +
                 '<p style="margin-bottom: 8pt;"><strong><u>ADRES:</u></strong> ...................................................................</p>' +
-                '<p style="margin-bottom: 8pt;"><strong><u>TEL:</u></strong> ' + telefon + '</p>';
+                '<p style="margin-bottom: 8pt;"><strong><u>TEL:</u></strong> ' + (telefon || '...................................................') + '</p>';
 
-            let contentHtml = defaultContent;
-            if (customPetitionTemplate) {
-                let temp = customPetitionTemplate;
-                if (cinsiyet === 'kadin') {
-                    const paragraphs = temp.match(/<p[^>]*>.*?<\/p>/gi);
-                    if (paragraphs) {
-                        temp = paragraphs.filter(p => !p.toLowerCase().includes('askerlik')).join('');
-                        temp = temp.replace(/4-\s*Tam teşekküllü/gi, '3- Tam teşekküllü');
-                    }
-                }
-                contentHtml = temp
-                    .replace(/\{\{UNVAN\}\}/g, unvan)
-                    .replace(/\{\{AD_SOYAD\}\}/g, name)
-                    .replace(/\{\{TC_NO\}\}/g, tc)
-                    .replace(/\{\{GOREVE_BASLAMA\}\}/g, baslama)
-                    .replace(/\{\{TELEFON\}\}/g, telefon || '...................................................')
-                    .replace(/\{\{TODAY\}\}/g, todayStr);
-            }
+            let processedTemplate = customPetitionTemplate ? customPetitionTemplate : defaultContent;
+            
+            // Apply gender preprocessing
+            processedTemplate = processGenderTemplate(processedTemplate, cinsiyet);
+
+            // Replace tokens
+            processedTemplate = processedTemplate
+                .replace(/\{\{UNVAN\}\}/g, unvan)
+                .replace(/\{\{AD_SOYAD\}\}/g, name)
+                .replace(/\{\{TC_NO\}\}/g, tc)
+                .replace(/\{\{GOREVE_BASLAMA\}\}/g, baslama)
+                .replace(/\{\{TELEFON\}\}/g, telefon || '...................................................')
+                .replace(/\{\{TODAY\}\}/g, todayStr);
 
             const contentArea = document.getElementById('preview-content-area');
             contentArea.innerHTML = `
