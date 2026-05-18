@@ -35,11 +35,15 @@
     margin-top: auto !important;
     border-top: 1px solid #f1f5f9 !important;
     background-color: #fafafa !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
 }
 
 .dark .dataTables_wrapper > div:last-child {
     border-color: #27272a !important;
     background-color: #18181b !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
 }
 
 .dataTables_wrapper .dataTables_filter input {

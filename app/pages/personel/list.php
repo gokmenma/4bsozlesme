@@ -45,7 +45,7 @@ if (!document.getElementById('toaster')) {
         </div>
     </div>
 
-    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden relative flex flex-col h-[calc(100vh-230px)]">
+    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden relative flex flex-col h-[calc(100vh-200px)]">
         <?php echo renderTablePreloader(); ?>
 
         <div id="table-container" class="flex-1 flex flex-col overflow-hidden" style="display: none;">
@@ -56,7 +56,7 @@ if (!document.getElementById('toaster')) {
                              <input type="checkbox" class="input">
                         </th>
                         <th class="w-[5%] no-sort px-0 text-center"></th>
-                        <th data-column="2">
+                        <th data-column="2" class="w-[12%] min-w-[120px]">
                             <div class="flex items-center justify-between gap-2 group/th">
                                 <span>Ad Soyad</span>
                                 <button type="button" class="column-filter-btn p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 transition-all">
@@ -696,7 +696,7 @@ $(document).ready(function() {
             },
             { 
                 data: 'ad_soyad',
-                className: 'cursor-pointer font-medium text-zinc-900 dark:text-zinc-100',
+                className: 'cursor-pointer font-medium text-zinc-900 dark:text-zinc-100 min-w-[120px]',
                 render: (data, type, row) => `
                     <button onclick="editPersonnel(${row.id})" class="cursor-pointer hover:text-primary transition-colors text-left whitespace-nowrap">
                         ${data}
@@ -793,7 +793,7 @@ $(document).ready(function() {
             }
         ],
         order: [[2, 'asc']],
-        dom: '<"flex-1 overflow-auto"rt><"mt-auto border-t border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row justify-between items-center p-4 gap-4 bg-zinc-50/50 dark:bg-zinc-800/30"lip>',
+        dom: '<"flex-1 overflow-auto"rt><"mt-auto border-t border-zinc-200 dark:border-zinc-800 flex flex-row justify-between items-center py-0 px-4 bg-zinc-50/50 dark:bg-zinc-800/30"lip>',
         preloader: '#table-preloader'
     });
 

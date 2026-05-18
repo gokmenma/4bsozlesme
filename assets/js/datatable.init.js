@@ -522,7 +522,7 @@ function initDataTable(selector, customOptions = {}) {
         pageLength: 10,
         processing: true,
         responsive: true,
-        dom: '<"flex flex-col sm:flex-row justify-between items-center p-4 gap-4"f><"flex-1 overflow-auto"rt><"mt-auto border-t border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row justify-between items-center p-4 gap-4 bg-zinc-50/50 dark:bg-zinc-800/30"lip>',
+        dom: '<"flex flex-col sm:flex-row justify-between items-center p-4 gap-4"f><"flex-1 overflow-auto"rt><"mt-auto border-t border-zinc-200 dark:border-zinc-800 flex flex-row justify-between items-center py-0 px-4 bg-zinc-50/50 dark:bg-zinc-800/30"lip>',
         columnDefs: [
             { orderable: false, targets: 'no-sort' }
         ],
