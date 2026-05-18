@@ -211,6 +211,26 @@
             outline: none !important;
             box-shadow: 0 0 0 2px rgba(244, 244, 245, 0.15) !important;
         }
+
+        /* Global Dialog Header Flex Layout Fix */
+        dialog header,
+        .dialog header,
+        .dialog-content header,
+        [data-basecoat-dialog] header,
+        .dialog-header,
+        .modal-header {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            gap: 1rem !important;
+        }
+
+        /* Ensure flatpickr calendar appears above dialogs */
+        .flatpickr-calendar {
+            z-index: 999999 !important;
+        }
     </style>
     <title><?php echo isset($pageTitle) ? $pageTitle . " | Sözleşme Yönetimi" : "Sözleşme Yönetimi"; ?></title>
     
@@ -237,6 +257,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
     <link rel="stylesheet" href="<?php echo routeUrl('assets/css/flatpickr.custom.css'); ?>">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/tr.min.js"></script>
     <script src="<?php echo routeUrl('assets/js/flatpickr.init.js'); ?>"></script>
     
     <!-- Layout Fix -->

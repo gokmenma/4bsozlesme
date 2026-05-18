@@ -46,6 +46,7 @@ class User extends Model {
             FROM users u 
             LEFT JOIN users cu ON u.created_by = cu.id 
             WHERE u.`{$column}` = ?
+            ORDER BY u.name ASC
         ");
         $stmt->execute([$value]);
         return $stmt->fetchAll();

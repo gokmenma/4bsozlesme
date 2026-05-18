@@ -32,8 +32,8 @@ if ($isLoggedIn) {
     $personnels = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // 3. Ücret Tanımları Listesi (personel formları için)
-    $stmt_ucret = $db->prepare("SELECT id, unvan, ucret, ogrenim, kidem_yili FROM ucretler WHERE deleted_at IS NULL AND tenant_id = ? ORDER BY unvan ASC");
-    $stmt_ucret->execute([$tenant_id]);
+    $stmt_ucret = $db->prepare("SELECT id, unvan, ucret, ogrenim, kidem_yili FROM ucretler WHERE deleted_at IS NULL AND tenant_id = ? AND donem = ? ORDER BY unvan ASC");
+    $stmt_ucret->execute([$tenant_id, $selectedPeriod]);
     $ucretler = $stmt_ucret->fetchAll(PDO::FETCH_ASSOC);
     
     // 4. Kurum Listesi (Kurum Değiştirici için)
@@ -122,7 +122,11 @@ if ($isLoggedIn) {
         @custom-variant dark (&:where(.dark, .dark *));
     </style>
     
-    <link rel="stylesheet" href="<?php echo routeUrl('/mobile/style.css'); ?>">
+    <!-- Basecoat UI -->
+    <link rel="stylesheet" href="https://unpkg.com/basecoat-css@0.3.11/dist/basecoat.cdn.min.css">
+    <script src="https://unpkg.com/basecoat-css@0.3.11/dist/js/all.min.js" defer></script>
+    
+    <link rel="stylesheet" href="<?php echo routeUrl('/mobile/style.css'); ?>?v=<?php echo filemtime(__DIR__ . '/style.css'); ?>">
 </head>
 <body class="h-full flex items-center justify-center select-none">
 
@@ -179,14 +183,14 @@ if ($isLoggedIn) {
                         <!-- Login Form -->
                         <form id="mobileLoginForm" method="POST" action="<?= routeUrl('/login') ?>" class="space-y-5">
                             <div class="space-y-2">
-                                <label class="text-sm font-semibold text-zinc-400" for="username">E-Posta / Kullanıcı Adı</label>
+                                <label for="username">E-Posta / Kullanıcı Adı</label>
                                 <input class="mobile-input" type="text" id="username" name="username" placeholder="ornek@kurum.com" required>
                             </div>
                             <div class="space-y-2">
-                                <label class="text-sm font-semibold text-zinc-400" for="password">Şifre</label>
+                                <label for="password">Şifre</label>
                                 <input class="mobile-input" type="password" id="password" name="password" placeholder="••••••••" required>
                             </div>
-                            <button type="submit" class="w-full py-3.5 bg-zinc-50 hover:bg-zinc-200 text-zinc-950 active:scale-98 transition-all rounded-lg font-bold shadow-sm flex items-center justify-center gap-2 cursor-pointer mt-4">
+                            <button type="submit" class="btn w-full justify-center gap-2 mt-4">
                                 Giriş Yap
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
                             </button>
@@ -259,6 +263,12 @@ if ($isLoggedIn) {
                             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
                             <span class="text-[9px] font-bold tracking-wider leading-none">Ücretler</span>
                             <div class="absolute bottom-1 w-4 h-0.5 bg-zinc-950 dark:bg-zinc-50 rounded-full hidden" id="nav-indicator-definitions"></div>
+                        </button>
+
+                        <button onclick="switchTab('kanban')" class="nav-btn flex flex-col items-center gap-1 text-zinc-400 dark:text-zinc-500 transition-all cursor-pointer relative py-2 px-3 rounded-xl active:scale-95" id="nav-kanban">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="5" width="6" height="6" rx="1"/><path d="m5 12 2 2 4-4"/><path d="M13 5h8"/><path d="M13 9h8"/><path d="M13 13h8"/><rect x="3" y="15" width="6" height="6" rx="1"/></svg>
+                            <span class="text-[9px] font-bold tracking-wider leading-none">Yapılacaklar</span>
+                            <div class="absolute bottom-1 w-4 h-0.5 bg-zinc-950 dark:bg-zinc-50 rounded-full hidden" id="nav-indicator-kanban"></div>
                         </button>
 
                         <button onclick="openSheet('other-menu-sheet')" class="nav-btn flex flex-col items-center gap-1 text-zinc-400 dark:text-zinc-500 transition-all cursor-pointer relative py-2 px-3 rounded-xl active:scale-95" id="nav-other">
@@ -480,17 +490,17 @@ if ($isLoggedIn) {
                                 <input type="hidden" id="form-p-id" name="id" value="">
                                 
                                 <div class="space-y-1.5">
-                                    <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-ad">Ad Soyad*</label>
+                                    <label for="form-ad">Ad Soyad*</label>
                                     <input class="mobile-input" type="text" id="form-ad" name="ad_soyad" required placeholder="Ad ve soyad girin">
                                 </div>
 
                                 <div class="space-y-1.5">
-                                    <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-tc">TC Kimlik No*</label>
+                                    <label for="form-tc">TC Kimlik No*</label>
                                     <input class="mobile-input" type="text" id="form-tc" name="tc_kimlik" required minlength="11" maxlength="11" placeholder="11 haneli TC no">
                                 </div>
 
                                 <div class="space-y-1.5">
-                                    <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-ucret-select">Unvan & Ücret Seçimi*</label>
+                                    <label for="form-ucret-select">Unvan & Ücret Seçimi*</label>
                                     <select class="mobile-input" id="form-ucret-select" name="ucret_id" required>
                                         <option value="" disabled selected>Ücret Matrahı Seçin</option>
                                         <?php foreach ($ucretler as $u): ?>
@@ -501,14 +511,14 @@ if ($isLoggedIn) {
 
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="space-y-1.5">
-                                        <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-cinsiyet">Cinsiyet</label>
+                                        <label for="form-cinsiyet">Cinsiyet</label>
                                         <select class="mobile-input" id="form-cinsiyet" name="cinsiyet">
                                             <option value="erkek">Erkek</option>
                                             <option value="kadin">Kadın</option>
                                         </select>
                                     </div>
                                     <div class="space-y-1.5">
-                                        <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-durum">Durum</label>
+                                        <label for="form-durum">Durum</label>
                                         <select class="mobile-input" id="form-durum" name="durum">
                                             <option value="aktif">Aktif</option>
                                             <option value="pasif">Pasif</option>
@@ -521,24 +531,27 @@ if ($isLoggedIn) {
 
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="space-y-1.5">
-                                        <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-baslama">Giriş Tarihi*</label>
+                                        <label for="form-baslama">Giriş Tarihi*</label>
                                         <input class="mobile-input" type="text" id="form-baslama" name="goreve_baslama_tarihi" placeholder="Seçiniz..." required>
                                     </div>
                                     <div class="space-y-1.5">
-                                        <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-meslek">Meslek Kodu</label>
+                                        <label for="form-meslek">Meslek Kodu</label>
                                         <input class="mobile-input" type="text" id="form-meslek" name="meslek_kodu" placeholder="Örn: 2512.02">
                                     </div>
                                 </div>
 
                                 <div class="space-y-1.5">
-                                    <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-telefon">Telefon Numarası</label>
+                                    <label for="form-telefon">Telefon Numarası</label>
                                     <input class="mobile-input" type="tel" id="form-telefon" name="telefon" placeholder="Örn: 05301234567">
                                 </div>
 
-                                <button type="submit" class="w-full py-3.5 bg-zinc-900 dark:bg-zinc-50 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-950 rounded-md font-bold text-xs flex items-center justify-center gap-1.5 mt-2 cursor-pointer active:scale-95 transition-all shadow-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                                    Kaydet
-                                </button>
+                                <div class="flex gap-3 mt-4">
+                                    <button type="button" class="btn-outline flex-1 justify-center" onclick="closeAllSheets()">İptal</button>
+                                    <button type="submit" class="btn flex-1 justify-center gap-1.5">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                        Kaydet
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -575,26 +588,29 @@ if ($isLoggedIn) {
                         <div class="w-12 h-1 bg-zinc-300 dark:bg-zinc-800 rounded-full mx-auto my-3 flex-shrink-0"></div>
                         
                         <div class="overflow-y-auto app-scroll px-6 pb-8 flex-1 space-y-5">
-                            <h3 class="text-base font-extrabold text-white">Toplu Excel Yükleme</h3>
+                            <h3 class="text-base font-extrabold text-zinc-900 dark:text-zinc-100">Toplu Excel Yükleme</h3>
                             <p class="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">Toplu personel eklemek için hazırladığınız <strong>CSV</strong> şablon dosyasını aşağıdaki alandan yükleyebilirsiniz.</p>
                             
-                            <div class="p-4 bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-md space-y-2">
-                                <span class="text-[0.7rem] text-zinc-400 font-bold block">1. ADIM: ŞABLONU İNDİRİN</span>
-                                <a href="<?= routeUrl('/personel-sample-template') ?>" class="inline-flex items-center gap-1.5 text-xs text-zinc-100 font-bold hover:underline">
+                            <div class="p-4 bg-zinc-100 dark:bg-zinc-955 border border-zinc-200 dark:border-zinc-800 rounded-md space-y-2">
+                                <label>1. Adım: Şablonu İndirin</label>
+                                <a href="<?= routeUrl('/personel-sample-template') ?>" class="inline-flex items-center gap-1.5 text-xs text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5-5 5 5m-5-5v12"/></svg>
                                     Örnek CSV Şablonu İndir
                                 </a>
                             </div>
 
                             <div class="space-y-2">
-                                <span class="text-[0.7rem] text-zinc-400 font-bold block">2. ADIM: CSV DOSYASI SEÇİN</span>
+                                <label for="import-file-input">2. Adım: CSV Dosyası Seçin</label>
                                 <input type="file" id="import-file-input" accept=".csv" class="mobile-input p-3 block text-xs">
                             </div>
 
-                            <button onclick="handleExcelUpload()" class="w-full py-3.5 bg-zinc-900 dark:bg-zinc-50 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-950 rounded-md font-bold text-xs flex items-center justify-center gap-1.5 mt-2 cursor-pointer active:scale-95 transition-all shadow-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5-5 5 5m-5-5v12"/></svg>
-                                Yüklemeyi Tamamla
-                            </button>
+                            <div class="flex gap-3 mt-4">
+                                <button type="button" class="btn-outline flex-1 justify-center" onclick="closeAllSheets()">İptal</button>
+                                <button onclick="handleExcelUpload()" class="btn flex-1 justify-center gap-1.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5-5 5 5m-5-5v12"/></svg>
+                                    Yüklemeyi Tamamla
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -610,13 +626,13 @@ if ($isLoggedIn) {
                                 <input type="hidden" id="form-def-donem" name="donem" value="">
                                 
                                 <div class="space-y-1.5">
-                                    <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-def-unvan">Unvan*</label>
+                                    <label for="form-def-unvan">Unvan*</label>
                                     <input class="mobile-input" type="text" id="form-def-unvan" name="unvan" required placeholder="Örn: Büro Personeli, Mühendis">
                                 </div>
 
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="space-y-1.5">
-                                        <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-def-ogrenim">Öğrenim Durumu*</label>
+                                        <label for="form-def-ogrenim">Öğrenim Durumu*</label>
                                         <select class="mobile-input" id="form-def-ogrenim" name="ogrenim" required>
                                             <option value="Lise" selected>Lise</option>
                                             <option value="Önlisans">Önlisans</option>
@@ -626,7 +642,7 @@ if ($isLoggedIn) {
                                         </select>
                                     </div>
                                     <div class="space-y-1.5">
-                                        <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-def-kidem">Kıdem Grubu*</label>
+                                        <label for="form-def-kidem">Kıdem Grubu*</label>
                                         <select class="mobile-input" id="form-def-kidem" name="kidem_yili" required>
                                             <option value="0-5 Yıl (Dahil)" selected>0-5 Yıl (Dahil)</option>
                                             <option value="5-10 Yıl (Dahil)">5-10 Yıl (Dahil)</option>
@@ -638,14 +654,17 @@ if ($isLoggedIn) {
                                 </div>
 
                                 <div class="space-y-1.5">
-                                    <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="form-def-ucret">Aylık Brüt Ücret (₺)*</label>
+                                    <label for="form-def-ucret">Aylık Brüt Ücret (₺)*</label>
                                     <input class="mobile-input" type="text" id="form-def-ucret" name="ucret" required placeholder="0,00">
                                 </div>
 
-                                <button type="submit" class="w-full py-3.5 bg-zinc-900 dark:bg-zinc-50 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-950 rounded-md font-bold text-xs flex items-center justify-center gap-1.5 mt-2 cursor-pointer active:scale-95 transition-all shadow-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                                    Kaydet
-                                </button>
+                                <div class="flex gap-3 mt-4">
+                                    <button type="button" class="btn-outline flex-1 justify-center" onclick="closeAllSheets()">İptal</button>
+                                    <button type="submit" class="btn flex-1 justify-center gap-1.5">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                                        Kaydet
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -657,13 +676,13 @@ if ($isLoggedIn) {
                         <div class="overflow-y-auto app-scroll px-6 pb-36 flex-1 space-y-5">
                             <div class="flex items-center justify-between">
                                 <h3 class="text-base font-extrabold text-zinc-900 dark:text-zinc-50">Gelişmiş Filtreleme</h3>
-                                <button onclick="clearAllDefFilters()" class="text-xs font-bold text-zinc-900 dark:text-zinc-100 hover:underline">Temizle</button>
+                                <button onclick="clearAllDefFilters()" class="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">Temizle</button>
                             </div>
                             
                             <div class="space-y-4">
                                 <!-- Öğrenim Durumu Filtresi (Multiple) -->
                                 <div class="space-y-1.5">
-                                    <label class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Öğrenim Durumu (Çoklu Seçim)</label>
+                                    <label for="filter-def-ogrenim">Öğrenim Durumu (Çoklu Seçim)</label>
                                     <div class="relative">
                                         <select id="filter-def-ogrenim" class="mobile-input" multiple>
                                             <option value="">Tüm Öğrenim Durumları</option>
@@ -678,7 +697,7 @@ if ($isLoggedIn) {
                                 
                                 <!-- Kıdem Grubu Filtresi (Multiple) -->
                                 <div class="space-y-1.5">
-                                    <label class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Kıdem Grubu (Çoklu Seçim)</label>
+                                    <label for="filter-def-kidem">Kıdem Grubu (Çoklu Seçim)</label>
                                     <div class="relative">
                                         <select id="filter-def-kidem" class="mobile-input" multiple>
                                             <option value="">Tümü</option>
@@ -693,7 +712,7 @@ if ($isLoggedIn) {
 
                                 <!-- Aylık Ücret Filtresi -->
                                 <div class="space-y-1.5">
-                                    <label class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Aylık Brüt Ücret</label>
+                                    <label for="filter-def-ucret-val">Aylık Brüt Ücret</label>
                                     <div class="grid grid-cols-5 gap-2">
                                         <div class="col-span-2">
                                             <select id="filter-def-ucret-op" class="mobile-input">
@@ -711,9 +730,12 @@ if ($isLoggedIn) {
                                 </div>
                             </div>
                             
-                            <button onclick="applyDefinitionFilters(); closeAllSheets();" class="w-full py-3.5 bg-zinc-900 dark:bg-zinc-50 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-zinc-50 dark:text-zinc-950 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 mt-4 cursor-pointer active:scale-95 transition-all shadow-sm">
-                                Filtreyi Uygula
-                            </button>
+                            <div class="flex gap-3 mt-4">
+                                <button type="button" class="btn-outline flex-1 justify-center" onclick="closeAllSheets()">İptal</button>
+                                <button onclick="applyDefinitionFilters(); closeAllSheets();" class="btn flex-1 justify-center">
+                                    Filtreyi Uygula
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -782,27 +804,51 @@ if ($isLoggedIn) {
 
                             <form id="defCopyForm" class="space-y-4" onsubmit="handlePeriodCopy(event)">
                                 <div class="space-y-1.5">
-                                    <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block">Kaynak Dönem (Aktif)</label>
+                                    <label>Kaynak Dönem (Aktif)</label>
                                     <input class="mobile-input bg-zinc-50 dark:bg-zinc-950 font-bold" type="text" id="copy-from-donem" readonly value="<?= htmlspecialchars($selectedPeriod ?? '2026-1') ?>">
                                 </div>
 
                                 <div class="space-y-1.5">
-                                    <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="copy-to-donem">Hedef Dönem (Yeni)*</label>
+                                    <label for="copy-to-donem">Hedef Dönem (Yeni)*</label>
                                     <input class="mobile-input font-bold" type="text" id="copy-to-donem" required placeholder="Örn: 2026-2">
                                     <p class="text-[9px] text-zinc-500 font-semibold mt-0.5">Yeni dönemin adı benzersiz olmalıdır (Örn: 2026-2, 2027-1).</p>
                                 </div>
 
                                 <div class="space-y-1.5">
-                                    <label class="text-[0.78rem] font-bold text-zinc-400 uppercase tracking-wider block" for="copy-raise-percent">Zam Oranı (%)*</label>
+                                    <label for="copy-raise-percent">Zam Oranı (%)*</label>
                                     <input class="mobile-input font-bold" type="number" step="0.01" id="copy-raise-percent" required placeholder="Örn: 25.5">
                                     <p class="text-[9px] text-zinc-500 font-semibold mt-0.5">Tüm ücretler bu yüzde oranında artırılarak yeni döneme aktarılır.</p>
                                 </div>
 
-                                <button type="submit" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 mt-6 cursor-pointer active:scale-95 transition-all shadow-sm">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
-                                    Uygula ve Yeni Döneme Aktar
-                                </button>
+                                <div class="flex gap-3 mt-6">
+                                    <button type="button" class="btn-outline flex-1 justify-center" onclick="closeAllSheets()">İptal</button>
+                                    <button type="submit" class="btn flex-1 justify-center gap-1.5">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+                                        Aktar
+                                    </button>
+                                </div>
                             </form>
+                        </div>
+                    </div>
+
+                    <!-- 9. PETITION STATUS CONFIRM BOTTOM SHEET -->
+                    <div id="petition-confirm-sheet" class="bottom-sheet flex flex-col max-h-[50%] bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800 text-zinc-950 dark:text-zinc-50" style="z-index: 1001 !important;">
+                        <div class="w-12 h-1 bg-zinc-300 dark:bg-zinc-800 rounded-full mx-auto my-3 flex-shrink-0"></div>
+                        <div class="px-6 pb-8 pt-2 flex-1 flex flex-col justify-between space-y-5">
+                            <div class="text-center space-y-2">
+                                <div class="w-12 h-12 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-500 mx-auto border border-indigo-500/20">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                                </div>
+                                <h3 class="text-sm font-extrabold tracking-tight">Durum Güncelleme Onayı</h3>
+                                <p class="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed font-semibold">
+                                    <span id="petition-confirm-name" class="font-extrabold text-zinc-900 dark:text-zinc-100">Personel</span> isimli çalışanın durumunu <strong>"Dilekçe Alındı"</strong> olarak güncellemek ister misiniz?
+                                </p>
+                            </div>
+                            
+                            <div class="flex gap-3">
+                                <button type="button" id="btn-petition-confirm-no" onclick="closePetitionConfirmSheet(); printMobileDocument();" class="btn-outline flex-1 justify-center py-3 text-xs font-bold">Hayır, Sadece Yazdır</button>
+                                <button type="button" id="btn-petition-confirm-yes" onclick="updatePetitionStatusAndPrint()" class="btn flex-1 justify-center py-3 text-xs font-bold gap-1">Evet, Güncelle ve Yazdır</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -815,10 +861,177 @@ if ($isLoggedIn) {
 
     <!-- Premium Native JavaScript Mechanics -->
     <script>
+        // Global Fetch Interceptor to catch Session Expiration (401 Unauthorized) and redirect to login
+        (function() {
+            const originalFetch = window.fetch;
+            window.fetch = async function(...args) {
+                try {
+                    const response = await originalFetch(...args);
+                    if (response.status === 401) {
+                        // Clear any local tab storage to prevent trying to load dynamic tabs after logging in
+                        localStorage.removeItem('last_active_tab');
+                        localStorage.removeItem('last_active_subpage');
+                        
+                        // Session expired, reload the page to display the login screen
+                        window.location.reload();
+                    }
+                    return response;
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    throw error;
+                }
+            };
+        })();
+
         // Global variables holding current page state
         let currentTab = 'home';
         let selectedPersonnelCard = null;
         let isTcMasked = true;
+        let currentPetitionPersonnel = null;
+
+        function openPetitionConfirmSheet(personnelId, name) {
+            document.getElementById('petition-confirm-name').innerText = name;
+            
+            // Promote sheet-backdrop z-index so it stands above preview-modal (z-index 999)
+            const backdrop = document.getElementById('sheet-backdrop');
+            if (backdrop) {
+                backdrop.style.zIndex = '1000';
+            }
+            
+            openSheet('petition-confirm-sheet');
+        }
+
+        function closePetitionConfirmSheet() {
+            closeAllSheets();
+            setTimeout(() => {
+                const backdrop = document.getElementById('sheet-backdrop');
+                if (backdrop) {
+                    backdrop.style.zIndex = '';
+                }
+            }, 350);
+        }
+
+        function updatePetitionStatusAndPrint() {
+            if (!currentPetitionPersonnel) return;
+            
+            const btn = document.getElementById('btn-petition-confirm-yes');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = 'Güncelleniyor...';
+            
+            const basePath = '<?php echo appBasePath(); ?>';
+            const url = basePath + '/personel-guncelle';
+            
+            const formData = new FormData();
+            formData.append('id', currentPetitionPersonnel.id);
+            formData.append('tc_kimlik', currentPetitionPersonnel.tc);
+            formData.append('ad_soyad', currentPetitionPersonnel.name);
+            formData.append('ucret_id', currentPetitionPersonnel.ucret_id);
+            formData.append('durum', 'dilekce_alindi');
+            formData.append('goreve_baslama_tarihi', currentPetitionPersonnel.baslama);
+            formData.append('telefon', currentPetitionPersonnel.telefon);
+            formData.append('meslek_kodu', currentPetitionPersonnel.meslek);
+            formData.append('cinsiyet', currentPetitionPersonnel.cinsiyet);
+            formData.append('ajax', '1');
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                
+                if (data.success) {
+                    showToast('Personel durumu "Dilekçe Alındı" olarak güncellendi.');
+                    
+                    // Instantly update the DOM card's attribute
+                    const card = document.querySelector(`.personnel-item-card[data-id="${currentPetitionPersonnel.id}"]`);
+                    if (card) {
+                        card.setAttribute('data-durum', 'dilekce_alindi');
+                        const detailBadge = document.getElementById('detail-durum-badge');
+                        if (detailBadge) {
+                            detailBadge.className = 'px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-blue-500/10 text-blue-500 border border-blue-500/20';
+                            detailBadge.innerText = 'Dilekçe Alındı';
+                        }
+                    }
+                    
+                    if (currentTab === 'personnel') {
+                        switchTab('personnel');
+                    } else if (currentTab === 'home') {
+                        switchTab('home');
+                    }
+                    
+                    closePetitionConfirmSheet();
+                    printMobileDocument();
+                } else {
+                    showToast(data.error || 'Durum güncellenirken bir hata oluştu.', 'error');
+                }
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                showToast('Bağlantı hatası oluştu.', 'error');
+            });
+        }
+
+        // Iframe-based high fidelity print logic specifically for mobile viewports
+        function printMobileDocument() {
+            const contentArea = document.getElementById('preview-content-area');
+            if (!contentArea) return;
+            
+            // Create a temporary hidden iframe
+            const iframe = document.createElement('iframe');
+            iframe.name = 'print_iframe';
+            iframe.style.position = 'fixed';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = '0';
+            iframe.style.left = '-9999px';
+            document.body.appendChild(iframe);
+            
+            const docType = document.body.getAttribute('data-doc-type') || 'dilekce';
+            const doc = iframe.contentWindow.document;
+            
+            doc.write('<!DOCTYPE html><html><head><title>Belge Yazdır</title>');
+            doc.write('<style>');
+            doc.write('@page { size: A4 portrait; margin: 0 !important; }');
+            doc.write('body { margin: 0 !important; padding: 0 !important; background: white !important; color: black !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }');
+            
+            if (docType === 'dilekce') {
+                doc.write('body { font-family: "Times New Roman", Times, serif !important; padding: 3.5cm 2.5cm 2.5cm 2.5cm !important; }');
+                doc.write('* { font-family: "Times New Roman", Times, serif !important; font-size: 11pt !important; line-height: 1.6 !important; color: black !important; }');
+                doc.write('.ql-editor p { padding-left: 2.3cm !important; padding-right: 2.3cm !important; margin-bottom: 8px !important; text-align: justify !important; }');
+                doc.write('.ql-editor p:nth-child(1), .ql-editor p:nth-child(2), .ql-editor p:nth-child(3) { padding-left: 0 !important; padding-right: 0 !important; }');
+            } else {
+                // Contract (sözleşme)
+                doc.write('body { font-family: "Times New Roman", Times, serif !important; padding: 2.5cm 2cm 2.5cm 2cm !important; }');
+                doc.write('* { font-family: "Times New Roman", Times, serif !important; font-size: 10.5pt !important; line-height: 1.6 !important; color: black !important; }');
+                
+                const hasBorder = contentArea.classList.contains('has-border');
+                if (hasBorder) {
+                    doc.write('.document-preview-page { border: 3px double #000000 !important; padding: 10px !important; }');
+                }
+            }
+            doc.write('</style></head><body>');
+            doc.write('<div class="document-preview-page">');
+            doc.write(contentArea.innerHTML);
+            doc.write('</div>');
+            doc.write('</body></html>');
+            doc.close();
+            
+            setTimeout(() => {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+                setTimeout(() => {
+                    document.body.removeChild(iframe);
+                }, 1000);
+            }, 300);
+        }
 
         // Dynamic simulated A4 zoom scaling to perfectly fit mobile viewports like a real PDF viewer
         function adjustPreviewZoom() {
@@ -992,6 +1205,7 @@ if ($isLoggedIn) {
                 let displayTitle = 'Ana Sayfa';
                 if (tabName === 'personnel') displayTitle = 'Personel Listesi';
                 else if (tabName === 'definitions') displayTitle = 'Ücret Tanımları';
+                else if (tabName === 'kanban') displayTitle = 'Yapılacaklar';
                 else if (tabName === 'other') displayTitle = 'Diğer İşlemler';
                 else if (tabName === 'profile') displayTitle = 'Kullanıcı Profili';
                 topbarTitle.innerText = displayTitle;
@@ -1014,13 +1228,15 @@ if ($isLoggedIn) {
                     if (tabName === 'home') pagePath = 'home';
                     else if (tabName === 'personnel') pagePath = 'personel';
                     else if (tabName === 'definitions') pagePath = 'ucretler';
+                    else if (tabName === 'kanban') pagePath = 'kanban';
                     else if (tabName === 'other') pagePath = 'other';
                     else if (tabName === 'profile') pagePath = 'profil';
 
                     const basePath = '<?php echo appBasePath(); ?>';
                     const query = new URLSearchParams(params).toString();
-                    const urlSuffix = query ? '?' + query : '';
-                    const response = await fetch(basePath + `/mobile/pages/${pagePath}/index.php` + urlSuffix);
+                    const cacheBuster = 't=' + Date.now();
+                    const finalQuery = query ? query + '&' + cacheBuster : cacheBuster;
+                    const response = await fetch(basePath + `/mobile/pages/${pagePath}/index.php?` + finalQuery);
                     if (!response.ok) throw new Error("Yüklenemedi");
                     
                     const html = await response.text();
@@ -1038,13 +1254,13 @@ if ($isLoggedIn) {
                         newScript.remove();
                     });
                     
-                    // Trigger swiping engine if loading personnel or definitions
-                    if (tabName === 'personnel' || tabName === 'definitions') {
+                    // Trigger swiping engine if loading personnel or definitions or kanban
+                    if (tabName === 'personnel' || tabName === 'definitions' || tabName === 'kanban') {
                         initSwipeActions();
                         if (typeof initMobileCustomSelects === 'function') {
                             initMobileCustomSelects();
                         }
-                        if (tabName === 'personnel' && typeof initMobileFlatpickr === 'function') {
+                        if ((tabName === 'personnel' || tabName === 'kanban') && typeof initMobileFlatpickr === 'function') {
                             initMobileFlatpickr();
                         }
                     }
@@ -1112,7 +1328,7 @@ if ($isLoggedIn) {
                     }
 
                     const basePath = '<?php echo appBasePath(); ?>';
-                    const response = await fetch(basePath + `/mobile/pages/other/${subpageName}.php`);
+                    const response = await fetch(basePath + `/mobile/pages/other/${subpageName}.php?t=` + Date.now());
                     if (!response.ok) throw new Error("Yüklenemedi");
                     
                     const html = await response.text();
@@ -1458,7 +1674,7 @@ if ($isLoggedIn) {
             const contentArea = document.getElementById('preview-content-area');
             contentArea.innerHTML = `
                 <div class="ql-container ql-snow" style="border:none">
-                    <div class="ql-editor">${contentHtml}</div>
+                    <div class="ql-editor">${processedTemplate}</div>
                 </div>
             `;
             contentArea.classList.remove('has-border');
@@ -1468,10 +1684,23 @@ if ($isLoggedIn) {
             // Set UI details
             document.getElementById('preview-title').innerText = "Dilekçe Önizleme";
             
+            // Set current petition personnel details for status update
+            currentPetitionPersonnel = {
+                id: id,
+                name: name,
+                tc: tc,
+                telefon: telefon,
+                ucret_id: card.getAttribute('data-ucret-id') || '',
+                cinsiyet: cinsiyet,
+                durum: card.getAttribute('data-durum') || 'aktif',
+                meslek: card.getAttribute('data-meslek') || '',
+                baslama: baslama
+            };
+
             // Hide word download button, bind print
             document.getElementById('btn-preview-download').classList.add('hidden');
             document.getElementById('btn-preview-print').onclick = () => {
-                window.print();
+                openPetitionConfirmSheet(id, name);
             };
 
             document.getElementById('preview-modal').classList.remove('hidden');
@@ -1517,7 +1746,7 @@ if ($isLoggedIn) {
                         // Bind download and print buttons
                         document.getElementById('btn-preview-download').onclick = () => downloadWord(id);
                         document.getElementById('btn-preview-print').onclick = () => {
-                            window.print();
+                            printMobileDocument();
                         };
                         setTimeout(adjustPreviewZoom, 50);
                     } else {
@@ -2088,6 +2317,7 @@ if ($isLoggedIn) {
             const url = id ? (basePath + '/personel-guncelle') : (basePath + '/personel-ekle');
             
             const formData = new FormData(this);
+            formData.append('ajax', '1');
 
             // Send XMLHttpRequest header so controller outputs JSON
             fetch(url, {
@@ -2202,7 +2432,7 @@ if ($isLoggedIn) {
 
         // Mobile Custom Select Dropdown Mechanics (Matches Premium Desktop Styling & UX with Multi-Select support)
         function initMobileCustomSelects() {
-            const selects = document.querySelectorAll('#personnelForm select, #filter-sheet select, #definitionForm select, #def-filter-sheet select, #mobileTanimlamalarForm select, #mobileSettingsForm select, #wage-period-select');
+            const selects = document.querySelectorAll('#personnelForm select, #filter-sheet select, #definitionForm select, #def-filter-sheet select, #mobileTanimlamalarForm select, #mobileSettingsForm select, #wage-period-select, #mobileTaskForm select');
             selects.forEach(select => {
                 if (!select.id) {
                     select.id = 'mobile-select-rand-' + Math.random().toString(36).substr(2, 9);
@@ -2389,7 +2619,7 @@ if ($isLoggedIn) {
         }
 
         function syncMobileCustomSelects() {
-            const selects = document.querySelectorAll('#personnelForm select, #filter-sheet select, #definitionForm select, #def-filter-sheet select, #mobileTanimlamalarForm select, #mobileSettingsForm select, #wage-period-select');
+            const selects = document.querySelectorAll('#personnelForm select, #filter-sheet select, #definitionForm select, #def-filter-sheet select, #mobileTanimlamalarForm select, #mobileSettingsForm select, #wage-period-select, #mobileTaskForm select');
             selects.forEach(select => {
                 const id = select.id;
                 const wrapper = document.getElementById('custom-select-wrapper-' + id);

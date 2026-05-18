@@ -59,12 +59,36 @@ if (isset($page) && $page !== '/mobile' && !isStandaloneRoute($page) && !$isPost
     }
 }
 
-// Eğer kullanıcı giriş yapmamışsa ve login/logout sayfalarında değilse, logout sayfasına yönlendir.
-// logout sayfası oturumu temizleyip login sayfasına atacaktır.
-if(!isset($_SESSION['user_id'])){
-    if (isset($page) && !isStandaloneRoute($page)) {
-        header("Location: " . routeUrl('/logout'));
-        exit;
+// Eğer kullanıcı giriş yapmamışsa
+if (!isset($_SESSION['user_id'])) {
+    if (isset($page) && PHP_SAPI !== 'cli') {
+        if (!isStandaloneRoute($page)) {
+            // Standart sayfalar için çıkışa yönlendir
+            header("Location: " . routeUrl('/logout'));
+            exit;
+        } else {
+            // Mobil ve API sayfaları için izin verilenler dışındakilere 401 döndür
+            $allowedStandalone = [
+                '/login',
+                '/logout',
+                '/register',
+                '/mobile',
+                '/mobile/',
+                '/mobile/index.php',
+                '/mobile/manifest.json',
+                '/mobile/sw.js'
+            ];
+            if (!in_array($page, $allowedStandalone, true)) {
+                http_response_code(401);
+                header('Content-Type: application/json; charset=utf-8');
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'unauthorized',
+                    'message' => 'Oturumunuz sonlanmıştır. Lütfen tekrar giriş yapın.'
+                ]);
+                exit;
+            }
+        }
     }
 } else {
     // Kullanıcı zaten giriş yapmışsa ve login/register sayfasına gitmeye çalışıyorsa ana sayfaya yönlendir.

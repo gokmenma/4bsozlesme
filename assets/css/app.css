@@ -482,3 +482,23 @@ dialog *,
     font-family: inherit !important;
 }
 
+/* Global Dialog Header Flex Layout Fix */
+dialog header,
+.dialog header,
+.dialog-content header,
+[data-basecoat-dialog] header,
+.dialog-header,
+.modal-header {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    gap: 1rem !important;
+}
+
+/* Ensure flatpickr calendar appears above dialogs */
+.flatpickr-calendar {
+    z-index: 999999 !important;
+}
+

@@ -97,7 +97,17 @@ function isStandaloneRoute(string $page): bool
         '/onboarding-complete',
         
         // Other download/API endpoints
-        '/doner-matrahi-indir'
+        '/doner-matrahi-indir',
+        
+        // Kanban / Todo APIs
+        '/kanban-gorev-ekle',
+        '/kanban-gorev-guncelle',
+        '/kanban-gorev-sil',
+        '/kanban-gorev-durum-guncelle',
+        '/kanban-board-ekle',
+        '/kanban-board-sil',
+        '/kanban-board-sira-guncelle',
+        '/kanban-board-baslik-guncelle'
     ];
     if (in_array($page, $apiAndDownloadRoutes, true)) {
         return true;
@@ -185,6 +195,11 @@ function renderRoute(string $page): void
 
     if ($page === '/mobile/pages/profil/index.php') {
         include 'mobile/pages/profil/index.php';
+        exit;
+    }
+
+    if ($page === '/mobile/pages/kanban/index.php') {
+        include 'mobile/pages/kanban/index.php';
         exit;
     }
 
@@ -588,6 +603,62 @@ function renderRoute(string $page): void
             $stmt->execute([$user_id]);
         }
         echo json_encode(['success' => true]);
+        exit;
+    }
+
+    if ($page === '/yapilacaklar') {
+        $controller = new KanbanController();
+        $data = $controller->index();
+        extract($data);
+        include 'app/pages/kanban.php';
+        return;
+    }
+
+    if ($page === '/kanban-gorev-ekle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new KanbanController();
+        $controller->store();
+        exit;
+    }
+
+    if ($page === '/kanban-gorev-guncelle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new KanbanController();
+        $controller->update();
+        exit;
+    }
+
+    if ($page === '/kanban-gorev-sil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new KanbanController();
+        $controller->delete();
+        exit;
+    }
+
+    if ($page === '/kanban-gorev-durum-guncelle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new KanbanController();
+        $controller->updateStatus();
+        exit;
+    }
+
+    if ($page === '/kanban-board-ekle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new KanbanController();
+        $controller->addBoard();
+        exit;
+    }
+
+    if ($page === '/kanban-board-sil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new KanbanController();
+        $controller->deleteBoard();
+        exit;
+    }
+
+    if ($page === '/kanban-board-sira-guncelle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new KanbanController();
+        $controller->updateBoardOrder();
+        exit;
+    }
+
+    if ($page === '/kanban-board-baslik-guncelle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new KanbanController();
+        $controller->updateBoardTitle();
         exit;
     }
 

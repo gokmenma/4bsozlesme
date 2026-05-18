@@ -31,11 +31,15 @@ class PersonnelController extends Controller {
         $tenant_id = $_SESSION['tenant_id'] ?? 1;
         $tc_kimlik = $_POST['tc_kimlik'];
 
+        $isAjax = (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') 
+            || (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false)
+            || isset($_POST['ajax']) || isset($_GET['ajax']);
+
         // Unique TC Check for this tenant
         $checkStmt = $db->prepare("SELECT id FROM personeller WHERE tenant_id = ? AND tc_kimlik = ? AND deleted_at IS NULL LIMIT 1");
         $checkStmt->execute([$tenant_id, $tc_kimlik]);
         if ($checkStmt->fetch()) {
-            if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+            if ($isAjax) {
                 header('Content-Type: application/json');
                 echo json_encode(['success' => false, 'error' => 'Bu TC Kimlik numarasına sahip bir personel zaten kayıtlı.']);
                 exit;
@@ -45,12 +49,21 @@ class PersonnelController extends Controller {
             exit;
         }
 
+        $baslama = $_POST['goreve_baslama_tarihi'] ?? '';
+        if (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $baslama)) {
+            $parts = explode('.', $baslama);
+            $baslama = "{$parts[2]}-{$parts[1]}-{$parts[0]}";
+        } else {
+            $parsedDate = strtotime($baslama);
+            $baslama = $parsedDate ? date('Y-m-d', $parsedDate) : date('Y-m-d');
+        }
+
         $data = [
             'tc_kimlik' => $tc_kimlik,
             'ad_soyad' => $_POST['ad_soyad'],
             'ucret_id' => $_POST['ucret_id'],
             'durum' => $_POST['durum'] ?? 'aktif',
-            'goreve_baslama_tarihi' => date('Y-m-d', strtotime($_POST['goreve_baslama_tarihi'])),
+            'goreve_baslama_tarihi' => $baslama,
             'telefon' => $_POST['telefon'] ?? '',
             'meslek_kodu' => $_POST['meslek_kodu'] ?? '',
             'cinsiyet' => $_POST['cinsiyet'] ?? 'erkek',
@@ -65,7 +78,7 @@ class PersonnelController extends Controller {
         $stmt = $db->prepare($sql);
         $success = $stmt->execute(array_values($data));
 
-        if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+        if ($isAjax) {
             header('Content-Type: application/json');
             echo json_encode(['success' => $success]);
             exit;
@@ -135,12 +148,21 @@ class PersonnelController extends Controller {
             exit;
         }
 
+        $baslama = $_POST['goreve_baslama_tarihi'] ?? '';
+        if (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $baslama)) {
+            $parts = explode('.', $baslama);
+            $baslama = "{$parts[2]}-{$parts[1]}-{$parts[0]}";
+        } else {
+            $parsedDate = strtotime($baslama);
+            $baslama = $parsedDate ? date('Y-m-d', $parsedDate) : date('Y-m-d');
+        }
+
         $data = [
             'tc_kimlik' => $tc_kimlik,
             'ad_soyad' => $_POST['ad_soyad'],
             'ucret_id' => $_POST['ucret_id'],
             'durum' => $_POST['durum'] ?? 'aktif',
-            'goreve_baslama_tarihi' => date('Y-m-d', strtotime($_POST['goreve_baslama_tarihi'])),
+            'goreve_baslama_tarihi' => $baslama,
             'telefon' => $_POST['telefon'] ?? '',
             'meslek_kodu' => $_POST['meslek_kodu'] ?? '',
             'cinsiyet' => $_POST['cinsiyet'] ?? 'erkek',
