@@ -595,9 +595,6 @@ if ($isLoggedIn) {
                             </button>
                             <h3 id="preview-title" class="text-[11px] font-extrabold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">Belge Önizleme</h3>
                             <div class="flex items-center gap-2">
-                                <button id="btn-preview-print" class="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100 px-3 py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider flex items-center gap-1 shadow-sm cursor-pointer active:scale-95 transition-all">
-                                    Yazdır
-                                </button>
                                 <button id="btn-preview-download" class="bg-zinc-900 dark:bg-zinc-100 text-zinc-50 dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 px-3 py-1.5 rounded-lg font-bold text-[10px] uppercase tracking-wider flex items-center gap-1 shadow-sm cursor-pointer active:scale-95 transition-all">
                                     İndir
                                 </button>
@@ -609,6 +606,22 @@ if ($isLoggedIn) {
                             <div id="preview-content-area" class="document-preview-page">
                                 <!-- Dynamic preview HTML -->
                             </div>
+                        </div>
+
+                        <!-- Floating Zoom & Action Controls -->
+                        <div class="absolute bottom-20 right-6 flex flex-col gap-2.5 z-50">
+                            <button onclick="zoomReset()" class="w-11 h-11 rounded-full bg-white/90 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-center text-zinc-700 dark:text-zinc-300 shadow-xl active:scale-95 transition-all cursor-pointer backdrop-blur-md text-[10px] font-extrabold tracking-wider" title="Sıfırla">
+                                100%
+                            </button>
+                            <button onclick="zoomIn()" class="w-11 h-11 rounded-full bg-white/90 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-center text-zinc-800 dark:text-zinc-200 shadow-xl active:scale-95 transition-all cursor-pointer backdrop-blur-md" title="Yakınlaştır">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>
+                            </button>
+                            <button onclick="zoomOut()" class="w-11 h-11 rounded-full bg-white/90 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-center text-zinc-800 dark:text-zinc-200 shadow-xl active:scale-95 transition-all cursor-pointer backdrop-blur-md" title="Uzaklaştır">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="5" x2="19" y1="12" y2="12"/></svg>
+                            </button>
+                            <button id="btn-preview-print-floating" class="w-11 h-11 rounded-full bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 border border-indigo-500 flex items-center justify-center text-white shadow-xl active:scale-95 transition-all cursor-pointer backdrop-blur-md" title="Yazdır">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>
+                            </button>
                         </div>
                     </div>
 
@@ -917,6 +930,7 @@ if ($isLoggedIn) {
         let selectedPersonnelCard = null;
         let isTcMasked = true;
         let currentPetitionPersonnel = null;
+        let customZoomScale = 1.0;
 
         function openPetitionConfirmSheet(personnelId, name) {
             document.getElementById('petition-confirm-name').innerText = name;
@@ -1070,9 +1084,16 @@ if ($isLoggedIn) {
             
             const wrapperWidth = wrapper.clientWidth;
             const targetWidth = 794; // Fixed standard A4 width
+            const docType = document.body.getAttribute('data-doc-type') || 'dilekce';
             
             if (wrapperWidth < targetWidth) {
-                const zoomFactor = (wrapperWidth - 16) / targetWidth;
+                // If it is dilekçe, zoom to exactly 100% of the wrapper (marked area) width.
+                // Otherwise, keep the standard layout with minor side padding margins (-16).
+                const margin = (docType === 'dilekce') ? 0 : 16;
+                let zoomFactor = (wrapperWidth - margin) / targetWidth;
+                
+                // Apply custom zoom scale factor
+                zoomFactor = zoomFactor * customZoomScale;
                 
                 // Use scale transform for full cross-browser mobile & iOS Safari support instead of zoom
                 page.style.transform = `scale(${zoomFactor})`;
@@ -1083,12 +1104,36 @@ if ($isLoggedIn) {
                 const scaledHeight = originalHeight * zoomFactor;
                 page.style.marginBottom = `-${originalHeight - scaledHeight}px`;
             } else {
-                page.style.transform = 'none';
+                // For desktop viewports where wrapper is wider than 794px, apply customZoomScale
+                const zoomFactor = customZoomScale;
+                page.style.transform = `scale(${zoomFactor})`;
                 page.style.transformOrigin = 'top center';
-                page.style.marginBottom = '0';
+                
+                const originalHeight = page.offsetHeight || 1123;
+                const scaledHeight = originalHeight * zoomFactor;
+                page.style.marginBottom = `-${originalHeight - scaledHeight}px`;
             }
         }
         window.addEventListener('resize', adjustPreviewZoom);
+
+        function zoomIn() {
+            if (customZoomScale < 3.0) {
+                customZoomScale = Math.round((customZoomScale + 0.1) * 10) / 10;
+                adjustPreviewZoom();
+            }
+        }
+
+        function zoomOut() {
+            if (customZoomScale > 0.5) {
+                customZoomScale = Math.round((customZoomScale - 0.1) * 10) / 10;
+                adjustPreviewZoom();
+            }
+        }
+
+        function zoomReset() {
+            customZoomScale = 1.0;
+            adjustPreviewZoom();
+        }
 
         // Swiping gesture handler for personnel list items (pure standard PointerEvents)
         function initSwipeActions() {
@@ -1728,10 +1773,11 @@ if ($isLoggedIn) {
 
             // Hide word download button, bind print
             document.getElementById('btn-preview-download').classList.add('hidden');
-            document.getElementById('btn-preview-print').onclick = () => {
+            document.getElementById('btn-preview-print-floating').onclick = () => {
                 openPetitionConfirmSheet(id, name);
             };
 
+            customZoomScale = 1.0;
             document.getElementById('preview-modal').classList.remove('hidden');
             setTimeout(adjustPreviewZoom, 50);
         }
@@ -1752,6 +1798,7 @@ if ($isLoggedIn) {
             document.getElementById('preview-title').innerText = "Sözleşme Taslağı";
             document.getElementById('btn-preview-download').classList.remove('hidden');
 
+            customZoomScale = 1.0;
             document.getElementById('preview-modal').classList.remove('hidden');
 
             fetch(basePath + '/personel-get-preview?id=' + id)
@@ -1774,7 +1821,7 @@ if ($isLoggedIn) {
                         
                         // Bind download and print buttons
                         document.getElementById('btn-preview-download').onclick = () => downloadWord(id);
-                        document.getElementById('btn-preview-print').onclick = () => {
+                        document.getElementById('btn-preview-print-floating').onclick = () => {
                             printMobileDocument();
                         };
                         setTimeout(adjustPreviewZoom, 50);

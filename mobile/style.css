@@ -392,12 +392,18 @@ body[data-doc-type="sozlesme"] .document-preview-page .ql-editor p[style*="text-
 }
 
 /* Dilekce View Mode */
+body[data-doc-type="dilekce"] .document-preview-wrapper {
+    padding: 0 !important;
+    background-color: #ffffff !important;
+}
 body[data-doc-type="dilekce"] .document-preview-page {
-    padding: 132px 94px 94px 94px !important;
+    padding: 40px 24px 40px 24px !important;
     font-family: 'Times New Roman', Times, serif !important;
     line-height: 1.6;
     font-size: 11pt;
     text-align: justify;
+    box-shadow: none !important;
+    border-radius: 0 !important;
 }
 body[data-doc-type="dilekce"] .document-preview-page * {
     font-family: 'Times New Roman', Times, serif !important;
@@ -405,8 +411,8 @@ body[data-doc-type="dilekce"] .document-preview-page * {
     font-size: 11pt !important;
 }
 body[data-doc-type="dilekce"] .document-preview-page .ql-editor p {
-    padding-left: 2.3cm !important;
-    padding-right: 2.3cm !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
     margin-bottom: 8px !important;
 }
 body[data-doc-type="dilekce"] .document-preview-page .ql-editor p:nth-child(1),
