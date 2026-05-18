@@ -158,47 +158,74 @@ if ($isLoggedIn) {
                 <!-- Bottom Sheet Backdrop -->
                 <div id="sheet-backdrop" class="bottom-sheet-backdrop" onclick="closeAllSheets()"></div>
 
-                <?php if (!$isLoggedIn): ?>
-                
                 <!-- MOBILE LOGIN SCREEN -->
-                <div class="flex-1 flex flex-col justify-between p-7 pt-12 overflow-y-auto app-scroll bg-zinc-950">
-                    <div class="my-auto space-y-8">
+                <div class="flex-1 flex flex-col justify-center items-center p-6 overflow-y-auto app-scroll bg-zinc-50 dark:bg-zinc-950 relative selection:bg-indigo-500/30">
+                    <!-- Subtle Background Glow -->
+                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.02),transparent_70%)]"></div>
+                    
+                    <div class="w-full max-w-[360px] bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-sm relative z-10 space-y-6">
                         
-                        <!-- Header & Logo -->
+                        <!-- Brand Header -->
                         <div class="text-center flex flex-col items-center">
-                            <div class="w-16 h-16 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-50 mb-5 shadow-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <div class="flex w-11 h-11 items-center justify-center rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-950 mb-3.5 shadow-sm transition-transform hover:scale-105 duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="m7 17 10-10" />
                                     <path d="m13 17 4-4" opacity="0.5" />
                                 </svg>
                             </div>
-                            <h1 class="text-3xl font-extrabold tracking-tight text-white mb-1">
-                                Sözleşme <span class="text-indigo-400">4B</span>
+                            <h1 class="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50 mb-0.5">
+                                Sözleşme <span class="bg-gradient-to-r from-indigo-500 to-indigo-600 dark:from-indigo-400 dark:to-indigo-500 bg-clip-text text-transparent">4B</span>
                             </h1>
-                            <p class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">
-                                Mobil Yönetim Portalı
+                            <p class="text-[9px] text-zinc-400 dark:text-zinc-500 font-bold uppercase tracking-widest">
+                                Kurumsal Sözleşme & Yönetim Sistemi
                             </p>
+                        </div>
+
+                        <!-- Section Header -->
+                        <div class="text-center">
+                            <h2 class="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Giriş Yap</h2>
+                            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Devam etmek için hesabınıza giriş yapın</p>
                         </div>
                         
                         <!-- Login Form -->
-                        <form id="mobileLoginForm" method="POST" action="<?= routeUrl('/login') ?>" class="space-y-5">
-                            <div class="space-y-2">
-                                <label for="username">E-Posta / Kullanıcı Adı</label>
-                                <input class="mobile-input" type="text" id="username" name="username" placeholder="ornek@kurum.com" required>
+                        <form id="mobileLoginForm" method="POST" action="<?= routeUrl('/login') ?>" class="space-y-4">
+                            <!-- Username / Email -->
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider" for="username">Kullanıcı Adı</label>
+                                <div class="relative group">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-400 dark:text-zinc-500 group-focus-within:text-zinc-900 dark:group-focus-within:text-zinc-150 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    </span>
+                                    <input class="w-full pl-10 pr-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900 text-sm font-medium text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-450 focus:outline-none transition-all duration-200 shadow-sm" type="text" id="username" name="username" placeholder="Kullanıcı adınızı girin" required>
+                                </div>
                             </div>
-                            <div class="space-y-2">
-                                <label for="password">Şifre</label>
-                                <input class="mobile-input" type="password" id="password" name="password" placeholder="••••••••" required>
+
+                            <!-- Password -->
+                            <div class="space-y-1.5">
+                                <label class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider" for="password">Parola</label>
+                                <div class="relative group">
+                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-400 dark:text-zinc-500 group-focus-within:text-zinc-900 dark:group-focus-within:text-zinc-150 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                    </span>
+                                    <input class="w-full pl-10 pr-10 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900 py-2 text-sm font-medium text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-455 focus:outline-none transition-all duration-200 shadow-sm" type="password" id="password" name="password" placeholder="Parolanızı girin" required>
+                                    <button type="button" id="toggleMobilePassword" class="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors cursor-pointer focus:outline-none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="eye-off-icon hidden"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+                                    </button>
+                                </div>
                             </div>
-                            <button type="submit" class="btn w-full justify-center gap-2 mt-4">
-                                Giriş Yap
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+                            
+                            <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-zinc-900 dark:bg-zinc-50 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-semibold text-xs tracking-wide uppercase transition-all duration-200 shadow-sm active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2 group mt-2">
+                                <span>Giriş Yap</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="size-3.5 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
                             </button>
+
+                            <!-- Footer Link -->
+                            <p class="text-center text-xs text-zinc-500 dark:text-zinc-400 pt-1">
+                                Henüz hesabınız yok mu? 
+                                <a href="<?php echo routeUrl('/register'); ?>" class="font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors hover:underline underline-offset-4 ml-1">Kayıt Ol</a>
+                            </p>
                         </form>
-                    </div>
-                    
-                    <div class="text-center text-xs text-zinc-500 font-medium">
-                        Kurumsal Sözleşme & Yönetim Sistemi © <?= date('Y') ?>
                     </div>
                 </div>
 
@@ -2859,6 +2886,73 @@ if ($isLoggedIn) {
                 }
             } else {
                 switchTab(targetTab);
+            }
+            <?php else: ?>
+            // Initialize mobile password toggle
+            const toggleMobilePassword = document.getElementById('toggleMobilePassword');
+            if (toggleMobilePassword) {
+                const passwordInput = document.getElementById('password');
+                const eyeIcon = toggleMobilePassword.querySelector('.eye-icon');
+                const eyeOffIcon = toggleMobilePassword.querySelector('.eye-off-icon');
+
+                toggleMobilePassword.addEventListener('click', function() {
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        eyeIcon.classList.add('hidden');
+                        eyeOffIcon.classList.remove('hidden');
+                    } else {
+                        passwordInput.type = 'password';
+                        eyeIcon.classList.remove('hidden');
+                        eyeOffIcon.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Handle mobile AJAX login
+            const mobileLoginForm = document.getElementById('mobileLoginForm');
+            if (mobileLoginForm) {
+                mobileLoginForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    const originalBtnContent = submitBtn.innerHTML;
+                    
+                    // Show loading state on button
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `
+                        <span>Giriş Yapılıyor...</span>
+                        <svg class="animate-spin h-3.5 w-3.5 text-white inline-block ml-1" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    `;
+                    
+                    try {
+                        const formData = new FormData(this);
+                        const response = await fetch(this.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                            showToast("Giriş başarılı! Yönlendiriliyorsunuz...", "success");
+                            setTimeout(() => {
+                                window.location.href = result.redirect || 'index.php';
+                            }, 1000);
+                        } else {
+                            showToast(result.error || "Giriş başarısız.", "error");
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = originalBtnContent;
+                        }
+                    } catch (err) {
+                        showToast("Giriş yapılırken bir bağlantı hatası oluştu.", "error");
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnContent;
+                    }
+                });
             }
             <?php endif; ?>
         });

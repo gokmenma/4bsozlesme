@@ -3,6 +3,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['username'] ?? ''; // Kullanıcı adı olarak email kullanıyoruz
     $password = $_POST['password'] ?? '';
 
+    $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
     if (!empty($email) && !empty($password)) {
         $userModel = new User();
         // findByUsername aslında email ile arama yapacak şekilde güncellenmeli veya modelde yeni method eklenmeli
@@ -16,6 +18,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['role'] = $user['role'];
             $_SESSION['tenant_id'] = $user['tenant_id'];
             
+            if ($isAjax) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true, 'redirect' => routeUrl('/')]);
+                exit;
+            }
+            
             header("Location: " . routeUrl('/'));
             exit;
         } else {
@@ -23,6 +31,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } else {
         $error = "Lütfen e-posta ve parola girin.";
+    }
+
+    if ($isAjax) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'error' => $error]);
+        exit;
     }
 }
 ?>
