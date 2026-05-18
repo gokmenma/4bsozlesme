@@ -79,6 +79,11 @@ $colorMap = ['bg-indigo-500 text-indigo-50', 'bg-emerald-500 text-emerald-50', '
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
             </button>
             
+            <!-- Add Board Column Button -->
+            <button onclick="openMobileBoardAddSheet()" class="size-9.5 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-50/30 dark:bg-zinc-950/40 text-zinc-650 dark:text-zinc-450 flex items-center justify-center active:scale-95 transition-all cursor-pointer" title="Yeni Sütun Ekle">
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18M15 3v18M12 9v6M9 12h6"/></svg>
+            </button>
+            
             <!-- Add Task Button -->
             <button onclick="openMobileEkleSheet(0)" class="size-9.5 rounded-xl bg-zinc-950 dark:bg-white text-white dark:text-zinc-950 flex items-center justify-center shadow active:scale-95 transition-all cursor-pointer">
                 <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 12h14m-7-7v14"/></svg>
@@ -94,23 +99,30 @@ $colorMap = ['bg-indigo-500 text-indigo-50', 'bg-emerald-500 text-emerald-50', '
         </div>
     </div>
 
-    <!-- 4. Segmented Dynamic Columns Tabs -->
-    <div class="flex items-center gap-1 p-1 bg-zinc-100 dark:bg-zinc-950/60 rounded-xl border border-zinc-200/50 dark:border-zinc-900/60 overflow-x-auto no-scrollbar scroll-smooth">
-        <?php foreach ($boards as $index => $b): 
-            $bTasksCount = count(array_filter($tasks, fn($t) => intval($t['board_id'] ?? 0) === intval($b['id'])));
-            $tabTitle = htmlspecialchars($b['title']);
-            if (strtolower($tabTitle) === 'backlog') $tabTitle = 'Yapılacaklar';
-            elseif (strtolower($tabTitle) === 'in progress') $tabTitle = 'Yapılıyor';
-            elseif (strtolower($tabTitle) === 'done') $tabTitle = 'Tamamlandı';
-        ?>
-            <button onclick="showMobileColumn(<?= $b['id'] ?>)" 
-                    id="mobile-tab-<?= $b['id'] ?>" 
-                    class="flex-1 min-w-[85px] py-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex flex-col items-center justify-center gap-0.5 active:scale-95 cursor-pointer shrink-0 <?= $index === 0 ? 'bg-white dark:bg-zinc-900 text-zinc-950 dark:text-zinc-50 shadow-sm' : 'text-zinc-500 dark:text-zinc-400' ?>">
-                <span class="truncate max-w-[80px]"><?= $tabTitle ?></span>
-                <span class="text-[9px] opacity-75 font-black">(<?= $bTasksCount ?>)</span>
-            </button>
-        <?php endforeach; ?>
-    </div>
+<style>
+/* Horizontal swiping layout for columns */
+#mobile-tasks-container {
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+    gap: 16px !important;
+    padding-bottom: 24px !important;
+}
+
+#mobile-tasks-container::-webkit-scrollbar {
+    display: none !important;
+}
+
+.mobile-status-list {
+    flex: 0 0 calc(100vw - 32px) !important;
+    width: calc(100vw - 32px) !important;
+    scroll-snap-align: start !important;
+    display: block !important;
+}
+</style>
 
     <!-- 5. Column Views & Premium Kanban Cards (Identical to the Screenshot Design) -->
     <div id="mobile-tasks-container" class="space-y-4">
@@ -135,7 +147,7 @@ $colorMap = ['bg-indigo-500 text-indigo-50', 'bg-emerald-500 text-emerald-50', '
             elseif (strtolower($colHeaderTitle) === 'done') $colHeaderTitle = 'Done';
         ?>
             <!-- Status Card Column -->
-            <div id="col-list-<?= $boardId ?>" class="mobile-status-list space-y-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950/20 border border-zinc-200/50 dark:border-zinc-900/50 p-3.5 <?= $index === 0 ? '' : 'hidden' ?>">
+            <div id="col-list-<?= $boardId ?>" class="mobile-status-list space-y-3.5 rounded-2xl bg-zinc-50 dark:bg-zinc-950/20 border border-zinc-200/50 dark:border-zinc-900/50 p-3.5">
                 
                 <!-- Column Sub-Header with drag and add icons matching screenshot -->
                 <div class="flex items-center justify-between pb-1.5 px-0.5">
@@ -145,7 +157,9 @@ $colorMap = ['bg-indigo-500 text-indigo-50', 'bg-emerald-500 text-emerald-50', '
                     </div>
                     
                     <div class="flex items-center gap-1.5 text-zinc-450 dark:text-zinc-550">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" class="opacity-60" viewBox="0 0 24 24"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+                        <button onclick="openMobileBoardOptionsSheet(<?= $boardId ?>, '<?= htmlspecialchars($board['title'], ENT_QUOTES) ?>')" class="hover:text-zinc-800 dark:hover:text-white transition-all cursor-pointer size-5 flex items-center justify-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" class="opacity-60" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+                        </button>
                         <button onclick="openMobileEkleSheet(<?= $boardId ?>)" class="hover:text-zinc-800 dark:hover:text-white transition-all cursor-pointer">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14m-7-7v14"/></svg>
                         </button>
@@ -413,8 +427,212 @@ $colorMap = ['bg-indigo-500 text-indigo-50', 'bg-emerald-500 text-emerald-50', '
     </div>
 </div>
 
+<!-- 8. MOBILE BOARD OPTIONS BOTTOM SHEET (Edit Title / Delete Board) -->
+<div id="mobile-board-options-sheet" class="bottom-sheet flex flex-col max-h-[60%] bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
+    <div class="w-12 h-1 bg-zinc-300 dark:bg-zinc-800 rounded-full mx-auto my-3 flex-shrink-0"></div>
+    <div class="px-6 pb-12 pt-2 flex-1 flex flex-col justify-between space-y-5 overflow-y-auto">
+        <div class="space-y-1.5">
+            <h3 class="text-base font-extrabold text-zinc-900 dark:text-zinc-50">Sütun Ayarları</h3>
+            <p class="text-xs text-zinc-400 font-semibold">Sütun adını düzenleyebilir veya sütunu silebilirsiniz:</p>
+        </div>
+        
+        <div class="space-y-4">
+            <!-- Edit Title Form -->
+            <div class="space-y-2">
+                <label for="board-options-title-input" class="text-xs font-bold text-zinc-650 dark:text-zinc-350">Sütun Başlığı</label>
+                <div class="flex gap-2">
+                    <input type="text" id="board-options-title-input" class="mobile-input flex-1" placeholder="Sütun adı yazın...">
+                    <button onclick="saveMobileBoardTitle()" class="btn py-2 px-4 h-auto text-xs font-black shadow cursor-pointer active:scale-95 transition-all">Kaydet</button>
+                </div>
+            </div>
+            
+            <div class="border-t border-zinc-150 dark:border-zinc-800/80 my-4"></div>
+            
+            <!-- Delete Section -->
+            <div class="space-y-2">
+                <label class="text-xs font-bold text-rose-500">Tehlikeli Bölge</label>
+                <p class="text-[10px] font-bold text-zinc-400 leading-normal">Bu sütunu silmek, içindeki TÜM GÖREVLERİ kalıcı olarak silecektir. Bu işlem geri alınamaz.</p>
+                <button onclick="deleteMobileBoard()" class="w-full btn bg-rose-600 hover:bg-rose-700 text-white dark:bg-rose-500/10 dark:text-rose-400 dark:border dark:border-rose-500/20 py-3 flex items-center justify-center gap-1.5 font-black text-xs cursor-pointer active:scale-95 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2m-9 5h10m-10 4h10"/></svg>
+                    Sütunu ve Görevleri Kalıcı Olarak Sil
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 9. MOBILE BOARD ADD BOTTOM SHEET -->
+<div id="mobile-board-add-sheet" class="bottom-sheet flex flex-col max-h-[50%] bg-white dark:bg-zinc-900 border-t border-zinc-200 dark:border-zinc-800">
+    <div class="w-12 h-1 bg-zinc-300 dark:bg-zinc-800 rounded-full mx-auto my-3 flex-shrink-0"></div>
+    <div class="px-6 pb-12 pt-2 flex-1 flex flex-col justify-between space-y-5">
+        <div class="space-y-1.5">
+            <h3 class="text-base font-extrabold text-zinc-900 dark:text-zinc-50">Yeni Sütun Ekle</h3>
+            <p class="text-xs text-zinc-400 font-semibold">İşlerinizi gruplandırabileceğiniz yeni bir aşama sütunu oluşturun:</p>
+        </div>
+        
+        <form id="mobileBoardAddForm" class="space-y-4" onsubmit="saveMobileNewBoard(event)">
+            <div class="space-y-2">
+                <label for="board-add-title-input" class="text-xs font-bold text-zinc-650 dark:text-zinc-350">Sütun Başlığı <span class="text-rose-500">*</span></label>
+                <input type="text" id="board-add-title-input" required class="mobile-input w-full" placeholder="Sütun adı (örneğin: İncelemede)">
+            </div>
+            
+            <div class="flex gap-3 mt-4">
+                <button type="button" class="btn-outline flex-1 justify-center py-3" onclick="closeSheet('mobile-board-add-sheet')">İptal</button>
+                <button type="submit" class="btn flex-1 justify-center gap-1.5 cursor-pointer py-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14m-7-7v14"/></svg>
+                    Sütunu Ekle
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <!-- Custom Kanban Mobile Interactive Script Block -->
 <script>
+// Board management state
+let mobileActiveBoardId = null;
+let mobileActiveBoardTitle = '';
+
+// Open Board Options Bottom Sheet
+function openMobileBoardOptionsSheet(boardId, boardTitle) {
+    mobileActiveBoardId = boardId;
+    mobileActiveBoardTitle = boardTitle;
+    
+    const titleInput = document.getElementById('board-options-title-input');
+    if (titleInput) {
+        titleInput.value = boardTitle;
+    }
+    
+    openSheet('mobile-board-options-sheet');
+}
+
+// Save Board Title (Rename column)
+function saveMobileBoardTitle() {
+    const titleInput = document.getElementById('board-options-title-input');
+    if (!titleInput || !mobileActiveBoardId) return;
+    
+    const newTitle = titleInput.value.trim();
+    if (newTitle === '') {
+        alert('Lütfen sütun başlığı girin.');
+        return;
+    }
+    
+    if (newTitle === mobileActiveBoardTitle) {
+        closeSheet('mobile-board-options-sheet');
+        return;
+    }
+    
+    const basePath = '<?php echo appBasePath(); ?>';
+    const formData = new FormData();
+    formData.append('board_id', mobileActiveBoardId);
+    formData.append('title', newTitle);
+    
+    fetch(basePath + '/kanban-board-baslik-guncelle', {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            closeSheet('mobile-board-options-sheet');
+            if (typeof window.showToast === 'function') {
+                window.showToast({ category: 'success', title: 'Başarılı', description: 'Sütun başlığı güncellendi.' });
+            } else {
+                alert('Sütun başlığı güncellendi.');
+            }
+            setTimeout(() => { window.location.reload(); }, 600);
+        } else {
+            alert(data.error || 'Sütun başlığı güncellenemedi.');
+        }
+    })
+    .catch(err => {
+        alert('Sunucuyla bağlantı kurulamadı.');
+    });
+}
+
+// Delete Board (Delete column and tasks)
+function deleteMobileBoard() {
+    if (!mobileActiveBoardId) return;
+    
+    if (!confirm(`"${mobileActiveBoardTitle}" sütununu ve içindeki TÜM GÖREVLERİ silmek istediğinize emin misiniz?`)) return;
+    
+    const basePath = '<?php echo appBasePath(); ?>';
+    const formData = new FormData();
+    formData.append('board_id', mobileActiveBoardId);
+    
+    fetch(basePath + '/kanban-board-sil', {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            closeSheet('mobile-board-options-sheet');
+            if (typeof window.showToast === 'function') {
+                window.showToast({ category: 'success', title: 'Başarılı', description: 'Sütun silindi.' });
+            } else {
+                alert('Sütun silindi.');
+            }
+            setTimeout(() => { window.location.reload(); }, 600);
+        } else {
+            alert(data.error || 'Sütun silinemedi.');
+        }
+    })
+    .catch(err => {
+        alert('Sunucuyla bağlantı kurulamadı.');
+    });
+}
+
+// Open Board Add Bottom Sheet
+function openMobileBoardAddSheet() {
+    const form = document.getElementById('mobileBoardAddForm');
+    if (form) form.reset();
+    openSheet('mobile-board-add-sheet');
+}
+
+// Save New Board (Create dynamic column)
+function saveMobileNewBoard(event) {
+    event.preventDefault();
+    
+    const titleInput = document.getElementById('board-add-title-input');
+    if (!titleInput) return;
+    
+    const title = titleInput.value.trim();
+    if (title === '') {
+        alert('Lütfen sütun başlığı girin.');
+        return;
+    }
+    
+    const basePath = '<?php echo appBasePath(); ?>';
+    const formData = new FormData();
+    formData.append('title', title);
+    
+    fetch(basePath + '/kanban-board-ekle', {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            closeSheet('mobile-board-add-sheet');
+            if (typeof window.showToast === 'function') {
+                window.showToast({ category: 'success', title: 'Başarılı', description: 'Sütun eklendi.' });
+            } else {
+                alert('Sütun eklendi.');
+            }
+            setTimeout(() => { window.location.reload(); }, 600);
+        } else {
+            alert(data.error || 'Sütun eklenemedi.');
+        }
+    })
+    .catch(err => {
+        alert('Sunucuyla bağlantı kurulamadı.');
+    });
+}
+
 // Initializes swiping gestures on list loading
 if (typeof initSwipeActions === 'function') {
     initSwipeActions();
@@ -431,25 +649,15 @@ if (typeof flatpickr === 'function') {
     });
 }
 
-// Multi column view switcher
+// Multi column view switcher (smooth scrolls to target column)
 function showMobileColumn(boardId) {
-    document.querySelectorAll('.mobile-status-list').forEach(col => col.classList.add('hidden'));
-    
     const targetCol = document.getElementById('col-list-' + boardId);
-    if (targetCol) {
-        targetCol.classList.remove('hidden');
-    }
-    
-    // Toggle active tab style
-    document.querySelectorAll('[id^="mobile-tab-"]').forEach(btn => {
-        btn.classList.remove('bg-white', 'dark:bg-zinc-900', 'text-zinc-950', 'dark:text-zinc-50', 'shadow-sm');
-        btn.classList.add('text-zinc-500', 'dark:text-zinc-400');
-    });
-    
-    const activeBtn = document.getElementById('mobile-tab-' + boardId);
-    if (activeBtn) {
-        activeBtn.classList.add('bg-white', 'dark:bg-zinc-900', 'text-zinc-950', 'dark:text-zinc-50', 'shadow-sm');
-        activeBtn.classList.remove('text-zinc-500', 'dark:text-zinc-400');
+    const container = document.getElementById('mobile-tasks-container');
+    if (targetCol && container) {
+        container.scrollTo({
+            left: targetCol.offsetLeft - container.offsetLeft,
+            behavior: 'smooth'
+        });
     }
     
     if (typeof initSwipeActions === 'function') {
