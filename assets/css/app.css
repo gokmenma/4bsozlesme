@@ -502,3 +502,14 @@ dialog header,
     z-index: 999999 !important;
 }
 
+/* Global Button Cursor Pointer Style */
+button,
+[type="button"],
+[type="submit"],
+[type="reset"],
+.btn,
+.cursor-pointer {
+    cursor: pointer !important;
+}
+
+

@@ -63,6 +63,7 @@ function isStandaloneRoute(string $page): bool
         '/personel-download-word',
         '/personel-import-excel',
         '/personel-sample-template',
+        '/belge-yazdir',
         
         // Wage/Salary APIs
         '/ucret-ekle',
@@ -88,6 +89,8 @@ function isStandaloneRoute(string $page): bool
         '/abonelik-reddet',
         
         // Settings/Institution/Profile APIs
+        '/admin-kurumlar-list',
+        '/admin-kurum-get',
         '/admin-kurum-guncelle',
         '/admin-kurum-sil',
         '/profil-guncelle',
@@ -235,6 +238,12 @@ function renderRoute(string $page): void
 
     if ($page === '/mobile/pages/other/tanimlamalar.php') {
         include 'mobile/pages/other/tanimlamalar.php';
+        exit;
+    }
+
+    if ($page === '/belge-yazdir') {
+        $controller = new PersonnelController();
+        $controller->printDocument();
         exit;
     }
 

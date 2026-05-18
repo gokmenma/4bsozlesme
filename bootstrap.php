@@ -76,7 +76,8 @@ if (!isset($_SESSION['user_id'])) {
                 '/mobile/',
                 '/mobile/index.php',
                 '/mobile/manifest.json',
-                '/mobile/sw.js'
+                '/mobile/sw.js',
+                '/belge-yazdir'
             ];
             if (!in_array($page, $allowedStandalone, true)) {
                 http_response_code(401);

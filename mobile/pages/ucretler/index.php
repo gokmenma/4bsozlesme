@@ -101,14 +101,13 @@ sort($kidemler);
     <!-- Active Filter Badges Container -->
     <div id="active-def-filters-badges" class="flex flex-wrap gap-1.5 px-0.5 mt-1 hidden"></div>
 
-    <!-- Definitions List -->
-    <div id="definitions-list-wrapper" class="space-y-3">
-        <?php if (empty($ucretler)): ?>
-            <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-10 rounded-xl text-center space-y-2">
-                <p class="text-xs font-bold text-zinc-400">Kurumunuzda henüz ücret tanımı bulunmamaktadır.</p>
-                <button onclick="openAddDefinitionSheet()" class="px-4 py-2 bg-zinc-50 hover:bg-zinc-200 rounded-md text-xs font-bold mt-2 text-zinc-950">Tanım Ekle</button>
-            </div>
-        <?php else: ?>
+    <?php if (empty($ucretler)): ?>
+        <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-10 rounded-xl text-center space-y-2">
+            <p class="text-xs font-bold text-zinc-400">Kurumunuzda henüz ücret tanımı bulunmamaktadır.</p>
+            <button onclick="openAddDefinitionSheet()" class="px-4 py-2 bg-zinc-50 hover:bg-zinc-200 rounded-md text-xs font-bold mt-2 text-zinc-950">Tanım Ekle</button>
+        </div>
+    <?php else: ?>
+        <div id="definitions-list-wrapper">
             <?php foreach ($ucretler as $u): ?>
                 <div class="swipe-container relative overflow-hidden definition-item-card"
                      data-id="<?= $u['id'] ?>"
@@ -121,6 +120,10 @@ sort($kidemler);
                      
                     <!-- Right Background Actions (Sola Kaydırma) - Elegant Float Brand Actions -->
                     <div class="swipe-right-actions absolute inset-y-0 right-0 flex items-stretch z-0">
+                        <button onclick="event.stopPropagation(); copyMobileDefinition(this.closest('.definition-item-card'))" class="w-14 h-full bg-transparent text-indigo-600 dark:text-indigo-400 flex flex-col items-center justify-center transition-all cursor-pointer gap-1.5 hover:scale-110 active:scale-95">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                            <span class="text-[9px] font-bold uppercase tracking-wider leading-none">Kopyala</span>
+                        </button>
                         <button onclick="event.stopPropagation(); confirmDeleteDefinition('<?= $u['id'] ?>', '<?= htmlspecialchars($u['unvan']) ?>')" class="w-14 h-full bg-transparent text-rose-600 dark:text-rose-400 flex flex-col items-center justify-center transition-all cursor-pointer gap-1.5 hover:scale-110 active:scale-95">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2m-9 5v6m4-6v6"/></svg>
                             <span class="text-[9px] font-bold uppercase tracking-wider leading-none">Sil</span>
@@ -132,20 +135,33 @@ sort($kidemler);
                          onclick="openEditDefinitionSheet(this.parentElement)">
                         <div class="space-y-1 select-none pointer-events-none">
                             <h4 class="text-xs font-bold text-zinc-800 dark:text-zinc-200 leading-tight"><?= htmlspecialchars($u['unvan']) ?></h4>
-                            <div class="flex items-center gap-1.5 mt-1">
-                                <span class="text-[9px] bg-zinc-100 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 px-2 py-0.5 rounded font-bold uppercase leading-none"><?= htmlspecialchars($u['ogrenim']) ?></span>
-                                <span class="text-[9px] bg-zinc-100 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 px-2 py-0.5 rounded font-bold uppercase leading-none"><?= htmlspecialchars($u['kidem_yili']) ?></span>
+                            <div class="space-y-1">
+                                <!-- Öğrenim Badge -->
+                                <div class="inline-block">
+                                    <span class="text-[9px] bg-zinc-100 dark:bg-zinc-950 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 px-2 py-0.5 rounded font-bold uppercase leading-none">
+                                        <?= htmlspecialchars($u['ogrenim'] ?? '-') ?>
+                                    </span>
+                                </div>
+                                <!-- Kıdem Bilgisi -->
+                                <div class="flex items-center gap-x-2 flex-wrap text-[10px] font-bold mt-1.5 text-zinc-400 dark:text-zinc-500 leading-none">
+                                    <span>Kıdem: <?= htmlspecialchars($u['kidem_yili'] ?? '-') ?></span>
+                                </div>
                             </div>
                         </div>
-                        <div class="text-right select-none pointer-events-none">
-                            <span class="text-xs font-extrabold text-zinc-900 dark:text-zinc-100 block"><?= number_format($u['ucret'] ?? 0, 2, ',', '.') ?> TL</span>
-                            <span class="text-[9px] text-zinc-500 font-semibold block mt-0.5">Brüt Matrah</span>
+                        
+                        <!-- Right Column (Salary & Dönem Badge) -->
+                        <div class="text-right flex flex-col items-end justify-center select-none pointer-events-none space-y-2">
+                            <span class="text-[9px] font-bold text-zinc-400 dark:text-zinc-500 block uppercase leading-none mb-2">Brüt Matrah</span>
+                            <span class="text-xs font-extrabold text-zinc-900 dark:text-zinc-100 block">₺<?= number_format($u['ucret'] ?? 0, 2, ',', '.') ?></span>
+                            <span class="text-[9px] border px-2 py-0.5 rounded font-bold uppercase leading-none inline-block bg-zinc-50 text-zinc-600 border-zinc-100 dark:bg-zinc-950/20 dark:text-zinc-400 dark:border-zinc-900/10">
+                                <?= htmlspecialchars($u['donem'] ?? '-') ?>
+                            </span>
                         </div>
                     </div>
                 </div>
             <?php endforeach; ?>
-        <?php endif; ?>
-    </div>
+        </div>
+    <?php endif; ?>
 
     <?php if (in_array($_SESSION['role'] ?? '', ['admin', 'superadmin'])): ?>
     <!-- Floating Action Button for Period Copy/Raise -->
@@ -227,6 +243,41 @@ sort($kidemler);
         document.getElementById('form-def-ucret').value = typeof formatTurkishCurrency === 'function' ? formatTurkishCurrency(ucret) : ucret;
         
         document.getElementById('def-form-title').innerText = "Ücret Tanımını Düzenle";
+        
+        openSheet('def-form-sheet');
+        if (typeof syncMobileCustomSelects === 'function') {
+            syncMobileCustomSelects();
+        }
+    }
+
+    // Copy definition
+    function copyMobileDefinition(cardElement) {
+        const unvan = cardElement.getAttribute('data-unvan');
+        const ogrenim = cardElement.getAttribute('data-ogrenim');
+        const kidem = cardElement.getAttribute('data-kidem');
+        const ucret = cardElement.getAttribute('data-ucret-raw');
+        const donem = cardElement.getAttribute('data-donem') || '2026-1';
+        
+        document.getElementById('form-def-id').value = ""; // Clear id to make it a new record!
+        
+        const donemInput = document.getElementById('form-def-donem');
+        if (donemInput) {
+            donemInput.value = donem;
+        }
+        
+        document.getElementById('form-def-unvan').value = unvan;
+        document.getElementById('form-def-ogrenim').value = ogrenim;
+        document.getElementById('form-def-kidem').value = kidem;
+        document.getElementById('form-def-ucret').value = typeof formatTurkishCurrency === 'function' ? formatTurkishCurrency(ucret) : ucret;
+        
+        document.getElementById('def-form-title').innerText = "Yeni Ücret Tanımı Ekle";
+        
+        // Reset transform on card before opening sheet
+        const front = cardElement.querySelector('.swipe-front');
+        if (front) {
+            front.style.transform = 'translateX(0px)';
+            cardElement.classList.remove('swipe-open-left');
+        }
         
         openSheet('def-form-sheet');
         if (typeof syncMobileCustomSelects === 'function') {

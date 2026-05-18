@@ -4,23 +4,29 @@
 :root {
     --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
     font-family: var(--font-sans);
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --background: 240 11% 97%; /* #F7F7F8 off-white */
+    --foreground: 0 0% 9%; /* #171717 */
+    --card: 0 0% 100%; /* #FFFFFF */
+    --card-foreground: 0 0% 9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 96%;
-    --ring: 240 5.9% 10%;
+    --popover-foreground: 0 0% 9%;
+    --primary: 0 0% 9%; /* #171717 primary */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 5% 96%; /* #F3F4F6 zinc-100 */
+    --secondary-foreground: 0 0% 9%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 53%; /* #71717A zinc-500 */
+    --accent: 240 5% 96%;
+    --accent-foreground: 0 0% 9%;
+    --border: 240 6% 90%; /* #E5E7EB zinc-200 */
+    --input: 240 5% 96%;
+    --ring: 0 0% 9%;
+    --radius: 0.75rem; /* Md: 12px */
+
+    /* Motion System */
+    --transition-fast: 150ms cubic-bezier(.2,.8,.2,1);
+    --transition-base: 250ms cubic-bezier(.2,.8,.2,1);
+    --transition-slow: 400ms cubic-bezier(.2,.8,.2,1);
 }
 
 html, body {
@@ -28,23 +34,23 @@ html, body {
 }
 
 .dark {
-    --background: 240 10% 3.9%;
+    --background: 0 0% 4%; /* #0A0A0A pure black/dark gray base */
     --foreground: 0 0% 98%;
-    --card: 240 10% 9%;
+    --card: 0 0% 9%; /* #171717 card surface */
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 9%;
+    --popover: 0 0% 9%; /* #171717 popover */
     --popover-foreground: 0 0% 98%;
-    --primary: 240 5.9% 90%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
+    --primary: 0 0% 98%; /* White contrast primary actions */
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%; /* #262626 secondary */
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
     --accent-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 12%;
-    --ring: 240 4.9% 83.9%;
+    --border: 0 0% 14.9%; /* #262626 border */
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.9%;
 }
 
 /* Prevent elastic scroll on iOS */
@@ -205,14 +211,14 @@ html, body {
     right: 0;
     background: hsl(var(--card));
     border-top: 1px solid hsl(var(--border));
-    border-radius: 20px 20px 0 0;
+    border-radius: 24px 24px 0 0; /* 24px as per design system image */
     transform: translateY(105%);
     transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     z-index: 50;
-    box-shadow: 0 -10px 40px -10px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 -10px 40px -10px rgba(0, 0, 0, 0.08);
 }
 .dark .bottom-sheet {
-    box-shadow: 0 -10px 40px -10px rgba(0, 0, 0, 0.7);
+    box-shadow: 0 -10px 40px -10px rgba(0, 0, 0, 0.6);
 }
 
 .bottom-sheet.open {
@@ -241,24 +247,24 @@ html, body {
 
 /* Custom Input matching basecoat UI defaults */
 .mobile-input {
-    background-color: #ffffff !important;
-    border: 1px solid #e4e4e7 !important;
-    border-radius: 0.5rem !important; /* 8px rounded */
-    color: #09090b !important;
-    padding: 0.5rem 0.75rem !important; /* 8px 12px padding */
-    font-size: 0.875rem !important; /* 14px */
+    background-color: hsl(var(--background)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+    border-radius: 12px !important; /* 12px rounded as per design system image */
+    color: hsl(var(--foreground)) !important;
+    padding: 0.75rem 1rem !important; /* Spacious padding */
+    font-size: 0.9375rem !important; /* ~15px */
     line-height: 1.25rem !important;
     width: 100%;
-    transition: all 0.2s ease;
+    transition: all var(--transition-base);
     outline: none;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.02) !important;
 }
 .mobile-input.pl-icon {
-    padding-left: 2.5rem !important;
+    padding-left: 2.75rem !important;
 }
 .mobile-input:focus {
-    border-color: #18181b !important;
-    box-shadow: 0 0 0 2px rgba(24, 24, 27, 0.15) !important;
+    border-color: hsl(var(--ring)) !important;
+    box-shadow: 0 0 0 3px hsla(var(--ring) / 0.15) !important;
 }
 
 /* Status Badges */
@@ -266,19 +272,19 @@ html, body {
     background: rgba(16, 185, 129, 0.1);
     color: #10b981;
     border: 1px solid rgba(16, 185, 129, 0.2);
-    border-radius: 6px;
+    border-radius: 8px; /* Sm: 8px as per design system image */
 }
 .badge-pasif {
     background: rgba(239, 68, 68, 0.1);
     color: #ef4444;
     border: 1px solid rgba(239, 68, 68, 0.2);
-    border-radius: 6px;
+    border-radius: 8px; /* Sm: 8px */
 }
 .badge-kadro {
     background: rgba(59, 130, 246, 0.1);
     color: #3b82f6;
     border: 1px solid rgba(59, 130, 246, 0.2);
-    border-radius: 6px;
+    border-radius: 8px; /* Sm: 8px */
 }
 
 /* Toast Popup */
@@ -513,84 +519,100 @@ body[data-doc-type="dilekce"] .document-preview-page .ql-editor p:nth-child(3) {
 
 /* Dark Mode Custom CSS Overrides */
 .dark body {
-    background-color: #09090b !important;
-    color: #f4f4f5 !important;
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
 }
 .dark .bg-white {
-    background-color: #18181b !important;
+    background-color: hsl(var(--card)) !important;
 }
 .dark .glass-card {
-    background: rgba(24, 24, 27, 0.8) !important;
-    border-color: rgba(39, 39, 42, 0.5) !important;
+    background: hsla(var(--card) / 0.8) !important;
+    border-color: hsla(var(--border) / 0.5) !important;
 }
 .dark .text-zinc-900 {
-    color: #f4f4f5 !important;
+    color: hsl(var(--foreground)) !important;
 }
 .dark .text-zinc-800 {
-    color: #e4e4e7 !important;
+    color: hsla(var(--foreground) / 0.9) !important;
 }
 .dark .text-zinc-700 {
-    color: #d4d4d8 !important;
+    color: hsla(var(--foreground) / 0.8) !important;
 }
 .dark .text-zinc-600 {
-    color: #a1a1aa !important;
+    color: hsl(var(--muted-foreground)) !important;
 }
 .dark .border-zinc-200 {
-    border-color: #27272a !important;
+    border-color: hsl(var(--border)) !important;
 }
 .dark input, .dark select, .dark textarea {
-    background-color: #09090b !important;
-    color: #f4f4f5 !important;
-    border-color: #27272a !important;
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
+    border-color: hsl(var(--border)) !important;
+}
+
+/* Force specific Dark Mode Background Color Overrides for Tailwind classes */
+.dark .bg-zinc-950 {
+    background-color: hsl(var(--background)) !important;
+}
+.dark .bg-zinc-900 {
+    background-color: hsl(var(--card)) !important;
+}
+.dark .bg-zinc-850 {
+    background-color: hsl(var(--accent)) !important;
+}
+.dark .bg-zinc-800 {
+    background-color: hsl(var(--secondary)) !important;
 }
 
 /* Unified List styles matching 3rd image */
-#personnel-list-wrapper {
-    background-color: #ffffff;
-    border: 1px solid #e4e4e7;
-    border-radius: 12px;
+#personnel-list-wrapper,
+#definitions-list-wrapper {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 16px; /* Lg: 16px rounded as per design system image */
     overflow: hidden;
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02);
 }
-.dark #personnel-list-wrapper {
-    background-color: #18181b !important;
-    border-color: #27272a !important;
-    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.4);
+.dark #personnel-list-wrapper,
+.dark #definitions-list-wrapper {
+    background-color: hsl(var(--card)) !important;
+    border-color: hsl(var(--border)) !important;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4) !important;
 }
 
 /* Swipe container overrides for single list integration */
 .swipe-container {
-    background-color: #ffffff !important;
+    background-color: hsl(var(--card)) !important;
     border: none !important;
     border-radius: 0 !important;
 }
 .dark .swipe-container {
-    background-color: #18181b !important;
+    background-color: hsl(var(--card)) !important;
 }
 
 .swipe-container:not(:last-child) {
-    border-bottom: 1px solid #e4e4e7 !important;
+    border-bottom: 1px solid hsl(var(--border)) !important;
 }
 .dark .swipe-container:not(:last-child) {
-    border-bottom: 1px solid #27272a !important;
+    border-bottom: 1px solid hsl(var(--border)) !important;
 }
 
 .swipe-front {
     border: none !important;
     border-radius: 0 !important;
-    background-color: #ffffff !important;
+    background-color: hsl(var(--card)) !important;
 }
 .dark .swipe-front {
-    background-color: #18181b !important;
+    background-color: hsl(var(--card)) !important;
 }
 
 /* Soft gray buttons in unified list in Dark Mode */
 .dark .bg-zinc-100 {
-    background-color: #27272a !important;
-    border-color: rgba(63, 63, 70, 0.3) !important;
+    background-color: hsl(var(--secondary)) !important;
+    border-color: hsla(var(--border) / 0.5) !important;
 }
 .dark .hover\:bg-zinc-200:hover {
-    background-color: #3f3f46 !important;
+    background-color: hsl(var(--accent)) !important;
 }
 
 /* Select click pointer and selection disable override for mobile browsers */
@@ -605,57 +627,35 @@ select.mobile-input {
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
-    background-color: #ffffff !important;
-    border: 1px solid #e4e4e7 !important;
-    color: #09090b !important;
+    background-color: hsl(var(--background)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+    color: hsl(var(--foreground)) !important;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E") !important;
     background-repeat: no-repeat !important;
-    background-position: right 12px center !important;
+    background-position: right 14px center !important;
     background-size: 16px !important;
-    padding: 0.5rem 0.75rem !important;
-    padding-right: 2.5rem !important; /* Ensure text doesn't overlap arrow */
+    padding: 0.75rem 1rem !important;
+    padding-right: 2.75rem !important; /* Ensure text doesn't overlap arrow */
     cursor: pointer;
-    border-radius: 0.5rem !important;
-    font-size: 0.875rem !important;
+    border-radius: 12px !important; /* Md: 12px rounded as per design system image */
+    font-size: 0.9375rem !important;
     width: 100%;
-    transition: all 0.2s ease;
+    transition: all var(--transition-base);
     outline: none;
 }
 
 select.mobile-input:focus {
-    border-color: #18181b !important;
-    box-shadow: 0 0 0 2px rgba(24, 24, 27, 0.15) !important;
+    border-color: hsl(var(--ring)) !important;
+    box-shadow: 0 0 0 3px hsla(var(--ring) / 0.15) !important;
 }
 
-/* Dark Mode Overrides */
-.dark select.mobile-input {
-    background-color: #09090b !important;
-    border-color: #27272a !important;
-    color: #f4f4f5 !important;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m7 15 5 5 5-5'/%3E%3Cpath d='m7 9 5-5 5 5'/%3E%3C/svg%3E") !important;
-}
-
-.dark select.mobile-input:focus {
-    border-color: #f4f4f5 !important;
-    box-shadow: 0 0 0 2px rgba(244, 244, 245, 0.15) !important;
-}
-
-/* Force Black Focus Color Ring Globally for Inputs, Selects and Textareas */
+/* Force Black/White Focus Color Ring Globally for Inputs, Selects and Textareas */
 input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
 select:focus,
 textarea:focus {
-    border-color: #18181b !important;
+    border-color: hsl(var(--ring)) !important;
     outline: none !important;
-    box-shadow: 0 0 0 2px rgba(24, 24, 27, 0.15) !important;
-}
-
-/* Dark Mode support */
-.dark input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
-.dark select:focus,
-.dark textarea:focus {
-    border-color: #f4f4f5 !important;
-    outline: none !important;
-    box-shadow: 0 0 0 2px rgba(244, 244, 245, 0.15) !important;
+    box-shadow: 0 0 0 3px hsla(var(--ring) / 0.15) !important;
 }
 
 /* Mobile Label matching basecoat UI defaults */
@@ -665,12 +665,8 @@ label {
     font-weight: 600 !important; /* Semi-bold */
     text-transform: none !important; /* Normal case */
     letter-spacing: normal !important; /* No extra spacing */
-    color: #3f3f46 !important; /* zinc-700 */
+    color: hsl(var(--muted-foreground)) !important;
     margin-bottom: 0.375rem !important; /* 6px spacing under label */
-}
-
-.dark label {
-    color: #a1a1aa !important; /* zinc-400 */
 }
 
 /* Ensure standard checkboxes render beautifully and natively on all mobile browsers */
@@ -679,12 +675,8 @@ input[type="checkbox"].input {
     -webkit-appearance: auto !important;
     width: 1.125rem !important; /* 18px */
     height: 1.125rem !important; /* 18px */
-    accent-color: #18181b !important; /* zinc-900 / dark accent */
+    accent-color: hsl(var(--primary)) !important; /* Premium emerald checkbox! */
     cursor: pointer !important;
-}
-
-.dark input[type="checkbox"].input {
-    accent-color: #f4f4f5 !important; /* zinc-100 / light accent in dark mode */
 }
 
 /* Basecoat UI Button Mobile Overrides */
@@ -692,73 +684,86 @@ input[type="checkbox"].input {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    height: 2.5rem !important; /* 40px height */
+    height: 2.75rem !important; /* 44px height */
     padding: 0 1.25rem !important;
     font-size: 0.875rem !important;
     font-weight: 600 !important;
-    border-radius: 0.5rem !important; /* 8px rounded */
-    background-color: #09090b !important; /* Zinc-950 */
-    color: #ffffff !important;
-    border: 1px solid #09090b !important;
+    border-radius: 12px !important; /* Md: 12px rounded as per design system image */
+    background-color: hsl(var(--primary)) !important;
+    color: hsl(var(--primary-foreground)) !important;
+    border: 1px solid hsl(var(--primary)) !important;
     cursor: pointer !important;
-    transition: all 0.2s ease !important;
+    transition: all var(--transition-fast) !important;
     outline: none !important;
     text-decoration: none !important;
 }
 
 .btn:hover {
-    background-color: #27272a !important; /* Zinc-800 */
-    border-color: #27272a !important;
+    background-color: hsla(var(--primary) / 0.9) !important;
+    border-color: hsla(var(--primary) / 0.9) !important;
 }
 
 .btn:active {
-    transform: scale(0.98) !important;
+    transform: scale(0.97) !important;
 }
 
 .btn-outline {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    height: 2.5rem !important; /* 40px height */
+    height: 2.75rem !important; /* 44px height */
     padding: 0 1.25rem !important;
     font-size: 0.875rem !important;
     font-weight: 600 !important;
-    border-radius: 0.5rem !important; /* 8px rounded */
+    border-radius: 12px !important; /* Md: 12px rounded as per design system image */
     background-color: transparent !important;
-    color: #09090b !important;
-    border: 1px solid #e4e4e7 !important;
+    color: hsl(var(--foreground)) !important;
+    border: 1px solid hsl(var(--border)) !important;
     cursor: pointer !important;
-    transition: all 0.2s ease !important;
+    transition: all var(--transition-fast) !important;
     outline: none !important;
     text-decoration: none !important;
 }
 
 .btn-outline:hover {
-    background-color: #f4f4f5 !important;
+    background-color: hsl(var(--secondary)) !important;
 }
 
 .btn-outline:active {
-    transform: scale(0.98) !important;
+    transform: scale(0.97) !important;
 }
 
-/* Dark Mode Button Overrides */
-.dark .btn {
-    background-color: #f4f4f5 !important;
-    color: #18181b !important;
-    border-color: #f4f4f5 !important;
+/* Global Button Cursor Pointer Style */
+button,
+[type="button"],
+[type="submit"],
+[type="reset"],
+.btn,
+.cursor-pointer {
+    cursor: pointer !important;
 }
 
-.dark .btn:hover {
-    background-color: #e4e4e7 !important;
-    border-color: #e4e4e7 !important;
+/* Global Tailwind Radius Class Overrides matching Design System Image precisely */
+.rounded-sm {
+    border-radius: 2px !important;
+}
+.rounded {
+    border-radius: 4px !important;
+}
+.rounded-md {
+    border-radius: 6px !important;
+}
+.rounded-lg {
+    border-radius: 8px !important; /* Sm: 8px as per design system image */
+}
+.rounded-xl {
+    border-radius: 12px !important; /* Md: 12px as per design system image */
+}
+.rounded-2xl {
+    border-radius: 16px !important; /* Lg: 16px as per design system image */
+}
+.rounded-3xl {
+    border-radius: 24px !important; /* 2Xl: 24px as per design system image */
 }
 
-.dark .btn-outline {
-    background-color: transparent !important;
-    color: #f4f4f5 !important;
-    border-color: #27272a !important;
-}
 
-.dark .btn-outline:hover {
-    background-color: #27272a !important;
-}

@@ -759,4 +759,378 @@ class PersonnelController extends Controller {
             exit;
         }
     }
+
+    public function printDocument() {
+        $id = $_GET['id'] ?? null;
+        $type = $_GET['type'] ?? 'dilekce';
+
+        if (!$id) {
+            die('ID required');
+        }
+
+        global $db;
+        
+        $stmt_p = $db->prepare("SELECT * FROM personeller WHERE id = ? AND deleted_at IS NULL LIMIT 1");
+        $stmt_p->execute([$id]);
+        $p = $stmt_p->fetch();
+
+        if (!$p) {
+            die('Personnel not found');
+        }
+
+        $tenant_id = $p['tenant_id'];
+
+        $defModel = new Definition();
+        $settings = $defModel->getSettings($tenant_id);
+        $default_period = $settings['default_wage_period'] ?? '2026-1';
+
+        $stmt_wage = $db->prepare("
+            SELECT u.unvan, 
+                   COALESCE(u_def.ucret, u.ucret) as ucret, 
+                   u.ogrenim 
+            FROM ucretler u 
+            LEFT JOIN ucretler u_def ON u_def.tenant_id = ? 
+                                    AND u_def.unvan = u.unvan 
+                                    AND u_def.ogrenim = u.ogrenim 
+                                    AND u_def.kidem_yili = u.kidem_yili
+                                    AND u_def.donem = ?
+                                    AND u_def.deleted_at IS NULL
+            WHERE u.id = ? AND u.deleted_at IS NULL LIMIT 1
+        ");
+        $stmt_wage->execute([$tenant_id, $default_period, $p['ucret_id']]);
+        $w = $stmt_wage->fetch();
+
+        $unvan = $w['unvan'] ?? '';
+        $ucret = $w['ucret'] ?? 0;
+        $ogrenim = $w['ogrenim'] ?? '';
+
+        $name = $p['ad_soyad'];
+        $tc = $p['tc_kimlik'];
+        $telefon = $p['telefon'];
+        $baslama = $p['goreve_baslama_tarihi'] ? date('d.m.Y', strtotime($p['goreve_baslama_tarihi'])) : '';
+        $cinsiyet = strtolower($p['cinsiyet'] ?? 'erkek');
+
+        $todayStr = date('d.m.Y');
+
+        if ($type === 'dilekce') {
+            $custom_petition = $settings['custom_petition_template'] ?? '';
+
+            $defaultContent = 
+                '<p style="text-align: center; font-size: 11pt; margin-bottom: 2pt;"><strong>DÜZCE ÜNİVERSİTESİ REKTÖRLÜĞÜNE</strong></p>' .
+                '<p style="text-align: center; font-size: 11pt; margin-bottom: 12pt;">(...................................................................)</p>' .
+                '<p><br></p>' .
+                '<p style="text-indent: 1.5cm; text-align: justify; margin-bottom: 12pt;">Üniversiteniz ................................................................... biriminde, 657 sayılı Devlet Memurları Kanunu\'nun 4/B maddesi uyarınca <strong>' . $unvan . '</strong> pozisyonunda sözleşmeli personel olarak <strong>' . $baslama . '</strong> tarihinden itibaren görev yapmaktayım.</p>' .
+                '<p style="text-indent: 1.5cm; text-align: justify; margin-bottom: 12pt;">26 Ocak 2023 tarih ve 32085 sayılı Resmi Gazete\'de yayınlanan 7433 sayılı "<em>Devlet Memurları Kanunu ve Bazı Kanunlar ile 663 Sayılı Kanun Hükmünde Kararnamelerde Değişiklik Yapılmasına Dair Kanun</em>" ile 657 sayılı Devlet Memurları Kanununa eklenen "<em>...Bu kapsamda istihdam edilen sözleşmeli personelden aynı kurumda üç yıllık çalışma süresini tamamlayanlar bu sürenin bitiminden itibaren otuz gün içinde talepte bulunmaları hâlinde bulundukları yerde aynı unvanlı memur kadrolarına atanır.</em>" hükmü gereğince çalışmakta olduğum pozisyona uygun bir kadroya atanmak istiyorum. Atamaya esas kullanılmak üzere gereken belgeler dilekçemin ekinde mevcuttur.</p>' .
+                '<p style="text-indent: 1.5cm; text-align: justify; margin-bottom: 24pt;">Gereğinin yapılmasını müsaadelerinizi arz ederim. ' . $todayStr . '</p>' .
+                '<p style="text-align: right; margin-bottom: 24pt;"><strong>' . $name . ' / ' . $tc . ' / İMZA</strong></p>' .
+                '<p style="margin-bottom: 4pt;"><strong><u>EK:</u></strong></p>' .
+                '<p style="margin-bottom: 4pt;">1- Nüfus Cüzdanı Fotokopisi</p>' .
+                '<p style="margin-bottom: 4pt;">2- Son öğrenim durumunu gösterir diploma aslı ve fotokopisi veya Mezun Belgesi (güncel e-devlet çıktısı)</p>' .
+                '<p style="margin-bottom: 4pt;">3- Askerlik Durum Belgesi (güncel e-devlet çıktısı) / Askerliğini yapanlar için Terhis Belgesi aslı ve fotokopisi,</p>' .
+                '<p style="margin-bottom: 12pt;">4- Tam teşekküllü devlet hastanesi ya da Üniversite hastanesinden alınacak sağlık kurulu (heyet) raporu (aslı ve fotokopisi ya da e-devlet çıktısı)</p>' .
+                '<p style="margin-bottom: 8pt;"><strong><u>ADRES:</u></strong> ...................................................................</p>' .
+                '<p style="margin-bottom: 8pt;"><strong><u>TEL:</u></strong> ' . ($telefon ?: '...................................................');
+
+            $content = $custom_petition ?: $defaultContent;
+
+            if ($cinsiyet === 'kadın' || $cinsiyet === 'kadin') {
+                $dom = new DOMDocument();
+                libxml_use_internal_errors(true);
+                $dom->loadHTML('<?xml encoding="utf-8" ?>' . $content);
+                libxml_clear_errors();
+                
+                $xpath = new DOMXPath($dom);
+                $elements = $xpath->query('//p | //div | //li | //span');
+                
+                $toRemove = [];
+                foreach ($elements as $el) {
+                    $text = mb_strtolower($el->textContent, 'UTF-8');
+                    if (strpos($text, 'askerlik') !== false || strpos($text, 'terhis') !== false) {
+                        $toRemove[] = $el;
+                    }
+                }
+                
+                foreach ($toRemove as $el) {
+                    if ($el->parentNode) {
+                        $el->parentNode->removeChild($el);
+                    }
+                }
+                
+                $remaining = $xpath->query('//p | //div | //li | //span');
+                $index = 1;
+                foreach ($remaining as $el) {
+                    $txt = trim($el->textContent);
+                    if (preg_match('/^(\d+)\s*([-.]+)\s*(.*)/u', $txt, $matches)) {
+                        $punct = $matches[2];
+                        $rawHtml = $dom->saveHTML($el);
+                        $pattern = '/(>\s*)\d+\s*([-.]+)\s*/u';
+                        $newHtml = preg_replace($pattern, '${1}' . $index . $punct . ' ', $rawHtml, 1);
+                        
+                        if ($newHtml !== null && $newHtml !== $rawHtml) {
+                            $tempDom = new DOMDocument();
+                            libxml_use_internal_errors(true);
+                            $tempDom->loadHTML('<?xml encoding="utf-8" ?>' . $newHtml);
+                            libxml_clear_errors();
+                            $newNode = $dom->importNode($tempDom->getElementsByTagName('body')->item(0)->firstChild, true);
+                            if ($newNode && $el->parentNode) {
+                                $el->parentNode->replaceChild($newNode, $el);
+                            }
+                        }
+                        $index++;
+                    }
+                }
+                
+                $bodyHtml = '';
+                $body = $dom->getElementsByTagName('body')->item(0);
+                if ($body) {
+                    foreach ($body->childNodes as $child) {
+                        $bodyHtml .= $dom->saveHTML($child);
+                    }
+                }
+                $content = $bodyHtml;
+            }
+
+            $content = str_replace(
+                ['{{UNVAN}}', '{{AD_SOYAD}}', '{{TC_NO}}', '{{GOREVE_BASLAMA}}', '{{TELEFON}}', '{{TODAY}}'],
+                [$unvan, $name, $tc, $baslama, $telefon ?: '...................................................', $todayStr],
+                $content
+            );
+            $hasBorder = false;
+        } else {
+            $templateModel = $this->model('Template');
+            $stmt_t = $db->prepare("SELECT content, has_border FROM templates WHERE tenant_id = ? ORDER BY id DESC LIMIT 1");
+            $stmt_t->execute([$tenant_id]);
+            $template = $stmt_t->fetch();
+            $content = $template ? $template['content'] : '';
+            $hasBorder = $template ? (bool)$template['has_border'] : false;
+
+            if (empty($content)) {
+                die('No contract template found.');
+            }
+
+            $replacements = [
+                '{{KURUM_ADI}}' => $settings['kurum_adi'] ?? 'Kurum Adı Tanımlanmamış',
+                '{{BIRIM_ADI}}' => $settings['birim_adi'] ?? 'Birim Adı Tanımlanmamış',
+                '{{YETKILI_AD}}' => $settings['yetkili_ad_soyad'] ?? 'Yetkili Tanımlanmamış',
+                '{{YETKILI_UNVAN}}' => $settings['yetkili_unvan'] ?? 'Yetkili Ünvanı Tanımlanmamış',
+                '{{PERSONEL_AD}}' => $name,
+                '{{TC_NO}}' => $tc,
+                '{{GOREV}}' => $unvan,
+                '{{EGITIM_DURUMU}}' => $ogrenim,
+                '{{BRUT_UCRET}}' => number_format($ucret, 2, ',', '.') . ' TL',
+                '{{BASLANGIC_TARIHI}}' => $baslama ?: '-',
+                '{{BITIS_TARIHI}}' => '31.12.' . date('Y'),
+            ];
+
+            foreach ($replacements as $key => $value) {
+                $content = str_replace($key, $value, $content);
+            }
+        }
+        ?>
+        <!DOCTYPE html>
+        <html lang="tr">
+        <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title><?php echo htmlspecialchars($name) . " - " . ($type === 'dilekce' ? 'Kadro Dilekçesi' : 'Sözleşme Taslağı'); ?></title>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+            <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+            <link rel="stylesheet" href="<?php echo routeUrl('assets/css/contract-document.css'); ?>">
+            
+            <style>
+                * { box-sizing: border-box !important; }
+                
+                body { 
+                    margin: 0 !important; 
+                    padding: 0 !important; 
+                    background: #f4f4f5 !important; 
+                    color: #18181b !important; 
+                    font-family: 'Times New Roman', Times, serif !important;
+                    -webkit-print-color-adjust: exact !important; 
+                    print-color-adjust: exact !important; 
+                }
+                
+                .print-container {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    padding: 40px 20px;
+                    min-height: 100vh;
+                    box-sizing: border-box;
+                }
+                
+                /* ==========================================================================
+                   DİLEKÇE FORMATI (Desktop list.php ile %100 Uyumlu)
+                   ========================================================================== */
+                <?php if ($type === 'dilekce'): ?>
+                @page { size: A4 portrait; margin: 4.5cm 2cm 2.5cm 2cm !important; }
+                
+                .paper-sheet {
+                    background: white;
+                    width: 21cm;
+                    min-height: 29.7cm;
+                    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+                    border-radius: 8px;
+                    box-sizing: border-box;
+                    position: relative;
+                    padding: 4.5cm 2cm 2.5cm 2cm !important;
+                }
+                
+                p, div, span, strong, em, li {
+                    font-family: "Times New Roman", Times, serif !important;
+                    font-size: 11pt !important;
+                    line-height: 1.6 !important;
+                    color: black !important;
+                }
+                
+                .ql-editor {
+                    padding: 0 !important;
+                    font-family: "Times New Roman", Times, serif !important;
+                    font-size: 11pt !important;
+                    line-height: 1.6 !important;
+                    text-align: justify;
+                }
+                
+                .ql-editor p {
+                    padding-left: 2.3cm !important;
+                    padding-right: 2.3cm !important;
+                    margin-bottom: 8px !important;
+                }
+                
+                /* Dilekçe Başlığı (İlk 3 paragraf) */
+                .ql-editor p:nth-child(1), 
+                .ql-editor p:nth-child(2), 
+                .ql-editor p:nth-child(3) {
+                    padding-left: 0 !important;
+                    padding-right: 0 !important;
+                    text-align: center !important;
+                }
+                
+                @media print {
+                    body { background: white !important; color: black !important; }
+                    .print-container { padding: 0 !important; }
+                    .paper-sheet {
+                        box-shadow: none !important;
+                        border-radius: 0 !important;
+                        width: 100% !important;
+                        min-height: auto !important;
+                        padding: 0 !important; /* Tarayıcı @page marjinlerini kullansın */
+                    }
+                    .print-actions { display: none !important; }
+                }
+                
+                /* ==========================================================================
+                   SÖZLEŞME FORMATI (Desktop list.php ile %100 Uyumlu)
+                   ========================================================================== */
+                <?php else: ?>
+                @page { size: A4 portrait; margin: 0 !important; }
+                
+                .paper-sheet {
+                    background: white;
+                    width: 210mm !important;
+                    min-height: 297mm !important;
+                    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+                    border-radius: 8px;
+                    padding: 0cm 1.5cm 0cm !important;
+                    box-sizing: border-box !important;
+                    position: relative;
+                }
+                
+                .paper-sheet * {
+                    font-family: "Times New Roman", Times, serif !important;
+                    font-size: 10.5pt !important;
+                    line-height: 1.6 !important;
+                    color: black !important;
+                }
+                
+                .ql-editor {
+                    padding: 0 !important;
+                }
+                
+                @media print {
+                    html, body { 
+                        background: white !important;
+                        width: 210mm !important;
+                        height: auto !important;
+                        overflow: visible !important;
+                    }
+                    .print-container { padding: 0 !important; }
+                    .paper-sheet {
+                        margin: 0 auto !important; 
+                        box-shadow: none !important; 
+                        border-radius: 0 !important;
+                        width: 210mm !important;
+                        height: auto !important;
+                        min-height: 297mm !important;
+                        max-height: none !important;
+                        overflow: visible !important;
+                    }
+                    .print-actions { display: none !important; }
+                }
+                <?php endif; ?>
+
+                /* Ortak Buton Kontrolleri */
+                .print-actions {
+                    position: fixed;
+                    bottom: 24px;
+                    right: 24px;
+                    display: flex;
+                    gap: 12px;
+                    z-index: 9999;
+                }
+                .btn-print {
+                    background: #4f46e5;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 50px;
+                    font-size: 14px;
+                    font-weight: bold;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+                    transition: all 0.2s ease;
+                    font-family: 'Inter', sans-serif !important;
+                }
+                .btn-print:hover {
+                    background: #4338ca;
+                    transform: translateY(-2px);
+                }
+                .btn-print:active {
+                    transform: translateY(0);
+                }
+            </style>
+        </head>
+        <body>
+            <div class="print-container">
+                <div class="paper-sheet <?php echo ($type === 'sozlesme') ? 'contract-document ' . ($hasBorder ? 'has-border' : '') : ''; ?>">
+                    <div class="ql-container ql-snow" style="border:none">
+                        <div class="ql-editor" id="<?php echo ($type === 'sozlesme') ? 'print-content' : ''; ?>">
+                            <?php echo $content; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="print-actions">
+                <button onclick="window.print();" class="btn-print">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8" rx="1"/></svg>
+                    Yazdır
+                </button>
+            </div>
+            
+            <script>
+                window.addEventListener('DOMContentLoaded', () => {
+                    setTimeout(() => {
+                        window.print();
+                    }, 800);
+                });
+            </script>
+        </body>
+        </html>
+        <?php
+        exit;
+    }
 }

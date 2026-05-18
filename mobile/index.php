@@ -609,7 +609,17 @@ if ($isLoggedIn) {
                         </div>
 
                         <!-- Floating Zoom & Action Controls -->
-                        <div class="absolute bottom-20 right-6 flex flex-col gap-2.5 z-50">
+                        <div class="absolute bottom-12 right-6 flex flex-col gap-2.5 z-50">
+                            <!-- WhatsApp Share Button -->
+                            <button onclick="sendViaWhatsApp()" class="w-11 h-11 rounded-full bg-white/90 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-center text-zinc-800 dark:text-zinc-200 shadow-xl active:scale-95 transition-all cursor-pointer backdrop-blur-md" title="WhatsApp ile Gönder">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.262 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.66.986 3.296 1.489 4.905 1.49 5.275 0 9.56-4.286 9.563-9.561.002-2.556-1.01-4.96-2.852-6.805C16.381 2.43 13.974 1.43 11.997 1.43c-5.278 0-9.564 4.287-9.566 9.564-.001 1.705.474 3.327 1.411 4.793L2.836 20.54l4.989-1.309-1.178-.711zm10.741-6.726c-.305-.152-1.802-.889-2.081-.99-.278-.101-.482-.152-.684.152-.202.304-.783.99-.96 1.191-.177.202-.354.228-.659.076-.305-.152-1.287-.475-2.451-1.514-.906-.807-1.517-1.805-1.695-2.11-.177-.304-.019-.468.133-.619.136-.136.305-.354.457-.532.152-.177.202-.304.304-.507.101-.202.051-.38-.025-.532-.076-.152-.684-1.648-.938-2.256-.247-.593-.499-.512-.684-.521-.177-.009-.38-.01-.582-.01-.202 0-.532.076-.81.38-.278.304-1.063 1.039-1.063 2.532s1.089 2.94 1.24 3.143c.152.202 2.144 3.275 5.193 4.59.725.313 1.29.5 1.732.64.73.232 1.393.197 1.917.12.584-.087 1.802-.736 2.056-1.446.253-.71.253-1.317.177-1.446-.077-.127-.278-.202-.582-.354z"/></svg>
+                            </button>
+                            
+                            <!-- System Share Button -->
+                            <button onclick="shareDocument()" class="w-11 h-11 rounded-full bg-white/90 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-center text-zinc-800 dark:text-zinc-200 shadow-xl active:scale-95 transition-all cursor-pointer backdrop-blur-md" title="Paylaş">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg>
+                            </button>
+
                             <button onclick="zoomReset()" class="w-11 h-11 rounded-full bg-white/90 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-center text-zinc-700 dark:text-zinc-300 shadow-xl active:scale-95 transition-all cursor-pointer backdrop-blur-md text-[10px] font-extrabold tracking-wider" title="Sıfırla">
                                 100%
                             </button>
@@ -931,6 +941,7 @@ if ($isLoggedIn) {
         let isTcMasked = true;
         let currentPetitionPersonnel = null;
         let customZoomScale = 1.0;
+        let currentPreviewPersonnelId = null;
 
         function openPetitionConfirmSheet(personnelId, name) {
             document.getElementById('petition-confirm-name').innerText = name;
@@ -1135,6 +1146,125 @@ if ($isLoggedIn) {
             adjustPreviewZoom();
         }
 
+        function formatPhoneNumberForWhatsApp(tel) {
+            let cleaned = tel.replace(/\D/g, ''); // Extract all digits
+            if (cleaned.length === 10) {
+                cleaned = '90' + cleaned;
+            } else if (cleaned.length === 11 && cleaned.startsWith('0')) {
+                cleaned = '90' + cleaned.substring(1);
+            }
+            return cleaned;
+        }
+
+        function sendViaWhatsApp() {
+            if (!currentPreviewPersonnelId) {
+                showToast('Personel bilgisi bulunamadı.', 'error');
+                return;
+            }
+            
+            const card = document.querySelector(`.personnel-item-card[data-id="${currentPreviewPersonnelId}"]`);
+            if (!card) {
+                showToast('Personel kartı bulunamadı.', 'error');
+                return;
+            }
+            
+            const name = card.getAttribute('data-name') || '';
+            const telefon = card.getAttribute('data-telefon') || '';
+            const docType = document.body.getAttribute('data-doc-type') || 'dilekce';
+            
+            if (!telefon) {
+                showToast('Personelin kayıtlı telefon numarası bulunamadı.', 'error');
+                return;
+            }
+            
+            const formattedTel = formatPhoneNumberForWhatsApp(telefon);
+            const basePath = '<?php echo appBasePath(); ?>';
+            const printUrl = window.location.origin + basePath + '/belge-yazdir?id=' + currentPreviewPersonnelId + '&type=' + docType;
+            
+            let message = '';
+            if (docType === 'dilekce') {
+                message = `Sayın ${name},\n\nKadroya geçiş dilekçeniz hazırlanmıştır. Aşağıdaki bağlantıdan dilekçenizi görüntüleyip doğrudan yazdırabilirsiniz:\n\n${printUrl}\n\nİyi çalışmalar dileriz.`;
+            } else {
+                const downloadUrl = window.location.origin + basePath + '/personel-download-word?id=' + currentPreviewPersonnelId;
+                message = `Sayın ${name},\n\nSözleşme taslağınız hazırlanmıştır. Aşağıdaki bağlantıdan sözleşmenizi görüntüleyip doğrudan yazdırabilirsiniz:\n\n${printUrl}\n\n(Word belgesi olarak indirmek isterseniz: ${downloadUrl})\n\nİyi çalışmalar dileriz.`;
+            }
+            
+            const whatsappUrl = `https://api.whatsapp.com/send?phone=${formattedTel}&text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            textArea.style.opacity = "0";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast('Yazdırılabilir belge bağlantısı panoya kopyalandı!', 'success');
+                } else {
+                    showToast('Kopyalama başarısız oldu.', 'error');
+                }
+            } catch (err) {
+                showToast('Kopyalama başarısız oldu.', 'error');
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function shareDocument() {
+            if (!currentPreviewPersonnelId) {
+                showToast('Personel bilgisi bulunamadı.', 'error');
+                return;
+            }
+            
+            const card = document.querySelector(`.personnel-item-card[data-id="${currentPreviewPersonnelId}"]`);
+            if (!card) {
+                showToast('Personel kartı bulunamadı.', 'error');
+                return;
+            }
+            
+            const name = card.getAttribute('data-name') || '';
+            const docType = document.body.getAttribute('data-doc-type') || 'dilekce';
+            const docTitle = docType === 'dilekce' ? 'Kadro Dilekçesi' : 'Sözleşme Taslağı';
+            
+            const basePath = '<?php echo appBasePath(); ?>';
+            const printUrl = window.location.origin + basePath + '/belge-yazdir?id=' + currentPreviewPersonnelId + '&type=' + docType;
+            
+            let shareText = '';
+            if (docType === 'dilekce') {
+                shareText = `Sayın ${name} için hazırlanan Kadro Dilekçesi. Yazdırmak için:`;
+            } else {
+                shareText = `Sayın ${name} için hazırlanan Sözleşme Taslağı. Yazdırmak için:`;
+            }
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: `${name} - ${docTitle}`,
+                    text: shareText,
+                    url: printUrl
+                })
+                .then(() => showToast('Başarıyla paylaşıldı.', 'success'))
+                .catch((err) => {
+                    if (err.name !== 'AbortError') {
+                        showToast('Paylaşım başarısız oldu.', 'error');
+                    }
+                });
+            } else {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(printUrl)
+                        .then(() => showToast('Yazdırılabilir belge bağlantısı panoya kopyalandı!', 'success'))
+                        .catch(() => fallbackCopyTextToClipboard(printUrl));
+                } else {
+                    fallbackCopyTextToClipboard(printUrl);
+                }
+            }
+        }
+
         // Swiping gesture handler for personnel list items (pure standard PointerEvents)
         function initSwipeActions() {
             const containers = document.querySelectorAll('.swipe-container');
@@ -1191,7 +1321,8 @@ if ($isLoggedIn) {
 
                     // Elastic bound limits matching the full height w-12 columns with pl-4 and gap-4 (total 130px right, -56px left)
                     if (currentX > 140) currentX = 140 + (currentX - 140) * 0.15;
-                    if (currentX < -70) currentX = -70 + (currentX + 70) * 0.15;
+                    const leftLimit = container.classList.contains('definition-item-card') ? -130 : -70;
+                    if (currentX < leftLimit) currentX = leftLimit + (currentX - leftLimit) * 0.15;
 
                     front.style.transform = `translateX(${currentX}px)`;
                 });
@@ -1214,8 +1345,9 @@ if ($isLoggedIn) {
                             container.classList.remove('swipe-open-left');
                         }
                     } else if (finalX < -30) {
-                        // Snap left (reveal Right button: Sil - 56px wide)
-                        front.style.transform = 'translateX(-56px)';
+                        // Snap left (reveal Right button: Sil/Kopyala)
+                        const snapWidth = container.classList.contains('definition-item-card') ? -112 : -56;
+                        front.style.transform = `translateX(${snapWidth}px)`;
                         container.classList.add('swipe-open-left');
                         container.classList.remove('swipe-open-right');
                     } else {
@@ -1699,6 +1831,7 @@ if ($isLoggedIn) {
 
         // Preview Petition Logic
         function previewPetition(id) {
+            currentPreviewPersonnelId = id;
             const card = document.querySelector(`.personnel-item-card[data-id="${id}"]`);
             if (!card) return;
 
@@ -1784,6 +1917,7 @@ if ($isLoggedIn) {
 
         // Preview Contract Logic via AJAX
         function previewContract(id) {
+            currentPreviewPersonnelId = id;
             const basePath = '<?php echo appBasePath(); ?>';
             
             const contentArea = document.getElementById('preview-content-area');

@@ -45,18 +45,29 @@ class SuperadminController extends Controller {
      * Kurum detaylarını getir (AJAX)
      */
     public function getTenant() {
-        $id = $_GET['id'];
+        if (ob_get_level()) {
+            ob_clean();
+        }
+        header('Content-Type: application/json; charset=utf-8');
+        
+        $id = $_GET['id'] ?? 0;
         $tenant = $this->tenantModel->find($id);
-        echo json_encode($tenant);
+        echo json_encode($tenant ?: ['error' => 'Kurum bulunamadı']);
+        exit;
     }
 
     /**
      * Kurum bilgilerini güncelle (AJAX)
      */
     public function updateTenant() {
-        $id = $_POST['id'];
+        if (ob_get_level()) {
+            ob_clean();
+        }
+        header('Content-Type: application/json; charset=utf-8');
+
+        $id = $_POST['id'] ?? 0;
         $data = [
-            'name' => $_POST['name'],
+            'name' => $_POST['name'] ?? '',
             'is_active' => isset($_POST['is_active']) ? 1 : 0,
             'updated_at' => date('Y-m-d H:i:s')
         ];
@@ -68,13 +79,19 @@ class SuperadminController extends Controller {
         } else {
             echo json_encode(['success' => false, 'message' => 'Kurum güncellenirken bir hata oluştu.']);
         }
+        exit;
     }
 
     /**
      * Kurum sil (AJAX)
      */
     public function deleteTenant() {
-        $id = $_POST['id'];
+        if (ob_get_level()) {
+            ob_clean();
+        }
+        header('Content-Type: application/json; charset=utf-8');
+
+        $id = $_POST['id'] ?? 0;
         
         // Önce bağlı kullanıcıları kontrol et vs (isteğe bağlı)
         
@@ -85,16 +102,25 @@ class SuperadminController extends Controller {
         } else {
             echo json_encode(['success' => false, 'message' => 'Kurum silinirken bir hata oluştu.']);
         }
+        exit;
     }
 
     /**
      * Tüm kurumları JSON olarak döndürür (DataTable AJAX için)
      */
     public function listTenantsJSON() {
+        if (ob_get_level()) {
+            ob_clean();
+        }
+        header('Content-Type: application/json; charset=utf-8');
+
         $tenants = $this->tenantModel->all();
         
+        $userId = $_SESSION['user_id'] ?? 0;
+        $tenantId = $_SESSION['tenant_id'] ?? 0;
+
         // Mevcut kullanıcının bağlı olduğu kurumları alalım
-        $myTenants = $this->userModel->getTenants($_SESSION['user_id']);
+        $myTenants = $userId ? $this->userModel->getTenants($userId) : [];
         $myTenantIds = array_column($myTenants, 'id');
 
         foreach ($tenants as &$t) {
@@ -103,16 +129,17 @@ class SuperadminController extends Controller {
             $t['user_count'] = $stmt->fetch()['count'];
             
             // Format dates and status for easier JS handling
-            $t['created_at_formatted'] = date('d.m.Y H:i', strtotime($t['created_at']));
+            $t['created_at_formatted'] = !empty($t['created_at']) ? date('d.m.Y H:i', strtotime($t['created_at'])) : '-';
             $t['status_label'] = $t['is_active'] ? 'Aktif' : 'Pasif';
             $t['status_class'] = $t['is_active'] ? 'border-green-100 dark:border-green-900/30 text-green-700 dark:text-green-400' : 'border-red-100 dark:border-red-900/30 text-red-700 dark:text-red-400';
             
             // Kullanıcının kendi kurumu mu?
             $t['is_mine'] = in_array($t['id'], $myTenantIds);
-            $t['is_current'] = $t['id'] == $_SESSION['tenant_id'];
+            $t['is_current'] = $t['id'] == $tenantId;
         }
 
         echo json_encode(['data' => $tenants]);
+        exit;
     }
 
     private function isAjax() {
