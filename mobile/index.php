@@ -158,6 +158,8 @@ if ($isLoggedIn) {
                 <!-- Bottom Sheet Backdrop -->
                 <div id="sheet-backdrop" class="bottom-sheet-backdrop" onclick="closeAllSheets()"></div>
 
+                <?php if (!$isLoggedIn): ?>
+                
                 <!-- MOBILE LOGIN SCREEN -->
                 <div class="flex-1 flex flex-col justify-center items-center p-6 overflow-y-auto app-scroll bg-zinc-50 dark:bg-zinc-950 relative selection:bg-indigo-500/30">
                     <!-- Subtle Background Glow -->
