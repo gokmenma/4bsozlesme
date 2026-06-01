@@ -112,6 +112,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kayıt Ol - Sözleşme 4B</title>
+    <!-- Favicon -->
+    <link rel="icon" href="<?php echo routeUrl('/assets/images/favicon.svg'); ?>" type="image/svg+xml">
     <!-- Premium Google Fonts: Geist -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -279,25 +281,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <a href="<?php echo routeUrl('/login'); ?>" class="font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors hover:underline underline-offset-4 ml-1">Giriş Yap</a>
                 </p>
             </form>
-        </div>
-    </div>"/></svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Button -->
-                    <button class="w-full py-2.5 px-4 rounded-xl bg-zinc-900 dark:bg-zinc-50 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-semibold text-sm transition-all duration-200 shadow-md shadow-zinc-950/10 dark:shadow-white/5 active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2 group mt-2" type="submit">
-                        <span>Kayıt Ol</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="size-4 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                    </button>
-
-                    <!-- Footer Link -->
-                    <p class="text-center text-xs text-zinc-500 dark:text-zinc-400 pt-2">
-                        Zaten bir hesabınız var mı? 
-                        <a href="<?php echo routeUrl('/login'); ?>" class="font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 transition-colors hover:underline underline-offset-4 ml-1">Giriş Yap</a>
-                    </p>
-                </form>
-            </div>
         </div>
     </div>
     <script>

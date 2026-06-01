@@ -27,6 +27,26 @@ $yearOptions = [];
 for ($y = $currentYear - 2; $y <= $currentYear + 1; $y++) {
     $yearOptions[] = ['value' => (string)$y, 'label' => (string)$y];
 }
+
+$statusOptions = [
+    ['value' => 'aktif', 'label' => 'Aktif'],
+    ['value' => 'pasif', 'label' => 'Pasif'],
+    ['value' => 'dilekce_alindi', 'label' => 'Dilekçe Alındı'],
+    ['value' => 'kadroya_gecti', 'label' => 'Kadroya Geçti'],
+    ['value' => 'kadroya_gecmeyecek', 'label' => 'Kadroya Geçmeyecek'],
+    ['value' => 'tum', 'label' => 'Tümü']
+];
+
+$dateOperatorOptions = [
+    ['value' => 'tum', 'label' => 'Tümü (Tarih Filtresi Yok)'],
+    ['value' => 'gt', 'label' => 'Sonra (>)'],
+    ['value' => 'lt', 'label' => 'Önce (<)'],
+    ['value' => 'gte', 'label' => 'Sonra veya Eşit (>=)'],
+    ['value' => 'lte', 'label' => 'Önce veya Eşit (<=)'],
+    ['value' => 'equals', 'label' => 'Eşit (=)'],
+    ['value' => 'empty', 'label' => 'Tarih Girilmemiş Olanlar'],
+    ['value' => 'not_empty', 'label' => 'Tarih Girilmiş Olanlar']
+];
 ?>
 
 <div class="flex flex-col gap-8 max-w-4xl mx-auto">
@@ -82,6 +102,24 @@ for ($y = $currentYear - 2; $y <= $currentYear + 1; $y++) {
         <div class="space-y-2 col-span-12 md:col-span-6">
           <label for="donem_yil" class="text-sm font-medium leading-none mb-1 block">Yıl</label>
           <?php echo renderCustomSelect('donem_yil', 'donem_yil', $yearOptions, $currentYear, 'w-full h-10'); ?>
+        </div>
+
+        <!-- Personel Durumu -->
+        <div class="space-y-2 col-span-12 md:col-span-4">
+          <label for="personel_durum" class="text-sm font-medium leading-none mb-1 block">Personel Durumu</label>
+          <?php echo renderCustomMultiSelect('personel_durum', 'personel_durum', $statusOptions, ['aktif'], 'w-full h-10'); ?>
+        </div>
+
+        <!-- Ayrılış Koşulu -->
+        <div class="space-y-2 col-span-12 md:col-span-4">
+          <label for="ayrilma_op" class="text-sm font-medium leading-none mb-1 block">Ayrılış Tarihi Koşulu</label>
+          <?php echo renderCustomSelect('ayrilma_op', 'ayrilma_op', $dateOperatorOptions, 'tum', 'w-full h-10'); ?>
+        </div>
+
+        <!-- Ayrılış Tarihi -->
+        <div class="space-y-2 col-span-12 md:col-span-4" id="ayrilma_tarihi_val_container">
+          <label for="ayrilma_tarihi" class="text-sm font-medium leading-none mb-1 block">Ayrılış Tarihi</label>
+          <input type="text" id="ayrilma_tarihi" name="ayrilma_tarihi" class="datepicker flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" placeholder="Seçiniz..." />
         </div>
       </div>
     </div>
@@ -152,9 +190,95 @@ for ($y = $currentYear - 2; $y <= $currentYear + 1; $y++) {
 
 <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
 <script>
+window.toggleCustomMultiSelectOption = function(id, el) {
+    if (window.event) window.event.stopPropagation();
+    const $el = $(el);
+    const value = $el.data('value');
+    const $component = $('#' + id);
+    
+    const isTum = (value === 'tum');
+    
+    if (isTum) {
+        // If clicking "Tümü", deselect all others and only keep "Tümü"
+        $component.find('[role="option"]').removeClass('selected bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold');
+        $component.find('.check-icon').addClass('hidden');
+        
+        $el.addClass('selected bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold');
+        $el.find('.check-icon').removeClass('hidden');
+    } else {
+        // If clicking a specific option, toggle it
+        $el.toggleClass('selected bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold');
+        $el.find('.check-icon').toggleClass('hidden');
+        
+        // Deselect "Tümü" if it was selected
+        const $tumOpt = $component.find('[role="option"][data-value="tum"]');
+        if ($tumOpt.length > 0) {
+            $tumOpt.removeClass('selected bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold');
+            $tumOpt.find('.check-icon').addClass('hidden');
+        }
+    }
+    
+    // Gather all selected options
+    const selectedVals = [];
+    const selectedLabels = [];
+    $component.find('[role="option"].selected').each(function() {
+        selectedVals.push($(this).data('value'));
+        selectedLabels.push($(this).find('.option-label').text().trim());
+    });
+    
+    // If nothing is selected, default to "Tümü" if it exists, or show "Seçiniz..."
+    if (selectedVals.length === 0) {
+        const $tumOpt = $component.find('[role="option"][data-value="tum"]');
+        if ($tumOpt.length > 0) {
+            $tumOpt.addClass('selected bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold');
+            $tumOpt.find('.check-icon').removeClass('hidden');
+            selectedVals.push('tum');
+            selectedLabels.push('Tümü');
+        }
+    }
+    
+    const hiddenVal = selectedVals.join(',');
+    let labelText = '';
+    
+    if (selectedVals.includes('tum')) {
+        labelText = 'Tümü';
+    } else {
+        labelText = selectedLabels.join(', ');
+        if (labelText.length > 30) {
+            labelText = selectedVals.length + ' Durum Seçildi';
+        }
+    }
+    
+    $component.find('input[type="hidden"]').val(hiddenVal).trigger('change');
+    $component.find('.selected-label').text(labelText);
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('doner-matrahi-form');
     const btn = document.getElementById('btn-olustur');
+
+    function toggleAyrilmaDateInput() {
+        const op = document.getElementById('ayrilma_op-value').value;
+        const container = document.getElementById('ayrilma_tarihi_val_container');
+        if (op === 'tum' || op === 'empty' || op === 'not_empty') {
+            container.style.opacity = '0.5';
+            container.style.pointerEvents = 'none';
+            document.getElementById('ayrilma_tarihi').disabled = true;
+            document.getElementById('ayrilma_tarihi').value = '';
+        } else {
+            container.style.opacity = '1';
+            container.style.pointerEvents = 'auto';
+            document.getElementById('ayrilma_tarihi').disabled = false;
+        }
+    }
+
+    // Trigger on change
+    $('#ayrilma_op-value').on('change', function() {
+        toggleAyrilmaDateInput();
+    });
+
+    // Initial run
+    toggleAyrilmaDateInput();
 
     form.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -167,8 +291,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const yil = document.getElementById('donem_yil-value').value;
         const maasKatsayisi = document.getElementById('maas_katsayisi').value;
         const yanOdemeKatsayisi = document.getElementById('yan_odeme_katsayisi').value;
+        
+        const durum = document.getElementById('personel_durum-value').value;
+        const ayrilmaOp = document.getElementById('ayrilma_op-value').value;
+        const ayrilmaTarihi = document.getElementById('ayrilma_tarihi').value;
 
-        fetch(`doner-matrahi-indir?donem_ay=${ay}&donem_yil=${yil}&maas_katsayisi=${maasKatsayisi}&yan_odeme_katsayisi=${yanOdemeKatsayisi}`)
+        fetch(`doner-matrahi-indir?donem_ay=${ay}&donem_yil=${yil}&maas_katsayisi=${maasKatsayisi}&yan_odeme_katsayisi=${yanOdemeKatsayisi}&personel_durum=${durum}&ayrilma_op=${ayrilmaOp}&ayrilma_tarihi=${ayrilmaTarihi}`)
         .then(res => res.json())
         .then(async response => {
             if (response.success) {

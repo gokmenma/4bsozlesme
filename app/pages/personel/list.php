@@ -130,6 +130,14 @@ if (!document.getElementById('toaster')) {
                         </th>
                         <th data-column="11">
                             <div class="flex items-center justify-between gap-2 group/th">
+                                <span>Ayrılış / Kadro</span>
+                                <button type="button" class="column-filter-btn p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 transition-all">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                                </button>
+                            </div>
+                        </th>
+                        <th data-column="12">
+                            <div class="flex items-center justify-between gap-2 group/th">
                                 <span>Telefon</span>
                                 <button type="button" class="column-filter-btn p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 transition-all">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
@@ -244,7 +252,7 @@ if (!document.getElementById('toaster')) {
             </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-3 gap-4">
             <div class="grid gap-2">
                 <label for="telefon">Telefon</label>
                 <input type="text" name="telefon" id="telefon" placeholder="05XX XXX XX XX" />
@@ -252,6 +260,10 @@ if (!document.getElementById('toaster')) {
             <div class="grid gap-2">
                 <label for="meslek_kodu">Meslek Kodu</label>
                 <input type="text" name="meslek_kodu" id="meslek_kodu" placeholder="SGK Meslek Kodu" />
+            </div>
+            <div class="grid gap-2">
+                <label for="ayrilma_tarihi">Ayrılış / Kadroya Geçiş Tarihi</label>
+                <input type="text" name="ayrilma_tarihi" id="ayrilma_tarihi" class="datepicker" placeholder="Seçiniz..." />
             </div>
         </div>
       </form>
@@ -375,7 +387,7 @@ if (!document.getElementById('toaster')) {
             </div>
         </div>
  
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-3 gap-4">
             <div class="grid gap-2">
                 <label for="edit_telefon">Telefon</label>
                 <input type="text" name="telefon" id="edit_telefon" />
@@ -383,6 +395,10 @@ if (!document.getElementById('toaster')) {
             <div class="grid gap-2">
                 <label for="edit_meslek_kodu">Meslek Kodu</label>
                 <input type="text" name="meslek_kodu" id="edit_meslek_kodu" />
+            </div>
+            <div class="grid gap-2">
+                <label for="edit_ayrilma_tarihi">Ayrılış / Kadroya Geçiş Tarihi</label>
+                <input type="text" name="ayrilma_tarihi" id="edit_ayrilma_tarihi" class="datepicker" placeholder="Seçiniz..." />
             </div>
         </div>
       </form>
@@ -785,6 +801,11 @@ $(document).ready(function() {
                         : 'bg-orange-50 text-orange-700 border-orange-100 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20';
                     return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${badgeClass}">${date.toLocaleDateString('tr-TR')}</span>`;
                 }
+            },
+            { 
+                data: 'ayrilma_tarihi',
+                className: 'text-zinc-600 dark:text-zinc-400',
+                render: (data) => data ? new Date(data).toLocaleDateString('tr-TR') : '-'
             },
             { data: 'telefon', className: 'text-zinc-600 dark:text-zinc-400', defaultContent: '-' },
             {
@@ -1591,6 +1612,22 @@ function editPersonnel(id) {
                 $('#edit_goreve_baslama_tarihi').val(data.goreve_baslama_tarihi);
             }
         }
+
+        if (data.ayrilma_tarihi) {
+            const dateInputAyrilma = document.getElementById('edit_ayrilma_tarihi');
+            if (dateInputAyrilma._flatpickr) {
+                dateInputAyrilma._flatpickr.setDate(data.ayrilma_tarihi);
+            } else {
+                $('#edit_ayrilma_tarihi').val(data.ayrilma_tarihi);
+            }
+        } else {
+            const dateInputAyrilma = document.getElementById('edit_ayrilma_tarihi');
+            if (dateInputAyrilma._flatpickr) {
+                dateInputAyrilma._flatpickr.clear();
+            } else {
+                $('#edit_ayrilma_tarihi').val('');
+            }
+        }
         
         
         const statusMap = {
@@ -1878,6 +1915,7 @@ async function exportToExcel() {
                 { header: 'Durum', key: 'durum', width: 15 },
                 { header: 'G. Başlama', key: 'goreve_baslama', width: 15 },
                 { header: 'Kadroya Geçiş', key: 'kadro_gecis', width: 15 },
+                { header: 'Ayrılış / Kadro Tarihi', key: 'ayrilma_tarihi', width: 20 },
                 { header: 'Telefon', key: 'telefon', width: 15 }
             ];
 
@@ -1902,6 +1940,7 @@ async function exportToExcel() {
                     durum: p.durum || 'aktif',
                     goreve_baslama: p.goreve_baslama_tarihi ? new Date(p.goreve_baslama_tarihi) : null,
                     kadro_gecis: kadroGecis,
+                    ayrilma_tarihi: p.ayrilma_tarihi ? new Date(p.ayrilma_tarihi) : null,
                     telefon: p.telefon
                 });
             });
@@ -1909,6 +1948,7 @@ async function exportToExcel() {
             worksheet.getColumn('ucret').numFmt = '#,##0.00 "₺"';
             worksheet.getColumn('goreve_baslama').numFmt = 'dd.mm.yyyy';
             worksheet.getColumn('kadro_gecis').numFmt = 'dd.mm.yyyy';
+            worksheet.getColumn('ayrilma_tarihi').numFmt = 'dd.mm.yyyy';
 
             worksheet.eachRow((row) => {
                 row.eachCell((cell) => {

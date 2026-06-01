@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+  <defs>
+    <!-- Premium Gradient -->
+    <linearGradient id="bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+    <!-- Glow filter for premium feel -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#4f46e5" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <!-- Rounded elegant base -->
+  <rect width="24" height="24" rx="6" fill="url(#bg-grad)" />
+  <!-- Logo geometry -->
+  <g filter="url(#glow)">
+    <path d="M7 17L17 7" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M13 17L17 13" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.65" />
+  </g>
+</svg>

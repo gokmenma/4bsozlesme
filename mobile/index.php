@@ -95,6 +95,9 @@ if ($isLoggedIn) {
         }
     </script>
     
+    <!-- Favicon -->
+    <link rel="icon" href="<?php echo routeUrl('/assets/images/favicon.svg'); ?>" type="image/svg+xml">
+
     <!-- Theme Init -->
     <script src="<?php echo routeUrl('/assets/js/theme.js'); ?>"></script>
     
@@ -461,6 +464,10 @@ if ($isLoggedIn) {
                                     <span class="font-bold text-zinc-400">Göreve Başlama:</span>
                                     <span id="detail-baslama" class="font-extrabold text-zinc-800 dark:text-zinc-200">01.01.2025</span>
                                 </div>
+                                <div id="detail-ayrilma-container" class="flex items-center justify-between text-xs pb-2 border-b border-zinc-800/60 hidden">
+                                    <span class="font-bold text-zinc-400">Ayrılış / Kadro:</span>
+                                    <span id="detail-ayrilma" class="font-extrabold text-zinc-800 dark:text-zinc-200">-</span>
+                                </div>
                                 <div class="flex items-center justify-between text-xs">
                                     <span class="font-bold text-zinc-400">Durum:</span>
                                     <span id="detail-durum-badge" class="badge-aktif px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider">Aktif</span>
@@ -569,9 +576,15 @@ if ($isLoggedIn) {
                                     </div>
                                 </div>
 
-                                <div class="space-y-1.5">
-                                    <label for="form-telefon">Telefon Numarası</label>
-                                    <input class="mobile-input" type="tel" id="form-telefon" name="telefon" placeholder="Örn: 05301234567">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="space-y-1.5">
+                                        <label for="form-telefon">Telefon Numarası</label>
+                                        <input class="mobile-input" type="tel" id="form-telefon" name="telefon" placeholder="Örn: 05301234567">
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label for="form-ayrilma">Ayrılış / Kadro Tarihi</label>
+                                        <input class="mobile-input" type="text" id="form-ayrilma" name="ayrilma_tarihi" placeholder="Seçiniz...">
+                                    </div>
                                 </div>
 
                                 <div class="flex gap-3 mt-4">
@@ -1709,7 +1722,19 @@ if ($isLoggedIn) {
             document.getElementById('detail-ogrenim').innerText = ogrenim;
             document.getElementById('detail-kidem').innerText = kidem;
             document.getElementById('detail-meslek').innerText = meslek || '-';
+            const ayrilma = cardElement.getAttribute('data-ayrilma');
             document.getElementById('detail-baslama').innerText = baslama;
+            
+            const detailAyrilmaContainer = document.getElementById('detail-ayrilma-container');
+            const detailAyrilma = document.getElementById('detail-ayrilma');
+            if (detailAyrilmaContainer && detailAyrilma) {
+                if (ayrilma) {
+                    detailAyrilma.innerText = ayrilma;
+                    detailAyrilmaContainer.classList.remove('hidden');
+                } else {
+                    detailAyrilmaContainer.classList.add('hidden');
+                }
+            }
             
             // Set dynamic gender icon in sheet header
             const genderIconWrapper = document.getElementById('detail-gender-icon');
@@ -1804,6 +1829,26 @@ if ($isLoggedIn) {
                     baslamaInput.value = formattedDate;
                     if (baslamaInput._flatpickr) {
                         baslamaInput._flatpickr.setDate(formattedDate);
+                    }
+                }
+            }
+
+            const ayrilmaVal = cardElement.getAttribute('data-ayrilma') || '';
+            const ayrilmaInput = document.getElementById('form-ayrilma');
+            if (ayrilmaInput) {
+                if (ayrilmaVal) {
+                    const datePartsAyrilma = ayrilmaVal.split('.');
+                    if (datePartsAyrilma.length === 3) {
+                        const formattedDateAyrilma = `${datePartsAyrilma[2]}-${datePartsAyrilma[1]}-${datePartsAyrilma[0]}`;
+                        ayrilmaInput.value = formattedDateAyrilma;
+                        if (ayrilmaInput._flatpickr) {
+                            ayrilmaInput._flatpickr.setDate(formattedDateAyrilma);
+                        }
+                    }
+                } else {
+                    ayrilmaInput.value = '';
+                    if (ayrilmaInput._flatpickr) {
+                        ayrilmaInput._flatpickr.clear();
                     }
                 }
             }
@@ -2992,6 +3037,18 @@ if ($isLoggedIn) {
                     altFormat: 'd.m.Y',
                     disableMobile: true, // Force standard desktop style UI calendar drop
                     placeholder: 'Giriş Tarihi Seçin'
+                });
+            }
+
+            const formAyrilmaInput = document.getElementById('form-ayrilma');
+            if (formAyrilmaInput && !formAyrilmaInput._flatpickr) {
+                flatpickr(formAyrilmaInput, {
+                    locale: 'tr',
+                    dateFormat: 'Y-m-d',
+                    altInput: true,
+                    altFormat: 'd.m.Y',
+                    disableMobile: true, // Force standard desktop style UI calendar drop
+                    placeholder: 'Ayrılış Tarihi Seçin'
                 });
             }
         }

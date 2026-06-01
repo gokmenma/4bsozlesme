@@ -137,6 +137,7 @@ sort($ogrenimler);
                      data-meslek="<?= htmlspecialchars($p['meslek_kodu']) ?>"
                      data-cinsiyet="<?= htmlspecialchars($p['cinsiyet']) ?>"
                      data-baslama="<?= date('d.m.Y', strtotime($p['goreve_baslama_tarihi'])) ?>"
+                     data-ayrilma="<?= !empty($p['ayrilma_tarihi']) ? date('d.m.Y', strtotime($p['ayrilma_tarihi'])) : '' ?>"
                      data-unvan="<?= htmlspecialchars($p['unvan'] ?? 'Tanımlanmamış') ?>"
                      data-ucret-id="<?= $p['ucret_id'] ?>"
                      data-ucret="<?= number_format($p['ucret'] ?? 0, 2, ',', '.') ?> TL"
@@ -184,6 +185,12 @@ sort($ogrenimler);
                                     <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase leading-none <?= $is_eligible ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/10' : 'bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-950/20 dark:text-amber-400 dark:border-amber-900/10' ?>">
                                         Kadro: <?= date('d.m.Y', strtotime('+3 years', strtotime($p['goreve_baslama_tarihi']))) ?>
                                     </span>
+                                    <?php if (!empty($p['ayrilma_tarihi'])): ?>
+                                        <span class="text-zinc-300 dark:text-zinc-800">•</span>
+                                        <span class="px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase leading-none bg-rose-50 text-rose-600 border border-rose-100 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/10">
+                                            Ayrılış: <?= date('d.m.Y', strtotime($p['ayrilma_tarihi'])) ?>
+                                        </span>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>

@@ -27,17 +27,70 @@ class DonerMatrahiController extends Controller {
         // Find period last day
         $lastDay = date('Y-m-t', strtotime("$yil-$ay-01"));
 
-        // Fetch all active personnel whose hire date <= lastDay
-        $stmt = $db->prepare("
+        $personel_durum = $_GET['personel_durum'] ?? 'aktif';
+        $ayrilma_op = $_GET['ayrilma_op'] ?? 'tum';
+        $ayrilma_tarihi = $_GET['ayrilma_tarihi'] ?? '';
+
+        $where = "p.deleted_at IS NULL AND p.tenant_id = ? AND p.goreve_baslama_tarihi <= ?";
+        $params = [$tenant_id, $lastDay];
+
+        // 1. Personel Durumu Filtresi
+        if ($personel_durum !== 'tum' && !empty($personel_durum)) {
+            $statusArray = explode(',', $personel_durum);
+            $statusArray = array_filter(array_map('trim', $statusArray));
+            
+            if (!empty($statusArray) && !in_array('tum', $statusArray)) {
+                $placeholders = implode(',', array_fill(0, count($statusArray), '?'));
+                $where .= " AND p.durum IN ($placeholders)";
+                foreach ($statusArray as $statusVal) {
+                    $params[] = $statusVal;
+                }
+            }
+        }
+
+        // 2. Ayrılma Tarihi Filtresi
+        if ($ayrilma_op === 'empty') {
+            $where .= " AND p.ayrilma_tarihi IS NULL";
+        } elseif ($ayrilma_op === 'not_empty') {
+            $where .= " AND p.ayrilma_tarihi IS NOT NULL";
+        } elseif ($ayrilma_op !== 'tum' && !empty($ayrilma_tarihi)) {
+            // Convert to Y-m-d
+            if (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $ayrilma_tarihi)) {
+                $parts = explode('.', $ayrilma_tarihi);
+                $db_date = "{$parts[2]}-{$parts[1]}-{$parts[0]}";
+            } else {
+                $db_date = date('Y-m-d', strtotime($ayrilma_tarihi));
+            }
+
+            switch ($ayrilma_op) {
+                case 'gt':
+                    $where .= " AND p.ayrilma_tarihi > ?";
+                    break;
+                case 'lt':
+                    $where .= " AND p.ayrilma_tarihi < ?";
+                    break;
+                case 'gte':
+                    $where .= " AND p.ayrilma_tarihi >= ?";
+                    break;
+                case 'lte':
+                    $where .= " AND p.ayrilma_tarihi <= ?";
+                    break;
+                case 'equals':
+                    $where .= " AND p.ayrilma_tarihi = ?";
+                    break;
+            }
+            $params[] = $db_date;
+        }
+
+        $sql = "
             SELECT p.*, u.unvan, u.ogrenim
             FROM personeller p
             LEFT JOIN ucretler u ON p.ucret_id = u.id
-            WHERE p.deleted_at IS NULL 
-              AND p.tenant_id = ? 
-              AND p.durum = 'aktif'
-              AND p.goreve_baslama_tarihi <= ?
-        ");
-        $stmt->execute([$tenant_id, $lastDay]);
+            WHERE $where
+        ";
+        
+        $stmt = $db->prepare($sql);
+        $stmt->execute($params);
         $personnels = $stmt->fetchAll();
 
         $rows = [];

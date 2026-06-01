@@ -58,12 +58,26 @@ class PersonnelController extends Controller {
             $baslama = $parsedDate ? date('Y-m-d', $parsedDate) : date('Y-m-d');
         }
 
+        $ayrilma = $_POST['ayrilma_tarihi'] ?? '';
+        if (!empty($ayrilma)) {
+            if (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $ayrilma)) {
+                $parts = explode('.', $ayrilma);
+                $ayrilma = "{$parts[2]}-{$parts[1]}-{$parts[0]}";
+            } else {
+                $parsedDate = strtotime($ayrilma);
+                $ayrilma = $parsedDate ? date('Y-m-d', $parsedDate) : null;
+            }
+        } else {
+            $ayrilma = null;
+        }
+
         $data = [
             'tc_kimlik' => $tc_kimlik,
             'ad_soyad' => $_POST['ad_soyad'],
             'ucret_id' => $_POST['ucret_id'],
             'durum' => $_POST['durum'] ?? 'aktif',
             'goreve_baslama_tarihi' => $baslama,
+            'ayrilma_tarihi' => $ayrilma,
             'telefon' => $_POST['telefon'] ?? '',
             'meslek_kodu' => $_POST['meslek_kodu'] ?? '',
             'cinsiyet' => $_POST['cinsiyet'] ?? 'erkek',
@@ -112,6 +126,11 @@ class PersonnelController extends Controller {
             $personnel['goreve_baslama_tarihi'] = date('d.m.Y', strtotime($personnel['goreve_baslama_tarihi']));
         }
 
+        // Ayrilma tarihi formatlama
+        if (!empty($personnel['ayrilma_tarihi'])) {
+            $personnel['ayrilma_tarihi'] = date('d.m.Y', strtotime($personnel['ayrilma_tarihi']));
+        }
+
         header('Content-Type: application/json');
         echo json_encode($personnel);
         exit;
@@ -157,12 +176,26 @@ class PersonnelController extends Controller {
             $baslama = $parsedDate ? date('Y-m-d', $parsedDate) : date('Y-m-d');
         }
 
+        $ayrilma = $_POST['ayrilma_tarihi'] ?? '';
+        if (!empty($ayrilma)) {
+            if (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $ayrilma)) {
+                $parts = explode('.', $ayrilma);
+                $ayrilma = "{$parts[2]}-{$parts[1]}-{$parts[0]}";
+            } else {
+                $parsedDate = strtotime($ayrilma);
+                $ayrilma = $parsedDate ? date('Y-m-d', $parsedDate) : null;
+            }
+        } else {
+            $ayrilma = null;
+        }
+
         $data = [
             'tc_kimlik' => $tc_kimlik,
             'ad_soyad' => $_POST['ad_soyad'],
             'ucret_id' => $_POST['ucret_id'],
             'durum' => $_POST['durum'] ?? 'aktif',
             'goreve_baslama_tarihi' => $baslama,
+            'ayrilma_tarihi' => $ayrilma,
             'telefon' => $_POST['telefon'] ?? '',
             'meslek_kodu' => $_POST['meslek_kodu'] ?? '',
             'cinsiyet' => $_POST['cinsiyet'] ?? 'erkek',
@@ -581,8 +614,9 @@ class PersonnelController extends Controller {
                 8 => 'p.durum',
                 9 => 'p.goreve_baslama_tarihi',
                 10 => 'p.goreve_baslama_tarihi', 
-                11 => 'p.telefon',
-                12 => 'p.id'
+                11 => 'p.ayrilma_tarihi',
+                12 => 'p.telefon',
+                13 => 'p.id'
             ];
 
             $orderColumn = $columns[$orderColumnIndex] ?? 'p.id';

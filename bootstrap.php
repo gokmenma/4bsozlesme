@@ -23,7 +23,9 @@ if (file_exists(__DIR__ . '/.env')) {
     }
 }
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Veritabanı bağlantısını dahil et
 require_once __DIR__ . '/app/core/db.php';

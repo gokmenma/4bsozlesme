@@ -106,3 +106,78 @@ function renderSelect($id, $name, $options, $selectedValue = null, $class = '') 
     return $html;
 }
 
+/**
+ * Çoklu seçim yapabilen custom select bileşeni
+ */
+function renderCustomMultiSelect($id, $name, $options, $selectedValues = [], $buttonClass = 'w-[180px]', $heading = null) {
+    if (!is_array($selectedValues)) {
+        $selectedValues = $selectedValues ? explode(',', $selectedValues) : [];
+    }
+
+    $selectedLabels = [];
+    foreach ($options as $opt) {
+        if (in_array($opt['value'], $selectedValues)) {
+            $selectedLabels[] = $opt['label'];
+        }
+    }
+
+    if (empty($selectedLabels)) {
+        if (in_array('tum', array_column($options, 'value'))) {
+            $selectedValues = ['tum'];
+            $selectedLabels = ['Tümü'];
+        } else {
+            $selectedLabel = 'Seçiniz...';
+        }
+    }
+
+    if (!empty($selectedLabels)) {
+        if (count($selectedLabels) === count($options) || (count($selectedLabels) === 1 && $selectedValues[0] === 'tum')) {
+            $selectedLabel = 'Tümü';
+            $selectedValues = ['tum'];
+        } else {
+            $selectedLabel = implode(', ', $selectedLabels);
+        }
+    }
+
+    $outerClass = 'app-select custom-select-component relative inline-block';
+    if (strpos($buttonClass, 'w-full') !== false) {
+        $outerClass = 'app-select custom-select-component relative block w-full';
+    }
+
+    $popoverListClass = 'py-1 max-h-60 overflow-y-auto';
+
+    $html = '
+    <div id="' . htmlspecialchars($id) . '" class="' . $outerClass . '" data-multiselect="true">
+      <button type="button" class="btn-outline justify-between cursor-pointer flex items-center gap-2 px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 ' . htmlspecialchars($buttonClass) . '" id="' . htmlspecialchars($id) . '-trigger" aria-haspopup="listbox" aria-expanded="false" onclick="toggleCustomSelectPopover(\'' . htmlspecialchars($id) . '\')">
+        <span class="truncate selected-label">' . htmlspecialchars($selectedLabel) . '</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opacity-50 shrink-0">
+          <path d="m7 15 5 5 5-5" />
+          <path d="m7 9 5-5 5 5" />
+        </svg>
+      </button>
+      <div id="' . htmlspecialchars($id) . '-popover" class="custom-select-popover absolute top-full left-0 mt-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-lg z-50 transition-all opacity-0 translate-y-[-10px] hidden" style="min-width: 100%;">
+        <div role="listbox" id="' . htmlspecialchars($id) . '-listbox" class="' . $popoverListClass . '">';
+
+    if ($heading) {
+        $html .= '<div class="px-3 py-1 text-xs font-bold text-zinc-400 uppercase tracking-wider select-none">' . htmlspecialchars($heading) . '</div>';
+    }
+
+    foreach ($options as $opt) {
+        $isSelected = in_array($opt['value'], $selectedValues);
+        $selectedClass = $isSelected ? 'selected bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold' : '';
+        $html .= '
+          <div role="option" data-value="' . htmlspecialchars($opt['value']) . '" onclick="toggleCustomMultiSelectOption(\'' . htmlspecialchars($id) . '\', this)" class="px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer flex items-center justify-between transition-colors ' . $selectedClass . '">
+            <span class="option-label">' . htmlspecialchars($opt['label']) . '</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="check-icon ' . ($isSelected ? '' : 'hidden') . ' text-primary"><path d="M20 6 9 17l-5-5"/></svg>
+          </div>';
+    }
+
+    $html .= '
+        </div>
+      </div>
+      <input type="hidden" name="' . htmlspecialchars($name) . '" id="' . htmlspecialchars($id) . '-value" value="' . htmlspecialchars(implode(',', $selectedValues)) . '" />
+    </div>';
+
+    return $html;
+}
+
