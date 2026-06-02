@@ -114,31 +114,39 @@ class SuperadminController extends Controller {
         }
         header('Content-Type: application/json; charset=utf-8');
 
-        $tenants = $this->tenantModel->all();
-        
-        $userId = $_SESSION['user_id'] ?? 0;
-        $tenantId = $_SESSION['tenant_id'] ?? 0;
-
-        // Mevcut kullanıcının bağlı olduğu kurumları alalım
-        $myTenants = $userId ? $this->userModel->getTenants($userId) : [];
-        $myTenantIds = array_column($myTenants, 'id');
-
-        foreach ($tenants as &$t) {
-            $stmt = $this->tenantModel->getDb()->prepare("SELECT COUNT(*) as count FROM users WHERE tenant_id = ?");
-            $stmt->execute([$t['id']]);
-            $t['user_count'] = $stmt->fetch()['count'];
+        try {
+            $tenants = $this->tenantModel->all();
             
-            // Format dates and status for easier JS handling
-            $t['created_at_formatted'] = !empty($t['created_at']) ? date('d.m.Y H:i', strtotime($t['created_at'])) : '-';
-            $t['status_label'] = $t['is_active'] ? 'Aktif' : 'Pasif';
-            $t['status_class'] = $t['is_active'] ? 'border-green-100 dark:border-green-900/30 text-green-700 dark:text-green-400' : 'border-red-100 dark:border-red-900/30 text-red-700 dark:text-red-400';
-            
-            // Kullanıcının kendi kurumu mu?
-            $t['is_mine'] = in_array($t['id'], $myTenantIds);
-            $t['is_current'] = $t['id'] == $tenantId;
+            $userId = $_SESSION['user_id'] ?? 0;
+            $tenantId = $_SESSION['tenant_id'] ?? 0;
+
+            // Mevcut kullanıcının bağlı olduğu kurumları alalım
+            $myTenants = $userId ? $this->userModel->getTenants($userId) : [];
+            $myTenantIds = array_column($myTenants, 'id');
+
+            foreach ($tenants as &$t) {
+                $stmt = $this->tenantModel->getDb()->prepare("SELECT COUNT(*) as count FROM users WHERE tenant_id = ?");
+                $stmt->execute([$t['id']]);
+                $t['user_count'] = $stmt->fetch()['count'];
+                
+                // Format dates and status for easier JS handling
+                $t['created_at_formatted'] = !empty($t['created_at']) ? date('d.m.Y H:i', strtotime($t['created_at'])) : '-';
+                $t['status_label'] = $t['is_active'] ? 'Aktif' : 'Pasif';
+                $t['status_class'] = $t['is_active'] ? 'border-green-100 dark:border-green-900/30 text-green-700 dark:text-green-400' : 'border-red-100 dark:border-red-900/30 text-red-700 dark:text-red-400';
+                
+                // Kullanıcının kendi kurumu mu?
+                $t['is_mine'] = in_array($t['id'], $myTenantIds);
+                $t['is_current'] = $t['id'] == $tenantId;
+            }
+
+            echo json_encode(['data' => $tenants]);
+        } catch (\Exception $e) {
+            echo json_encode([
+                'success' => false,
+                'error' => $e->getMessage(),
+                'data' => []
+            ]);
         }
-
-        echo json_encode(['data' => $tenants]);
         exit;
     }
 
