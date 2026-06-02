@@ -30,6 +30,62 @@ if (!document.getElementById('toaster')) {
                 </div>
                 <input type="text" id="personnelSearch" class="block w-full pl-10 pr-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 text-sm placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Personel ara...">
             </div>
+            
+            <!-- Sütun Seçimi -->
+            <div class="relative inline-block text-left group-dropdown">
+                <button type="button" onclick="toggleDropdown(this)" class="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors shadow-sm whitespace-nowrap cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-columns3-cog-icon lucide-columns-3-cog"><path d="M10.5 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5.5"/><path d="m14.3 19.6 1-.4"/><path d="M15 3v7.5"/><path d="m15.2 16.9-.9-.3"/><path d="m16.6 21.7.3-.9"/><path d="m16.8 15.3-.4-1"/><path d="m19.1 15.2.3-.9"/><path d="m19.6 21.7-.4-1"/><path d="m20.7 16.8 1-.4"/><path d="m21.7 19.4-.9-.3"/><path d="M9 3v18"/><circle cx="18" cy="18" r="3"/></svg>
+                </button>
+                <div class="app-dropdown-menu absolute right-0 mt-2 w-56 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-lg z-50 hidden opacity-0 translate-y-[-10px] transition-all" onclick="event.stopPropagation()">
+                    <div class="p-2 flex flex-col gap-1 max-h-[350px] overflow-y-auto">
+                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                            <input type="checkbox" checked data-column-index="2" onchange="toggleColumnVisibility(2, this.checked)" class="input column-toggle cursor-pointer">
+                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Ad Soyad</span>
+                        </label>
+                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                            <input type="checkbox" checked data-column-index="3" onchange="toggleColumnVisibility(3, this.checked)" class="input column-toggle cursor-pointer">
+                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">TC Kimlik</span>
+                        </label>
+                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                            <input type="checkbox" checked data-column-index="4" onchange="toggleColumnVisibility(4, this.checked)" class="input column-toggle cursor-pointer">
+                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Cinsiyet</span>
+                        </label>
+                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                            <input type="checkbox" checked data-column-index="5" onchange="toggleColumnVisibility(5, this.checked)" class="input column-toggle cursor-pointer">
+                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Unvan</span>
+                        </label>
+                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                            <input type="checkbox" checked data-column-index="6" onchange="toggleColumnVisibility(6, this.checked)" class="input column-toggle cursor-pointer">
+                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Öğrenim</span>
+                        </label>
+                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                            <input type="checkbox" checked data-column-index="7" onchange="toggleColumnVisibility(7, this.checked)" class="input column-toggle cursor-pointer">
+                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Ücret</span>
+                        </label>
+                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                            <input type="checkbox" checked data-column-index="8" onchange="toggleColumnVisibility(8, this.checked)" class="input column-toggle cursor-pointer">
+                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Durum</span>
+                        </label>
+                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                            <input type="checkbox" checked data-column-index="9" onchange="toggleColumnVisibility(9, this.checked)" class="input column-toggle cursor-pointer">
+                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">G. Başlama</span>
+                        </label>
+                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                            <input type="checkbox" checked data-column-index="10" onchange="toggleColumnVisibility(10, this.checked)" class="input column-toggle cursor-pointer">
+                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Kadroya Geçiş</span>
+                        </label>
+                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                            <input type="checkbox" checked data-column-index="11" onchange="toggleColumnVisibility(11, this.checked)" class="input column-toggle cursor-pointer">
+                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Ayrılış / Kadro</span>
+                        </label>
+                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                            <input type="checkbox" checked data-column-index="12" onchange="toggleColumnVisibility(12, this.checked)" class="input column-toggle cursor-pointer">
+                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Telefon</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <button onclick="exportToExcel()" class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-900 text-green-600 dark:text-green-400 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors shadow-sm whitespace-nowrap">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                 Aktar
@@ -579,6 +635,92 @@ if (!document.getElementById('toaster')) {
     </footer>
   </div>
 </dialog>
+<!-- Ücretsiz İzin Dialog -->
+<dialog id="dialog-ucretsiz-izin" class="dialog" style="max-width: 650px; width: 90vw;" onclick="if (event.target === this) this.close()">
+  <div class="dialog-content bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-2xl" onclick="event.stopPropagation()">
+    <header class="flex items-start justify-between mb-6">
+      <div>
+        <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Ücretsiz İzin İşlemleri</h2>
+        <p id="ucretsiz-izin-personnel-name" class="text-sm text-zinc-500 font-medium"></p>
+      </div>
+      <button type="button" class="text-zinc-400 hover:text-zinc-600" onclick="this.closest('dialog').close()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x">
+          <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+        </svg>
+      </button>
+    </header>
+
+    <section>
+      <!-- Ekleme Formu -->
+      <form id="form-add-ucretsiz-izin" class="form grid gap-4 mb-6 p-4 bg-zinc-50 dark:bg-zinc-800/40 rounded-xl border border-zinc-100 dark:border-zinc-800">
+        <input type="hidden" id="ucretsiz_izin_personel_id" name="personel_id" />
+        <div class="grid grid-cols-2 gap-4">
+          <div class="grid gap-2">
+            <label for="ucretsiz_izin_baslangic">Başlangıç Tarihi</label>
+            <input type="text" id="ucretsiz_izin_baslangic" name="baslangic_tarihi" class="datepicker" placeholder="Seçiniz..." required />
+          </div>
+          <div class="grid gap-2">
+            <label for="ucretsiz_izin_bitis">Bitiş Tarihi</label>
+            <input type="text" id="ucretsiz_izin_bitis" name="bitis_tarihi" class="datepicker" placeholder="Seçiniz..." required />
+          </div>
+        </div>
+        <div class="grid gap-2">
+          <label for="ucretsiz_izin_aciklama">Açıklama</label>
+          <input type="text" id="ucretsiz_izin_aciklama" name="aciklama" placeholder="İzin gerekçesi..." />
+        </div>
+        <div class="flex justify-between items-center mt-2">
+          <span id="ucretsiz-izin-calc-days" class="text-xs text-zinc-500 font-medium">Süre: - gün</span>
+          <button type="submit" class="btn btn-sm">İzin Ekle</button>
+        </div>
+      </form>
+
+      <!-- Mevcut İzinler Listesi -->
+      <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100 mb-3">Girilen Ücretsiz İzinler</h3>
+      <div class="border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden bg-white dark:bg-zinc-900 max-h-[300px] overflow-y-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-zinc-50 dark:bg-zinc-800/30 border-b border-zinc-200 dark:border-zinc-800">
+              <th class="px-4 py-2.5 text-xs font-semibold text-zinc-600 dark:text-zinc-400">Başlangıç</th>
+              <th class="px-4 py-2.5 text-xs font-semibold text-zinc-600 dark:text-zinc-400">Bitiş</th>
+              <th class="px-4 py-2.5 text-xs font-semibold text-zinc-600 dark:text-zinc-400 text-center">Gün</th>
+              <th class="px-4 py-2.5 text-xs font-semibold text-zinc-600 dark:text-zinc-400">Açıklama</th>
+              <th class="px-4 py-2.5 text-xs font-semibold text-zinc-600 dark:text-zinc-400 text-right">İşlem</th>
+            </tr>
+          </thead>
+          <tbody id="ucretsiz-izin-table-body" class="divide-y divide-zinc-100 dark:divide-zinc-800/60">
+            <!-- Dinamik doldurulacak -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</dialog>
+
+<!-- Sağ Tık Context Menu -->
+<div id="custom-context-menu" class="absolute bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-lg z-[9999] w-48 py-1 hidden" style="box-shadow: 0 10px 30px rgba(0,0,0,0.15)">
+    <button onclick="contextAction('edit')" class="flex items-center w-full px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer text-left">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+        Düzenle
+    </button>
+    <button onclick="contextAction('printContract')" class="flex items-center w-full px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer text-left">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+        Sözleşme Yazdır
+    </button>
+    <button onclick="contextAction('printPetition')" class="flex items-center w-full px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer text-left" id="context-btn-petition">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        Dilekçe Yazdır
+    </button>
+    <button onclick="contextAction('ucretsizIzin')" class="flex items-center w-full px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer text-left">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+        Ücretsiz İzinler
+    </button>
+    <hr class="my-1 border-zinc-100 dark:border-zinc-800">
+    <button onclick="contextAction('delete')" class="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer text-left">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+        Sil
+    </button>
+</div>
+
 <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
@@ -789,17 +931,26 @@ $(document).ready(function() {
                 render: (data) => data ? new Date(data).toLocaleDateString('tr-TR') : '-'
             },
             { 
-                data: 'goreve_baslama_tarihi',
-                render: (data) => {
+                data: 'kadroya_gecis_tarihi',
+                render: (data, type, row) => {
                     if (!data) return '<span class="text-zinc-400">-</span>';
                     const date = new Date(data);
-                    date.setFullYear(date.getFullYear() + 3);
                     const today = new Date();
                     const isPast = date < today;
                     const badgeClass = isPast 
                         ? 'bg-green-50 text-green-700 border-green-100 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20' 
                         : 'bg-orange-50 text-orange-700 border-orange-100 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20';
-                    return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${badgeClass}">${date.toLocaleDateString('tr-TR')}</span>`;
+                    
+                    let html = `<div class="flex flex-col items-start gap-0.5">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${badgeClass}">${date.toLocaleDateString('tr-TR')}</span>`;
+                    
+                    if (row.toplam_ucretsiz_izin_gun && parseInt(row.toplam_ucretsiz_izin_gun) > 0) {
+                        const rowData = JSON.stringify(row).replace(/'/g, "&#39;");
+                        html += `<button onclick='openUcretsizIzinModal(${rowData})' class="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 pl-1 hover:underline cursor-pointer text-left focus:outline-none bg-transparent border-none p-0">+${row.toplam_ucretsiz_izin_gun} gün eklendi</button>`;
+                    }
+                    
+                    html += `</div>`;
+                    return html;
                 }
             },
             { 
@@ -833,6 +984,10 @@ $(document).ready(function() {
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                                     Dilekçe Yazdır
                                 </button>
+                                <button onclick='openUcretsizIzinModal(${rowData})' class="flex items-center w-full px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+                                    Ücretsiz İzinler
+                                </button>
                                 <hr class="my-1 border-zinc-100 dark:border-zinc-800">
                                 <button onclick="deletePersonnel(${row.id})" class="flex items-center w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
@@ -850,6 +1005,9 @@ $(document).ready(function() {
     });
 
     window.personnelTable = table;
+
+    // Load persisted column visibility preferences
+    loadColumnPreferences();
 
     // URL'den gelen filtreleri işle (Kadro Dolmuş Kısayolu)
     const urlParams = new URLSearchParams(window.location.search);
@@ -962,6 +1120,48 @@ $(document).ready(function() {
     // Initial check on page load
     checkActiveFiltersForTable($(table.table().node()));
 });
+
+// Column visibility helper functions
+function toggleColumnVisibility(index, isVisible) {
+    const table = window.personnelTable;
+    if (table) {
+        table.column(index).visible(isVisible);
+    }
+    saveColumnPreferences();
+}
+
+function saveColumnPreferences() {
+    const preferences = {};
+    $('.column-toggle').each(function() {
+        const index = $(this).data('column-index');
+        const isChecked = $(this).prop('checked');
+        preferences[index] = isChecked;
+    });
+    localStorage.setItem('personnel_column_preferences', JSON.stringify(preferences));
+}
+
+function loadColumnPreferences() {
+    const raw = localStorage.getItem('personnel_column_preferences');
+    if (!raw) return;
+    try {
+        const preferences = JSON.parse(raw);
+        for (const index in preferences) {
+            const isVisible = preferences[index];
+            // Update checkbox state
+            const checkbox = $(`.column-toggle[data-column-index="${index}"]`);
+            if (checkbox.length) {
+                checkbox.prop('checked', isVisible);
+            }
+            // Update DataTable column visibility
+            const table = window.personnelTable;
+            if (table) {
+                table.column(index).visible(isVisible);
+            }
+        }
+    } catch (e) {
+        console.error('Error loading column preferences:', e);
+    }
+}
 
 // Gender-based template preprocessor for petitions
 function processGenderTemplate(templateHtml, gender) {
@@ -1927,9 +2127,6 @@ async function exportToExcel() {
             };
 
             response.data.forEach(p => {
-                const kadroGecis = p.goreve_baslama_tarihi ? new Date(p.goreve_baslama_tarihi) : null;
-                if (kadroGecis) kadroGecis.setFullYear(kadroGecis.getFullYear() + 3);
-
                 worksheet.addRow({
                     ad_soyad: p.ad_soyad,
                     tc_kimlik: p.tc_kimlik,
@@ -1939,7 +2136,7 @@ async function exportToExcel() {
                     ucret: p.ucret ? parseFloat(p.ucret) : 0,
                     durum: p.durum || 'aktif',
                     goreve_baslama: p.goreve_baslama_tarihi ? new Date(p.goreve_baslama_tarihi) : null,
-                    kadro_gecis: kadroGecis,
+                    kadro_gecis: p.kadroya_gecis_tarihi ? new Date(p.kadroya_gecis_tarihi) : null,
                     ayrilma_tarihi: p.ayrilma_tarihi ? new Date(p.ayrilma_tarihi) : null,
                     telefon: p.telefon
                 });
@@ -1973,6 +2170,180 @@ async function exportToExcel() {
         },
         error: function() {
             showToast({ category: 'error', title: 'Hata', description: 'Veriler alınırken bir hata oluştu.' });
+        }
+    });
+}
+
+// SAĞ TIK CONTEXT MENU VE ÜCRETSİZ İZİN JS KODLARI
+let selectedContextRow = null;
+
+$(document).ready(function() {
+    // Tablo satırına sağ tık olayı
+    $('#personnelTable tbody').on('contextmenu', 'tr', function(e) {
+        e.preventDefault();
+        closeAllDropdowns();
+        
+        const row = window.personnelTable.row(this).data();
+        if (!row) return;
+        
+        selectedContextRow = row;
+        
+        // Dilekçe butonunu durum kadroya geçti ise gizle
+        if (row.durum === 'kadroya_gecti') {
+            $('#context-btn-petition').hide();
+        } else {
+            $('#context-btn-petition').show();
+        }
+        
+        // Menüyü konumlandır ve göster
+        $('#custom-context-menu')
+            .css({
+                top: e.pageY + 'px',
+                left: e.pageX + 'px'
+            })
+            .removeClass('hidden');
+    });
+
+    // Menü dışına tıklanınca gizle
+    $(document).on('click', function(e) {
+        if (!$(e.target).closest('#custom-context-menu').length) {
+            $('#custom-context-menu').addClass('hidden');
+        }
+    });
+    
+    // Tarih seçildiğinde gün hesaplama
+    $('#ucretsiz_izin_baslangic, #ucretsiz_izin_bitis').on('change', calculateUcretsizIzinDays);
+
+    // Ücretsiz İzin Form Kaydetme
+    $('#form-add-ucretsiz-izin').on('submit', function(e) {
+        e.preventDefault();
+        const personel_id = $('#ucretsiz_izin_personel_id').val();
+        const formData = $(this).serialize();
+        
+        $.post('<?php echo routeUrl("personel-ucretsiz-izin-ekle"); ?>', formData, function(res) {
+            if (res.success) {
+                showToast({ category: 'success', title: 'Başarılı', description: 'Ücretsiz izin başarıyla eklendi.' });
+                $('#form-add-ucretsiz-izin')[0].reset();
+                $('#ucretsiz-izin-calc-days').text('Süre: - gün');
+                loadUcretsizIzinList(personel_id);
+                if (window.personnelTable) {
+                    window.personnelTable.ajax.reload(null, false);
+                }
+            } else {
+                showToast({ category: 'error', title: 'Hata', description: res.error || 'İzin eklenirken hata oluştu.' });
+            }
+        });
+    });
+});
+
+function contextAction(action) {
+    $('#custom-context-menu').addClass('hidden');
+    if (!selectedContextRow) return;
+    
+    const row = selectedContextRow;
+    const rowData = JSON.stringify(row).replace(/'/g, "&#39;");
+    
+    if (action === 'edit') {
+        editPersonnel(row.id);
+    } else if (action === 'printContract') {
+        printContract(row.id);
+    } else if (action === 'printPetition') {
+        openPetitionModal(row);
+    } else if (action === 'ucretsizIzin') {
+        openUcretsizIzinModal(row);
+    } else if (action === 'delete') {
+        deletePersonnel(row.id);
+    }
+}
+
+// Ücretsiz İzin Modal Açma
+function openUcretsizIzinModal(p) {
+    closeAllDropdowns();
+    $('#form-add-ucretsiz-izin')[0].reset();
+    $('#ucretsiz_izin_personel_id').val(p.id);
+    $('#ucretsiz-izin-personnel-name').text(p.ad_soyad);
+    $('#ucretsiz-izin-calc-days').text('Süre: - gün');
+    
+    loadUcretsizIzinList(p.id);
+    document.getElementById('dialog-ucretsiz-izin').showModal();
+}
+
+// Ücretsiz İzinleri Listeleme
+function loadUcretsizIzinList(personel_id) {
+    const tbody = $('#ucretsiz-izin-table-body');
+    tbody.html('<tr><td colspan="5" class="text-center py-4 text-zinc-400">Yükleniyor...</td></tr>');
+    
+    $.get('<?php echo routeUrl("personel-ucretsiz-izin-list"); ?>', { personel_id: personel_id }, function(res) {
+        if (res.success && res.data) {
+            if (res.data.length === 0) {
+                tbody.html('<tr><td colspan="5" class="text-center py-4 text-zinc-400">Kayıtlı ücretsiz izin bulunmuyor.</td></tr>');
+                return;
+            }
+            
+            let html = '';
+            res.data.forEach(item => {
+                const start = new Date(item.baslangic_tarihi).toLocaleDateString('tr-TR');
+                const end = new Date(item.bitis_tarihi).toLocaleDateString('tr-TR');
+                html += `
+                <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/40">
+                    <td class="px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300">${start}</td>
+                    <td class="px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300">${end}</td>
+                    <td class="px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 text-center font-semibold">${item.gun_sayisi} gün</td>
+                    <td class="px-4 py-2 text-sm text-zinc-500 truncate max-w-[150px]" title="${item.aciklama || ''}">${item.aciklama || '-'}</td>
+                    <td class="px-4 py-2 text-right">
+                        <button onclick="deleteUcretsizIzin(${item.id}, ${personel_id})" class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-all cursor-pointer">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                        </button>
+                    </td>
+                </tr>
+                `;
+            });
+            tbody.html(html);
+        } else {
+            tbody.html('<tr><td colspan="5" class="text-center py-4 text-red-500">İzinler yüklenemedi.</td></tr>');
+        }
+    });
+}
+
+// İzin Süresi Hesaplama
+function calculateUcretsizIzinDays() {
+    const startVal = $('#ucretsiz_izin_baslangic').val();
+    const endVal = $('#ucretsiz_izin_bitis').val();
+    if (!startVal || !endVal) {
+        $('#ucretsiz-izin-calc-days').text('Süre: - gün');
+        return;
+    }
+    
+    const parseDate = (str) => {
+        const parts = str.split('.');
+        return new Date(parts[2], parts[1] - 1, parts[0]);
+    };
+    
+    const start = parseDate(startVal);
+    const end = parseDate(endVal);
+    
+    if (end >= start) {
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        $('#ucretsiz-izin-calc-days').text(`Süre: ${diffDays} gün`);
+    } else {
+        $('#ucretsiz-izin-calc-days').text('Bitiş tarihi başlangıçtan önce!');
+    }
+}
+
+// Ücretsiz İzin Silme
+function deleteUcretsizIzin(id, personel_id) {
+    if (!confirm('Bu ücretsiz izni silmek istediğinize emin misiniz?')) return;
+    
+    $.post('<?php echo routeUrl("personel-ucretsiz-izin-sil"); ?>', { id: id }, function(res) {
+        if (res.success) {
+            showToast({ category: 'success', title: 'Başarılı', description: 'Ücretsiz izin başarıyla silindi.' });
+            loadUcretsizIzinList(personel_id);
+            if (window.personnelTable) {
+                window.personnelTable.ajax.reload(null, false);
+            }
+        } else {
+            showToast({ category: 'error', title: 'Hata', description: res.error || 'İzin silinirken hata oluştu.' });
         }
     });
 }

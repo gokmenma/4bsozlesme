@@ -19,7 +19,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 global $db;
 
-$targetDate = "DATE_SUB(CURDATE(), INTERVAL 3 YEAR)";
+$targetDateVal = "CURDATE()";
 $isTest = false;
 
 if (php_sapi_name() === 'cli' && isset($argv)) {
@@ -27,9 +27,9 @@ if (php_sapi_name() === 'cli' && isset($argv)) {
         if (strpos($arg, '--test-date=') === 0) {
             $testDateVal = substr($arg, strlen('--test-date='));
             if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $testDateVal)) {
-                $targetDate = "'" . $testDateVal . "'";
+                $targetDateVal = "DATE_ADD('" . $testDateVal . "', INTERVAL 3 YEAR)";
                 $isTest = true;
-                echo "Test Modu Aktif: Hedef tarih $testDateVal olarak ayarlandı.\n";
+                echo "Test Modu Aktif: Hedef kadroya geçiş tarihi (giriş tarihi + 3 yıl) hesaplandı: " . date('Y-m-d', strtotime($testDateVal . ' + 3 years')) . "\n";
             }
         }
     }
@@ -60,13 +60,21 @@ foreach ($tenants as $tenant) {
         continue;
     }
     
-    // Tam 3 yılını doldurmuş personelleri filtreleyelim
+    // Tam 3 yılını (veya ücretsiz izinlerle ötelenmiş süresini) doldurmuş personelleri filtreleyelim
     $personnelsStmt = $db->prepare("
-        SELECT * FROM personeller 
+        SELECT *, 
+               DATE_ADD(DATE_ADD(goreve_baslama_tarihi, INTERVAL 3 YEAR), 
+                        INTERVAL (SELECT COALESCE(SUM(DATEDIFF(bitis_tarihi, baslangic_tarihi) + 1), 0) 
+                                  FROM ucretsiz_izin 
+                                  WHERE personel_id = personeller.id AND deleted_at IS NULL) DAY) as kadroya_gecis_tarihi
+        FROM personeller 
         WHERE tenant_id = ? 
           AND deleted_at IS NULL 
           AND durum = 'aktif' 
-          AND goreve_baslama_tarihi = $targetDate
+          AND DATE_ADD(DATE_ADD(goreve_baslama_tarihi, INTERVAL 3 YEAR), 
+                        INTERVAL (SELECT COALESCE(SUM(DATEDIFF(bitis_tarihi, baslangic_tarihi) + 1), 0) 
+                                  FROM ucretsiz_izin 
+                                  WHERE personel_id = personeller.id AND deleted_at IS NULL) DAY) = $targetDateVal
     ");
     $personnelsStmt->execute([$tenant_id]);
     $personnels = $personnelsStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -122,7 +130,7 @@ foreach ($tenants as $tenant) {
         <div class='container'>
             <div class='header'>
                 <h2>Kadroya Geçiş Bildirimi</h2>
-                <p>" . htmlspecialchars($tenant['name']) . " bünyesinde bugün itibarıyla göreve başlama tarihinden itibaren 3 yıl geçmiş personellerin listesi aşağıdadır.</p>
+                <p>" . htmlspecialchars($tenant['name']) . " bünyesinde bugün itibarıyla kadroya geçiş tarihi gelmiş personellerin listesi aşağıdadır.</p>
             </div>
             <div class='table-container'>
                 <table>
@@ -131,6 +139,7 @@ foreach ($tenants as $tenant) {
                             <th>Ad Soyad</th>
                             <th>T.C. Kimlik No</th>
                             <th>Göreve Başlama Tarihi</th>
+                            <th>Kadroya Geçiş Tarihi</th>
                         </tr>
                     </thead>
                     <tbody>";
@@ -141,6 +150,7 @@ foreach ($tenants as $tenant) {
                             <td><strong>" . htmlspecialchars($p['ad_soyad']) . "</strong></td>
                             <td>" . htmlspecialchars($p['tc_kimlik']) . "</td>
                             <td>" . htmlspecialchars(date('d.m.Y', strtotime($p['goreve_baslama_tarihi']))) . "</td>
+                            <td><strong>" . htmlspecialchars(date('d.m.Y', strtotime($p['kadroya_gecis_tarihi']))) . "</strong></td>
                         </tr>";
     }
     

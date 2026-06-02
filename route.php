@@ -64,6 +64,9 @@ function isStandaloneRoute(string $page): bool
         '/personel-import-excel',
         '/personel-sample-template',
         '/belge-yazdir',
+        '/personel-ucretsiz-izin-list',
+        '/personel-ucretsiz-izin-ekle',
+        '/personel-ucretsiz-izin-sil',
         
         // Wage/Salary APIs
         '/ucret-ekle',
@@ -333,6 +336,24 @@ function renderRoute(string $page): void
     if ($page === '/personel-sil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $controller = new PersonnelController();
         $controller->delete();
+        exit;
+    }
+
+    if ($page === '/personel-ucretsiz-izin-list') {
+        $controller = new PersonnelController();
+        $controller->ucretsizIzinList();
+        exit;
+    }
+
+    if ($page === '/personel-ucretsiz-izin-ekle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new PersonnelController();
+        $controller->ucretsizIzinEkle();
+        exit;
+    }
+
+    if ($page === '/personel-ucretsiz-izin-sil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new PersonnelController();
+        $controller->ucretsizIzinSil();
         exit;
     }
 

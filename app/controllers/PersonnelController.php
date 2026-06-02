@@ -613,7 +613,7 @@ class PersonnelController extends Controller {
                 7 => 'COALESCE(u_def.ucret, u.ucret)',
                 8 => 'p.durum',
                 9 => 'p.goreve_baslama_tarihi',
-                10 => 'p.goreve_baslama_tarihi', 
+                10 => 'DATE_ADD(DATE_ADD(p.goreve_baslama_tarihi, INTERVAL 3 YEAR), INTERVAL (SELECT COALESCE(SUM(DATEDIFF(ui.bitis_tarihi, ui.baslangic_tarihi) + 1), 0) FROM ucretsiz_izin ui WHERE ui.personel_id = p.id AND ui.deleted_at IS NULL) DAY)',
                 11 => 'p.ayrilma_tarihi',
                 12 => 'p.telefon',
                 13 => 'p.id'
@@ -640,7 +640,7 @@ class PersonnelController extends Controller {
                     if (!$colField) continue;
 
                     if ($colIdx == 10) {
-                        $colField = "DATE_ADD(p.goreve_baslama_tarihi, INTERVAL 3 YEAR)";
+                        $colField = "DATE_ADD(DATE_ADD(p.goreve_baslama_tarihi, INTERVAL 3 YEAR), INTERVAL (SELECT COALESCE(SUM(DATEDIFF(ui.bitis_tarihi, ui.baslangic_tarihi) + 1), 0) FROM ucretsiz_izin ui WHERE ui.personel_id = p.id AND ui.deleted_at IS NULL) DAY)";
                     }
 
                     $matchLogic = ($config['match'] === 'any') ? ' OR ' : ' AND ';
@@ -750,7 +750,9 @@ class PersonnelController extends Controller {
                 SELECT p.*, 
                        u.unvan, 
                        COALESCE(u_def.ucret, u.ucret) as ucret, 
-                       u.ogrenim 
+                       u.ogrenim,
+                       (SELECT COALESCE(SUM(DATEDIFF(ui.bitis_tarihi, ui.baslangic_tarihi) + 1), 0) FROM ucretsiz_izin ui WHERE ui.personel_id = p.id AND ui.deleted_at IS NULL) as toplam_ucretsiz_izin_gun,
+                       DATE_ADD(DATE_ADD(p.goreve_baslama_tarihi, INTERVAL 3 YEAR), INTERVAL (SELECT COALESCE(SUM(DATEDIFF(ui.bitis_tarihi, ui.baslangic_tarihi) + 1), 0) FROM ucretsiz_izin ui WHERE ui.personel_id = p.id AND ui.deleted_at IS NULL) DAY) as kadroya_gecis_tarihi
                 FROM personeller p 
                 LEFT JOIN ucretler u ON p.ucret_id = u.id 
                 LEFT JOIN ucretler u_def ON u_def.tenant_id = p.tenant_id 
@@ -1165,6 +1167,100 @@ class PersonnelController extends Controller {
         </body>
         </html>
         <?php
+        exit;
+    }
+
+    public function ucretsizIzinList() {
+        $personel_id = $_GET['personel_id'] ?? $_POST['personel_id'] ?? 0;
+        $tenant_id = $_SESSION['tenant_id'] ?? 0;
+
+        if (!$personel_id) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Personel ID gerekli.']);
+            exit;
+        }
+
+        $model = $this->model('UcretsizIzin');
+        $list = $model->getByPersonnel($personel_id, $tenant_id);
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true, 'data' => $list]);
+        exit;
+    }
+
+    public function ucretsizIzinEkle() {
+        $personel_id = $_POST['personel_id'] ?? 0;
+        $baslangic = $_POST['baslangic_tarihi'] ?? '';
+        $bitis = $_POST['bitis_tarihi'] ?? '';
+        $aciklama = $_POST['aciklama'] ?? '';
+        $tenant_id = $_SESSION['tenant_id'] ?? 0;
+
+        if (!$personel_id || empty($baslangic) || empty($bitis)) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Eksik bilgi girdiniz.']);
+            exit;
+        }
+
+        // Convert date format from d.m.Y to Y-m-d
+        if (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $baslangic)) {
+            $parts = explode('.', $baslangic);
+            $baslangic = "{$parts[2]}-{$parts[1]}-{$parts[0]}";
+        }
+        if (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $bitis)) {
+            $parts = explode('.', $bitis);
+            $bitis = "{$parts[2]}-{$parts[1]}-{$parts[0]}";
+        }
+
+        // Calculate days
+        try {
+            $start_dt = new DateTime($baslangic);
+            $end_dt = new DateTime($bitis);
+            
+            if ($end_dt < $start_dt) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => 'Bitiş tarihi başlangıç tarihinden önce olamaz.']);
+                exit;
+            }
+
+            $diff = $start_dt->diff($end_dt);
+            $gun_sayisi = $diff->days + 1;
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Geçersiz tarih formatı.']);
+            exit;
+        }
+
+        $model = $this->model('UcretsizIzin');
+        $id = $model->create([
+            'tenant_id' => $tenant_id,
+            'personel_id' => $personel_id,
+            'baslangic_tarihi' => $baslangic,
+            'bitis_tarihi' => $bitis,
+            'gun_sayisi' => $gun_sayisi,
+            'aciklama' => $aciklama
+        ]);
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => (bool)$id]);
+        exit;
+    }
+
+    public function ucretsizIzinSil() {
+        $id = $_POST['id'] ?? 0;
+        $tenant_id = $_SESSION['tenant_id'] ?? 0;
+
+        if (!$id) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'İzin ID gerekli.']);
+            exit;
+        }
+
+        global $db;
+        $stmt = $db->prepare("UPDATE ucretsiz_izin SET deleted_at = NOW() WHERE id = ? AND tenant_id = ?");
+        $success = $stmt->execute([$id, $tenant_id]);
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => $success]);
         exit;
     }
 }

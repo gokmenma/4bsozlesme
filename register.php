@@ -187,8 +187,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="text-center flex flex-col items-center">
                 <div class="flex size-11 items-center justify-center rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-950 mb-3.5 shadow-sm transition-transform hover:scale-105 duration-300">
                     <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m7 17 10-10" />
-                        <path d="m13 17 4-4" opacity="0.5" />
+                        <path d="M11.5 15H7a4 4 0 0 0-4 4v2" />
+                        <path d="M11.5 11.5a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+                        <path d="M16 21.16a1 1 0 0 1-1.2-1.2l.3-1a1.76 1.76 0 0 1 .4-.6l4.9-4.9a1.2 1.2 0 0 1 1.7 1.7l-4.9 4.9a1.76 1.76 0 0 1-.6.4z" />
                     </svg>
                 </div>
                 <h1 class="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50 mb-0.5">
