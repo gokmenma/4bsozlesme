@@ -429,7 +429,7 @@ class PersonnelController extends Controller {
             ");
 
             $stmt_check_personnel = $db->prepare("
-                SELECT id FROM personeller 
+                SELECT * FROM personeller 
                 WHERE tenant_id = ? AND tc_kimlik = ? AND deleted_at IS NULL LIMIT 1
             ");
 
@@ -456,97 +456,205 @@ class PersonnelController extends Controller {
                 UPDATE ucretler SET ucret = ?, updated_at = ? WHERE id = ?
             ");
 
+            $errors = [];
+            $row_idx = 0;
+
             foreach ($data as $row) {
-                $tc = $row['TC Kimlik No*'] ?? $row['TC Kimlik No'] ?? $row['tc_kimlik'] ?? null;
-                $ad = $row['Ad Soyad*'] ?? $row['Ad Soyad'] ?? $row['ad_soyad'] ?? null;
-                $cinsiyet = $row['Cinsiyet*'] ?? $row['Cinsiyet'] ?? $row['cinsiyet'] ?? null;
-                
-                if (!$tc || !$ad) continue;
+                $row_idx++;
+                $row_num = $row_idx + 1; // Row 1 is headers
 
-                // Wage components
-                $row_ogrenim = trim($row['Öğrenim Durumu*'] ?? $row['Öğrenim Durumu'] ?? $row['ogrenim'] ?? '');
-                $row_kidem = trim($row['Kıdem Yılı*'] ?? $row['Kıdem Yılı'] ?? $row['kidem_yili'] ?? '');
-                $row_unvan = trim($row['Unvan*'] ?? $row['Unvan'] ?? $row['ucret_tanimi'] ?? '');
-                $row_ucret_val = $row['Ücret*'] ?? $row['Ücret'] ?? $row['ucret_val'] ?? 0;
-
-                // Format ucret as decimal
-                if (is_string($row_ucret_val)) {
-                    $row_ucret_val = str_replace(['.', ','], ['', '.'], $row_ucret_val);
-                }
-                $ucret_float = (float)$row_ucret_val;
-
-                if (empty($row_ogrenim) || empty($row_kidem) || empty($row_unvan)) continue;
-
-                // Find existing wage definition (by 3 main fields)
-                $stmt_find_wage->execute([$tenant_id, $row_unvan, $row_ogrenim, $row_kidem]);
-                $wage_record = $stmt_find_wage->fetch(PDO::FETCH_ASSOC);
-
-                if ($wage_record) {
-                    $ucret_id = $wage_record['id'];
-                    $db_ucret = (float)$wage_record['ucret'];
-
-                    // Update if different and user requested
-                    if ($update_wages && abs($ucret_float - $db_ucret) > 0.001) {
-                        $stmt_update_wage->execute([$ucret_float, date('Y-m-d H:i:s'), $ucret_id]);
-                    }
-                } else {
-                    // Create new if not found
-                    $stmt_insert_wage->execute([
-                        $tenant_id,
-                        $row_unvan,
-                        $row_ogrenim,
-                        $row_kidem,
-                        $ucret_float,
-                        date('Y-m-d H:i:s')
-                    ]);
-                    $ucret_id = $db->lastInsertId();
+                $tc = trim((string)($row['TC Kimlik No*'] ?? $row['TC Kimlik No'] ?? $row['tc_kimlik'] ?? ''));
+                if (empty($tc)) {
+                    $errors[] = "Satır {$row_num}: TC Kimlik No bulunamadı.";
+                    continue;
                 }
 
-                if (!$ucret_id) continue;
-
-                $telefon = $row['Telefon'] ?? $row['telefon'] ?? '';
-                $meslek = $row['Meslek Kodu'] ?? $row['meslek_kodu'] ?? '';
-                $baslama = $row['Göreve Başlama Tarihi'] ?? $row['goreve_baslama_tarihi'] ?? date('Y-m-d');
-
-                if (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $baslama)) {
-                    $parts = explode('.', $baslama);
-                    $baslama = "{$parts[2]}-{$parts[1]}-{$parts[0]}";
-                } elseif (is_numeric($baslama)) {
-                    $baslama = date('Y-m-d', ($baslama - 25569) * 86400);
-                } else {
-                    $baslama = date('Y-m-d', strtotime($baslama));
-                }
-
-                $stmt_check_personnel->execute([$tenant_id, (string)$tc]);
+                // Check if personnel exists
+                $stmt_check_personnel->execute([$tenant_id, $tc]);
                 $existing_personnel = $stmt_check_personnel->fetch(PDO::FETCH_ASSOC);
 
                 if ($existing_personnel) {
+                    // --- CASE: UPDATE ---
+                    $ad = trim((string)($row['Ad Soyad*'] ?? $row['Ad Soyad'] ?? $row['ad_soyad'] ?? ''));
+                    if (empty($ad)) {
+                        $ad = $existing_personnel['ad_soyad'];
+                    }
+
+                    $cinsiyet = trim((string)($row['Cinsiyet*'] ?? $row['Cinsiyet'] ?? $row['cinsiyet'] ?? ''));
+                    if (empty($cinsiyet)) {
+                        $cinsiyet = $existing_personnel['cinsiyet'];
+                    } else {
+                        $cinsiyet_lower = mb_strtolower($cinsiyet, 'UTF-8');
+                        if ($cinsiyet_lower === 'kadın' || $cinsiyet_lower === 'kadin') {
+                            $cinsiyet = 'kadin';
+                        } else {
+                            $cinsiyet = 'erkek';
+                        }
+                    }
+
+                    $telefon = trim((string)($row['Telefon'] ?? $row['telefon'] ?? ''));
+                    if (empty($telefon)) {
+                        $telefon = $existing_personnel['telefon'];
+                    }
+
+                    $meslek = trim((string)($row['Meslek Kodu'] ?? $row['meslek_kodu'] ?? ''));
+                    if (empty($meslek)) {
+                        $meslek = $existing_personnel['meslek_kodu'];
+                    }
+
+                    $baslama = trim((string)($row['Göreve Başlama Tarihi'] ?? $row['goreve_baslama_tarihi'] ?? ''));
+                    if (empty($baslama)) {
+                        $baslama = $existing_personnel['goreve_baslama_tarihi'];
+                    } else {
+                        // Normalize date
+                        if (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $baslama)) {
+                            $parts = explode('.', $baslama);
+                            $baslama = "{$parts[2]}-{$parts[1]}-{$parts[0]}";
+                        } elseif (is_numeric($baslama)) {
+                            $baslama = date('Y-m-d', ($baslama - 25569) * 86400);
+                        } else {
+                            $baslama = date('Y-m-d', strtotime($baslama));
+                        }
+                    }
+
+                    // Wage definition check
+                    $row_unvan = trim($row['Unvan*'] ?? $row['Unvan'] ?? $row['ucret_tanimi'] ?? '');
+                    $row_ogrenim = trim($row['Öğrenim Durumu*'] ?? $row['Öğrenim Durumu'] ?? $row['ogrenim'] ?? '');
+                    $row_kidem = trim($row['Kıdem Yılı*'] ?? $row['Kıdem Yılı'] ?? $row['kidem_yili'] ?? '');
+
+                    $ucret_id = $existing_personnel['ucret_id'];
+
+                    if (!empty($row_unvan) && !empty($row_ogrenim) && !empty($row_kidem)) {
+                        $row_ucret_val = $row['Ücret*'] ?? $row['Ücret'] ?? $row['ucret_val'] ?? 0;
+                        if (is_string($row_ucret_val)) {
+                            $row_ucret_val = str_replace(['.', ','], ['', '.'], $row_ucret_val);
+                        }
+                        $ucret_float = (float)$row_ucret_val;
+
+                        $stmt_find_wage->execute([$tenant_id, $row_unvan, $row_ogrenim, $row_kidem]);
+                        $wage_record = $stmt_find_wage->fetch(PDO::FETCH_ASSOC);
+
+                        if ($wage_record) {
+                            $ucret_id = $wage_record['id'];
+                            $db_ucret = (float)$wage_record['ucret'];
+
+                            // Update if different and user requested
+                            if ($update_wages && abs($ucret_float - $db_ucret) > 0.001) {
+                                $stmt_update_wage->execute([$ucret_float, date('Y-m-d H:i:s'), $ucret_id]);
+                            }
+                        } else {
+                            // Create new if not found
+                            $stmt_insert_wage->execute([
+                                $tenant_id,
+                                $row_unvan,
+                                $row_ogrenim,
+                                $row_kidem,
+                                $ucret_float,
+                                date('Y-m-d H:i:s')
+                            ]);
+                            $ucret_id = $db->lastInsertId();
+                        }
+                    }
+
                     $stmt_update_personnel->execute([
-                        (string)$ad,
+                        $ad,
                         $ucret_id,
-                        'aktif',
+                        $existing_personnel['durum'] ?: 'aktif',
                         $baslama,
-                        (string)$cinsiyet,
-                        (string)$telefon,
-                        (string)$meslek,
+                        $cinsiyet,
+                        $telefon,
+                        $meslek,
                         date('Y-m-d H:i:s'),
                         $existing_personnel['id']
                     ]);
+                    $count++;
+
                 } else {
+                    // --- CASE: INSERT (New Personnel) ---
+                    $ad = trim((string)($row['Ad Soyad*'] ?? $row['Ad Soyad'] ?? $row['ad_soyad'] ?? ''));
+                    $cinsiyet = trim((string)($row['Cinsiyet*'] ?? $row['Cinsiyet'] ?? $row['cinsiyet'] ?? ''));
+                    if (empty($cinsiyet)) {
+                        $cinsiyet = 'erkek';
+                    } else {
+                        $cinsiyet_lower = mb_strtolower($cinsiyet, 'UTF-8');
+                        if ($cinsiyet_lower === 'kadın' || $cinsiyet_lower === 'kadin') {
+                            $cinsiyet = 'kadin';
+                        } else {
+                            $cinsiyet = 'erkek';
+                        }
+                    }
+                    $row_unvan = trim($row['Unvan*'] ?? $row['Unvan'] ?? $row['ucret_tanimi'] ?? '');
+                    $row_ogrenim = trim($row['Öğrenim Durumu*'] ?? $row['Öğrenim Durumu'] ?? $row['ogrenim'] ?? '');
+                    $row_kidem = trim($row['Kıdem Yılı*'] ?? $row['Kıdem Yılı'] ?? $row['kidem_yili'] ?? '');
+
+                    // Validation for new personnel
+                    if (empty($ad) || empty($row_unvan) || empty($row_ogrenim) || empty($row_kidem)) {
+                        $errors[] = "Satır {$row_num}: TC {$tc} için yeni personel kaydı yapılamadı. Zorunlu alanlar (Ad Soyad, Ünvan, Öğrenim, Kıdem) eksik.";
+                        continue;
+                    }
+
+                    $row_ucret_val = $row['Ücret*'] ?? $row['Ücret'] ?? $row['ucret_val'] ?? 0;
+                    if (is_string($row_ucret_val)) {
+                        $row_ucret_val = str_replace(['.', ','], ['', '.'], $row_ucret_val);
+                    }
+                    $ucret_float = (float)$row_ucret_val;
+
+                    $stmt_find_wage->execute([$tenant_id, $row_unvan, $row_ogrenim, $row_kidem]);
+                    $wage_record = $stmt_find_wage->fetch(PDO::FETCH_ASSOC);
+
+                    if ($wage_record) {
+                        $ucret_id = $wage_record['id'];
+                        $db_ucret = (float)$wage_record['ucret'];
+
+                        // Update if different and user requested
+                        if ($update_wages && abs($ucret_float - $db_ucret) > 0.001) {
+                            $stmt_update_wage->execute([$ucret_float, date('Y-m-d H:i:s'), $ucret_id]);
+                        }
+                    } else {
+                        // Create new if not found
+                        $stmt_insert_wage->execute([
+                            $tenant_id,
+                            $row_unvan,
+                            $row_ogrenim,
+                            $row_kidem,
+                            $ucret_float,
+                            date('Y-m-d H:i:s')
+                        ]);
+                        $ucret_id = $db->lastInsertId();
+                    }
+
+                    if (!$ucret_id) {
+                        $errors[] = "Satır {$row_num}: Ücret tanımı oluşturulamadı veya bulunamadı.";
+                        continue;
+                    }
+
+                    $telefon = trim((string)($row['Telefon'] ?? $row['telefon'] ?? ''));
+                    $meslek = trim((string)($row['Meslek Kodu'] ?? $row['meslek_kodu'] ?? ''));
+                    $baslama = trim((string)($row['Göreve Başlama Tarihi'] ?? $row['goreve_baslama_tarihi'] ?? date('Y-m-d')));
+
+                    if (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $baslama)) {
+                        $parts = explode('.', $baslama);
+                        $baslama = "{$parts[2]}-{$parts[1]}-{$parts[0]}";
+                    } elseif (is_numeric($baslama)) {
+                        $baslama = date('Y-m-d', ($baslama - 25569) * 86400);
+                    } else {
+                        $baslama = date('Y-m-d', strtotime($baslama));
+                    }
+
                     $stmt_personnel->execute([
                         $tenant_id,
-                        (string)$tc,
-                        (string)$ad,
+                        $tc,
+                        $ad,
                         $ucret_id,
                         'aktif',
                         $baslama,
-                        (string)$cinsiyet,
-                        (string)$telefon,
-                        (string)$meslek,
+                        $cinsiyet ?: 'erkek',
+                        $telefon,
+                        $meslek,
                         date('Y-m-d H:i:s')
                     ]);
+                    $count++;
                 }
-                $count++;
             }
 
             $db->commit();

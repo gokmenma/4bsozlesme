@@ -901,8 +901,11 @@ $(document).ready(function() {
                 data: 'cinsiyet',
                 className: 'text-zinc-600 dark:text-zinc-400',
                 render: (data) => {
-                    const val = data || 'erkek';
-                    return val.charAt(0).toUpperCase() + val.slice(1);
+                    const val = (data || 'erkek').toLowerCase();
+                    if (val === 'kadin' || val === 'kadın') {
+                        return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border border-rose-100 dark:border-rose-950/30 text-rose-700 dark:text-rose-400">Kadın</span>`;
+                    }
+                    return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border border-indigo-100 dark:border-indigo-950/30 text-indigo-700 dark:text-indigo-400">Erkek</span>`;
                 }
             },
             { 
@@ -1110,11 +1113,12 @@ $(document).ready(function() {
                         category: 'success', 
                         title: 'Başarılı', 
                         description: 'Yeni personel başarıyla eklendi.',
-                        duration: 2000,
-                        onClose: () => location.reload()
+                        duration: 2000
                     });
                     document.getElementById('dialog-add-personnel').close();
-                    setTimeout(() => location.reload(), 2100);
+                    if (window.personnelTable) {
+                        window.personnelTable.ajax.reload(null, false);
+                    }
                 } else {
                     showToast({ category: 'error', title: 'Hata', description: 'Ekleme sırasında bir hata oluştu.' });
                 }
@@ -1171,7 +1175,7 @@ function loadColumnPreferences() {
 // Gender-based template preprocessor for petitions
 function processGenderTemplate(templateHtml, gender) {
     if (!templateHtml) return '';
-    const isFemale = gender && gender.toLowerCase() === 'kadin';
+    const isFemale = gender && (gender.toLowerCase() === 'kadin' || gender.toLowerCase() === 'kadın');
     if (!isFemale) return templateHtml; // If male, keep exactly as is
 
     // Use a temp DOM parser to safely edit elements
@@ -1369,8 +1373,9 @@ function openPetitionModal(p) {
     let customTemplate = `<?php echo addslashes(str_replace(["\r", "\n"], '', $custom_petition)); ?>`;
     let processedTemplate = customTemplate ? customTemplate : defaultContent;
     
-    // NOTE: We do NOT apply gender preprocessing here so that the Master template
-    // containing the Askerlik clause remains fully editable and savable by everyone.
+    // Apply gender preprocessing
+    const cins = p.cinsiyet ? p.cinsiyet.toLowerCase() : 'erkek';
+    processedTemplate = processGenderTemplate(processedTemplate, cins);
 
     // Replace tokens
     processedTemplate = processedTemplate
@@ -1851,7 +1856,11 @@ function editPersonnel(id) {
         $durumOpt.find('.check-icon').removeClass('hidden');
 
         let cinsiyet = data.cinsiyet ? data.cinsiyet.toLowerCase() : 'erkek';
-        if (cinsiyet !== 'erkek' && cinsiyet !== 'kadin') cinsiyet = 'erkek';
+        if (cinsiyet === 'kadin' || cinsiyet === 'kadın') {
+            cinsiyet = 'kadin';
+        } else {
+            cinsiyet = 'erkek';
+        }
         $('#edit-cinsiyet-value').val(cinsiyet).trigger('change');
         $('#edit-cinsiyet-trigger span').text(cinsiyet === 'erkek' ? 'Erkek' : 'Kadın');
         $('#edit-cinsiyet-listbox [role="option"]').removeClass('selected bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold');
@@ -1892,9 +1901,11 @@ function savePersonnel() {
     const formData = $('#form-edit-personnel').serialize();
     $.post('<?php echo routeUrl("personel-guncelle"); ?>', formData, function(response) {
         if (response.success) {
-            showToast({ category: 'success', title: 'Başarılı', description: 'Güncellendi.', duration: 1000, onClose: () => location.reload() });
+            showToast({ category: 'success', title: 'Başarılı', description: 'Güncellendi.', duration: 1000 });
             document.getElementById('dialog-edit-personnel').close();
-            setTimeout(() => location.reload(), 1100);
+            if (window.personnelTable) {
+                window.personnelTable.ajax.reload(null, false);
+            }
         }
     });
 }
@@ -1919,8 +1930,10 @@ $('#btn-confirm-delete-personnel').on('click', function() {
     $.post('<?php echo routeUrl("personel-sil"); ?>', { id: deletePersonnelId }, function(response) {
         document.getElementById('dialog-delete-personnel').close();
         if (response.success) {
-            showToast({ category: 'success', title: 'Başarılı', description: 'Silindi.', duration: 1000, onClose: () => location.reload() });
-            setTimeout(() => location.reload(), 1100);
+            showToast({ category: 'success', title: 'Başarılı', description: 'Silindi.', duration: 1000 });
+            if (window.personnelTable) {
+                window.personnelTable.ajax.reload(null, false);
+            }
         } else {
             btn.prop('disabled', false).text('Sil');
             showToast({ category: 'error', title: 'Hata', description: response.error || 'Silme işlemi başarısız.' });
@@ -2064,15 +2077,26 @@ function startImport() {
         contentType: 'application/json',
         success: function(response) {
             if (response.success) {
-                showToast({ 
-                    category: 'success', 
-                    title: 'Başarılı', 
-                    description: response.count + ' personel başarıyla eklendi.',
-                    duration: 3000,
-                    onClose: () => location.reload()
-                });
+                if (response.errors && response.errors.length > 0) {
+                    const errorText = response.errors.join('\n');
+                    showToast({ 
+                        category: 'warning', 
+                        title: 'Kısmi Başarı', 
+                        description: response.count + ' personel işlendi. Atlanan satırlar:\n' + errorText,
+                        duration: 7000
+                    });
+                } else {
+                    showToast({ 
+                        category: 'success', 
+                        title: 'Başarılı', 
+                        description: response.count + ' personel başarıyla eklendi.',
+                        duration: 3000
+                    });
+                }
                 document.getElementById('dialog-import-excel').close();
-                setTimeout(() => location.reload(), 3100);
+                if (window.personnelTable) {
+                    window.personnelTable.ajax.reload(null, false);
+                }
             } else {
                 showToast({ category: 'error', title: 'Hata', description: response.error || 'Yükleme sırasında bir hata oluştu.' });
                 btn.disabled = false;

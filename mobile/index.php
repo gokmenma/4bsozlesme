@@ -1739,7 +1739,8 @@ if ($isLoggedIn) {
             
             // Set dynamic gender icon in sheet header
             const genderIconWrapper = document.getElementById('detail-gender-icon');
-            if (cinsiyet === 'kadin') {
+            const isKadin = cinsiyet && (cinsiyet.toLowerCase() === 'kadin' || cinsiyet.toLowerCase() === 'kadın');
+            if (isKadin) {
                 genderIconWrapper.className = "w-14 h-14 rounded-full bg-rose-500/10 flex items-center justify-center text-rose-400 mx-auto mb-2 border border-rose-500/20";
                 genderIconWrapper.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="M12 15v7m-3-3h6"/></svg>`;
             } else {
@@ -1816,7 +1817,13 @@ if ($isLoggedIn) {
             document.getElementById('form-ad').value = cardElement.getAttribute('data-name');
             document.getElementById('form-tc').value = cardElement.getAttribute('data-tc');
             document.getElementById('form-ucret-select').value = cardElement.getAttribute('data-ucret-id');
-            document.getElementById('form-cinsiyet').value = cardElement.getAttribute('data-cinsiyet');
+            let cinsVal = (cardElement.getAttribute('data-cinsiyet') || 'erkek').toLowerCase();
+            if (cinsVal === 'kadin' || cinsVal === 'kadın') {
+                cinsVal = 'kadin';
+            } else {
+                cinsVal = 'erkek';
+            }
+            document.getElementById('form-cinsiyet').value = cinsVal;
             document.getElementById('form-durum').value = cardElement.getAttribute('data-durum');
             document.getElementById('form-meslek').value = cardElement.getAttribute('data-meslek');
             document.getElementById('form-telefon').value = cardElement.getAttribute('data-telefon');
@@ -1899,7 +1906,7 @@ if ($isLoggedIn) {
         // Gender-based template preprocessor for petitions
         function processGenderTemplate(templateHtml, gender) {
             if (!templateHtml) return '';
-            const isFemale = gender && gender.toLowerCase() === 'kadin';
+            const isFemale = gender && (gender.toLowerCase() === 'kadin' || gender.toLowerCase() === 'kadın');
             if (!isFemale) return templateHtml; // If male, keep exactly as is
 
             // Use a temp DOM parser to safely edit elements
