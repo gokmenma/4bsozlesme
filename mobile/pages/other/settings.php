@@ -26,7 +26,13 @@ if (!$settings) {
         'sms_api_url' => '',
         'sms_api_key' => '',
         'sms_sender' => '',
-        'sms_entegrator' => 'NETGSM'
+        'sms_entegrator' => 'NETGSM',
+        'smtp_host' => '',
+        'smtp_port' => '',
+        'smtp_user' => '',
+        'smtp_pass' => '',
+        'smtp_from_email' => '',
+        'smtp_from_name' => ''
     ];
 }
 ?>
@@ -79,9 +85,44 @@ if (!$settings) {
                 <input type="password" name="sms_api_key" class="mobile-input" value="<?= htmlspecialchars($settings['sms_api_key']) ?>" placeholder="******">
             </div>
 
-            <div class="space-y-1.5">
+            <div class="space-y-1.5 pb-3 border-b border-zinc-100 dark:border-zinc-800">
                 <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">SMS Gönderici Başlığı (Header)</label>
                 <input type="text" name="sms_sender" class="mobile-input" value="<?= htmlspecialchars($settings['sms_sender']) ?>" placeholder="NETGSM">
+            </div>
+
+            <!-- SMTP E-posta Ayarları -->
+            <div class="space-y-3 pt-2">
+                <h4 class="text-xs font-bold text-zinc-800 dark:text-zinc-200">SMTP E-posta Ayarları</h4>
+                
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">SMTP Host</label>
+                    <input type="text" name="smtp_host" class="mobile-input" value="<?= htmlspecialchars($settings['smtp_host'] ?? '') ?>" placeholder="smtp.domain.com">
+                </div>
+                
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">SMTP Port</label>
+                    <input type="number" name="smtp_port" class="mobile-input" value="<?= htmlspecialchars($settings['smtp_port'] ?? '') ?>" placeholder="587">
+                </div>
+                
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">SMTP Kullanıcı</label>
+                    <input type="text" name="smtp_user" class="mobile-input" value="<?= htmlspecialchars($settings['smtp_user'] ?? '') ?>" placeholder="e-posta adresiniz">
+                </div>
+                
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">SMTP Şifre</label>
+                    <input type="password" name="smtp_pass" class="mobile-input" value="<?= htmlspecialchars($settings['smtp_pass'] ?? '') ?>" placeholder="******">
+                </div>
+                
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Gönderici E-posta (From)</label>
+                    <input type="email" name="smtp_from_email" class="mobile-input" value="<?= htmlspecialchars($settings['smtp_from_email'] ?? '') ?>" placeholder="gonderici@domain.com">
+                </div>
+                
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Gönderici Adı</label>
+                    <input type="text" name="smtp_from_name" class="mobile-input" value="<?= htmlspecialchars($settings['smtp_from_name'] ?? '') ?>" placeholder="Kurum Adı">
+                </div>
             </div>
         </div>
 

@@ -357,6 +357,20 @@ if (!document.getElementById('toaster')) {
   </div>
 </dialog>
 
+<!-- Ücretsiz İzin Sil Dialog -->
+<dialog id="dialog-delete-ucretsiz-izin" class="dialog w-full sm:max-w-[480px]" onclick="if (event.target === this) this.close()">
+  <div class="dialog-content bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-2xl" onclick="event.stopPropagation()">
+    <div>
+      <h2 class="text-xl font-bold text-zinc-900 dark:text-zinc-100 mb-2">Emin misiniz?</h2>
+      <p class="text-sm text-zinc-500 dark:text-zinc-400">Bu ücretsiz izni silmek istediğinize emin misiniz? Bu işlem geri alınamaz.</p>
+    </div>
+    <div class="flex justify-end gap-3 mt-6">
+      <button type="button" onclick="document.getElementById('dialog-delete-ucretsiz-izin').close()" class="px-5 py-2 text-sm font-medium border border-zinc-300 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-zinc-100 transition-colors">İptal</button>
+      <button type="button" id="btn-confirm-delete-ucretsiz-izin" class="px-5 py-2 text-sm font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">Sil</button>
+    </div>
+  </div>
+</dialog>
+
 <!-- Personel Düzenle Dialog -->
 <dialog id="dialog-edit-personnel" class="dialog" style="max-width: 750px; width: 90vw;" onclick="if (event.target === this) this.close()">
   <div class="dialog-content bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-2xl" style="width: 750px; max-width: 100%;" onclick="event.stopPropagation()">
@@ -2517,14 +2531,28 @@ function syncUcretsizIzinDates(trigger) {
     }
 }
 
+let deleteIzinId = null;
+let deleteIzinPersonnelId = null;
+
 // Ücretsiz İzin Silme
 function deleteUcretsizIzin(id, personel_id) {
-    if (!confirm('Bu ücretsiz izni silmek istediğinize emin misiniz?')) return;
+    deleteIzinId = id;
+    deleteIzinPersonnelId = personel_id;
+    document.getElementById('dialog-delete-ucretsiz-izin').showModal();
+}
+
+$('#btn-confirm-delete-ucretsiz-izin').on('click', function() {
+    if (!deleteIzinId || !deleteIzinPersonnelId) return;
+    const btn = $(this);
+    const originalText = btn.text();
+    btn.prop('disabled', true).text('Siliniyor...');
     
-    $.post('<?php echo routeUrl("personel-ucretsiz-izin-sil"); ?>', { id: id }, function(res) {
+    $.post('<?php echo routeUrl("personel-ucretsiz-izin-sil"); ?>', { id: deleteIzinId }, function(res) {
+        btn.prop('disabled', false).text(originalText);
+        document.getElementById('dialog-delete-ucretsiz-izin').close();
         if (res.success) {
             showToast({ category: 'success', title: 'Başarılı', description: 'Ücretsiz izin başarıyla silindi.' });
-            loadUcretsizIzinList(personel_id);
+            loadUcretsizIzinList(deleteIzinPersonnelId);
             if (window.personnelTable) {
                 window.personnelTable.ajax.reload(null, false);
             }
@@ -2532,5 +2560,5 @@ function deleteUcretsizIzin(id, personel_id) {
             showToast({ category: 'error', title: 'Hata', description: res.error || 'İzin silinirken hata oluştu.' });
         }
     });
-}
+});
 </script>

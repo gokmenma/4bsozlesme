@@ -167,7 +167,7 @@ foreach ($tenants as $tenant) {
     
     foreach ($users as $user) {
         $subjectText = "[Kadroya Geçiş Bildirimi] 3 Yılını Dolduran Personeller";
-        if (MailGonderService::gonder($user['email'], $subjectText, $body, $user['name'])) {
+        if (MailGonderService::gonder($user['email'], $subjectText, $body, $user['name'], $tenant_id)) {
             echo "E-posta başarıyla gönderildi: " . $user['email'] . "\n";
         } else {
             echo "E-posta gönderimi başarısız: " . $user['email'] . "\n";

@@ -101,6 +101,7 @@ function isStandaloneRoute(string $page): bool
         '/kurum-ekle',
         '/hesap-sil',
         '/ayarlar-kaydet',
+        '/ayarlar-test-mail',
         '/onboarding-complete',
         
         // Other download/API endpoints
@@ -629,6 +630,12 @@ function renderRoute(string $page): void
     if ($page === '/ayarlar-kaydet' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $controller = new SettingsController();
         $controller->save();
+        exit;
+    }
+
+    if ($page === '/ayarlar-test-mail' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new SettingsController();
+        $controller->sendTestMail();
         exit;
     }
 
