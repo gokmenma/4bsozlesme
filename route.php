@@ -93,10 +93,10 @@ function isStandaloneRoute(string $page): bool
         '/abonelik-reddet',
         
         // Settings/Institution/Profile APIs
-        '/admin-kurumlar-list',
-        '/admin-kurum-get',
-        '/admin-kurum-guncelle',
-        '/admin-kurum-sil',
+        '/kurum-listesi-json',
+        '/kurum-getir-json',
+        '/kurum-guncelle-json',
+        '/kurum-sil-json',
         '/profil-guncelle',
         '/kurum-ekle',
         '/hesap-sil',
@@ -557,25 +557,25 @@ function renderRoute(string $page): void
         return;
     }
 
-    if ($page === '/admin-kurumlar-list') {
+    if ($page === '/kurum-listesi-json') {
         $controller = new SuperadminController();
         $controller->listTenantsJSON();
         exit;
     }
 
-    if ($page === '/admin-kurum-get') {
+    if ($page === '/kurum-getir-json') {
         $controller = new SuperadminController();
         $controller->getTenant();
         exit;
     }
 
-    if ($page === '/admin-kurum-guncelle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($page === '/kurum-guncelle-json' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $controller = new SuperadminController();
         $controller->updateTenant();
         exit;
     }
 
-    if ($page === '/admin-kurum-sil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if ($page === '/kurum-sil-json' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $controller = new SuperadminController();
         $controller->deleteTenant();
         exit;

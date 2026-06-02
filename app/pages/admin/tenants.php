@@ -98,7 +98,7 @@ $pageSubtitle = 'Sistemdeki tüm kurumları ve aktiflik durumlarını yönetin';
 <script>
 $(document).ready(function() {
     const table = initDataTable('#tenantTable', {
-        ajax: '<?php echo routeUrl("admin-kurumlar-list"); ?>',
+        ajax: '<?php echo routeUrl("kurum-listesi-json"); ?>',
         createdRow: function(row, data, dataIndex) {
             if (data.is_current) {
                 $(row).addClass('bg-zinc-50 dark:bg-zinc-800/50');
@@ -137,7 +137,7 @@ $(document).ready(function() {
                 data: 'user_count',
                 render: function(data, type, row) {
                     return `<a href="<?php echo routeUrl('kullanicilar'); ?>?tenant_id=${row.id}" class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-primary/10 hover:text-primary transition-colors font-medium">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                         ${data}
                     </a>`;
                 }
@@ -186,7 +186,7 @@ $(document).ready(function() {
 });
 
 function editTenant(id) {
-    $.get('<?php echo routeUrl("admin-kurum-get"); ?>', { id: id }, function(data) {
+    $.get('<?php echo routeUrl("kurum-getir-json"); ?>', { id: id }, function(data) {
         data = JSON.parse(data);
         $('#edit_tenant_id').val(data.id);
         $('#edit_tenant_name').val(data.name);
@@ -196,7 +196,7 @@ function editTenant(id) {
 }
 
 function saveTenant() {
-    $.post('<?php echo routeUrl("admin-kurum-guncelle"); ?>', $('#form-edit-tenant').serialize(), function(response) {
+    $.post('<?php echo routeUrl("kurum-guncelle-json"); ?>', $('#form-edit-tenant').serialize(), function(response) {
         response = JSON.parse(response);
         if (response.success) {
             showToast({ category: 'success', title: 'Başarılı', description: response.message });
@@ -217,7 +217,7 @@ function deleteTenant(id) {
 function confirmDelete() {
     if (!tenantToDelete) return;
     
-    $.post('<?php echo routeUrl("admin-kurum-sil"); ?>', { id: tenantToDelete }, function(response) {
+    $.post('<?php echo routeUrl("kurum-sil-json"); ?>', { id: tenantToDelete }, function(response) {
         try {
             response = JSON.parse(response);
             if (response.success) {
