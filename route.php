@@ -67,6 +67,7 @@ function isStandaloneRoute(string $page): bool
         '/personel-ucretsiz-izin-list',
         '/personel-ucretsiz-izin-ekle',
         '/personel-ucretsiz-izin-sil',
+        '/personel-ucretsiz-izin-guncelle',
         
         // Wage/Salary APIs
         '/ucret-ekle',
@@ -354,6 +355,12 @@ function renderRoute(string $page): void
     if ($page === '/personel-ucretsiz-izin-sil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $controller = new PersonnelController();
         $controller->ucretsizIzinSil();
+        exit;
+    }
+
+    if ($page === '/personel-ucretsiz-izin-guncelle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new PersonnelController();
+        $controller->ucretsizIzinGuncelle();
         exit;
     }
 

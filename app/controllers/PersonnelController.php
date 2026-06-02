@@ -1263,4 +1263,73 @@ class PersonnelController extends Controller {
         echo json_encode(['success' => $success]);
         exit;
     }
+
+    public function ucretsizIzinGuncelle() {
+        $id = $_POST['id'] ?? 0;
+        $personel_id = $_POST['personel_id'] ?? 0;
+        $baslangic = $_POST['baslangic_tarihi'] ?? '';
+        $bitis = $_POST['bitis_tarihi'] ?? '';
+        $aciklama = $_POST['aciklama'] ?? '';
+        $tenant_id = $_SESSION['tenant_id'] ?? 0;
+
+        if (!$id || !$personel_id || empty($baslangic) || empty($bitis)) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Eksik bilgi girdiniz.']);
+            exit;
+        }
+
+        // Convert date format from d.m.Y to Y-m-d
+        if (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $baslangic)) {
+            $parts = explode('.', $baslangic);
+            $baslangic = "{$parts[2]}-{$parts[1]}-{$parts[0]}";
+        }
+        if (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $bitis)) {
+            $parts = explode('.', $bitis);
+            $bitis = "{$parts[2]}-{$parts[1]}-{$parts[0]}";
+        }
+
+        // Calculate days
+        try {
+            $start_dt = new DateTime($baslangic);
+            $end_dt = new DateTime($bitis);
+            
+            if ($end_dt < $start_dt) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => 'Bitiş tarihi başlangıç tarihinden önce olamaz.']);
+                exit;
+            }
+
+            $diff = $start_dt->diff($end_dt);
+            $gun_sayisi = $diff->days + 1;
+        } catch (Exception $e) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Geçersiz tarih formatı.']);
+            exit;
+        }
+
+        // Verify that this leave belongs to the current tenant and personnel
+        global $db;
+        $stmt = $db->prepare("SELECT id FROM ucretsiz_izin WHERE id = ? AND personel_id = ? AND tenant_id = ? AND deleted_at IS NULL");
+        $stmt->execute([$id, $personel_id, $tenant_id]);
+        $exists = $stmt->fetch();
+
+        if (!$exists) {
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Güncellenecek izin kaydı bulunamadı.']);
+            exit;
+        }
+
+        $model = $this->model('UcretsizIzin');
+        $success = $model->update($id, [
+            'baslangic_tarihi' => $baslangic,
+            'bitis_tarihi' => $bitis,
+            'gun_sayisi' => $gun_sayisi,
+            'aciklama' => $aciklama
+        ]);
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => $success]);
+        exit;
+    }
 }
+

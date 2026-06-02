@@ -636,7 +636,7 @@ if (!document.getElementById('toaster')) {
   </div>
 </dialog>
 <!-- Ücretsiz İzin Dialog -->
-<dialog id="dialog-ucretsiz-izin" class="dialog" style="max-width: 650px; width: 90vw;" onclick="if (event.target === this) this.close()">
+<dialog id="dialog-ucretsiz-izin" class="dialog" style="max-width: 800px; width: 90vw;" onclick="if (event.target === this) this.close()">
   <div class="dialog-content bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-2xl" onclick="event.stopPropagation()">
     <header class="flex items-start justify-between mb-6">
       <div>
@@ -651,26 +651,31 @@ if (!document.getElementById('toaster')) {
     </header>
 
     <section>
-      <!-- Ekleme Formu -->
+      <!-- Ekleme / Düzenleme Formu -->
       <form id="form-add-ucretsiz-izin" class="form grid gap-4 mb-6 p-4 bg-zinc-50 dark:bg-zinc-800/40 rounded-xl border border-zinc-100 dark:border-zinc-800">
         <input type="hidden" id="ucretsiz_izin_personel_id" name="personel_id" />
-        <div class="grid grid-cols-2 gap-4">
+        <input type="hidden" id="ucretsiz_izin_id" name="id" />
+        <div class="grid grid-cols-3 gap-4">
           <div class="grid gap-2">
             <label for="ucretsiz_izin_baslangic">Başlangıç Tarihi</label>
-            <input type="text" id="ucretsiz_izin_baslangic" name="baslangic_tarihi" class="datepicker" placeholder="Seçiniz..." required />
+            <input type="text" id="ucretsiz_izin_baslangic" name="baslangic_tarihi" class="datepicker" placeholder="29.04.2026" required autocomplete="off" />
           </div>
           <div class="grid gap-2">
             <label for="ucretsiz_izin_bitis">Bitiş Tarihi</label>
-            <input type="text" id="ucretsiz_izin_bitis" name="bitis_tarihi" class="datepicker" placeholder="Seçiniz..." required />
+            <input type="text" id="ucretsiz_izin_bitis" name="bitis_tarihi" class="datepicker" placeholder="29.04.2026" required autocomplete="off" />
+          </div>
+          <div class="grid gap-2">
+            <label for="ucretsiz_izin_gun_sayisi">Gün Sayısı</label>
+            <input type="number" id="ucretsiz_izin_gun_sayisi" name="gun_sayisi" min="1" placeholder="30" required autocomplete="off" />
           </div>
         </div>
         <div class="grid gap-2">
           <label for="ucretsiz_izin_aciklama">Açıklama</label>
-          <input type="text" id="ucretsiz_izin_aciklama" name="aciklama" placeholder="İzin gerekçesi..." />
+          <input type="text" id="ucretsiz_izin_aciklama" name="aciklama" placeholder="İzin gerekçesi..." autocomplete="off" />
         </div>
-        <div class="flex justify-between items-center mt-2">
-          <span id="ucretsiz-izin-calc-days" class="text-xs text-zinc-500 font-medium">Süre: - gün</span>
-          <button type="submit" class="btn btn-sm">İzin Ekle</button>
+        <div class="flex justify-end items-center gap-2 mt-2">
+          <button type="button" id="btn-cancel-edit-ucretsiz-izin" class="btn btn-sm btn-outline text-zinc-900 dark:text-zinc-100 hidden" onclick="cancelUcretsizIzinEdit()">İptal</button>
+          <button type="submit" id="btn-submit-ucretsiz-izin" class="btn btn-sm">İzin Ekle</button>
         </div>
       </form>
 
@@ -2211,26 +2216,50 @@ $(document).ready(function() {
         }
     });
     
-    // Tarih seçildiğinde gün hesaplama
-    $('#ucretsiz_izin_baslangic, #ucretsiz_izin_bitis').on('change', calculateUcretsizIzinDays);
+    // Tarihleri manuel yazarken dd.mm.yyyy maskeleme
+    const startInput = document.getElementById('ucretsiz_izin_baslangic');
+    const bitisInput = document.getElementById('ucretsiz_izin_bitis');
+    if (startInput) applyDateMask(startInput);
+    if (bitisInput) applyDateMask(bitisInput);
+
+    // Tarih veya gün sayısı değişimlerinde çift yönlü senkronizasyon
+    $('#ucretsiz_izin_baslangic').on('change input blur', function() {
+        const daysVal = $('#ucretsiz_izin_gun_sayisi').val();
+        if (daysVal && parseInt(daysVal) > 0) {
+            syncUcretsizIzinDates('days');
+        } else {
+            syncUcretsizIzinDates('dates');
+        }
+    });
+
+    $('#ucretsiz_izin_bitis').on('change input blur', function() {
+        syncUcretsizIzinDates('dates');
+    });
+
+    $('#ucretsiz_izin_gun_sayisi').on('input change keyup', function() {
+        syncUcretsizIzinDates('days');
+    });
 
     // Ücretsiz İzin Form Kaydetme
     $('#form-add-ucretsiz-izin').on('submit', function(e) {
         e.preventDefault();
         const personel_id = $('#ucretsiz_izin_personel_id').val();
+        const idVal = $('#ucretsiz_izin_id').val();
         const formData = $(this).serialize();
         
-        $.post('<?php echo routeUrl("personel-ucretsiz-izin-ekle"); ?>', formData, function(res) {
+        const url = idVal ? '<?php echo routeUrl("personel-ucretsiz-izin-guncelle"); ?>' : '<?php echo routeUrl("personel-ucretsiz-izin-ekle"); ?>';
+        
+        $.post(url, formData, function(res) {
             if (res.success) {
-                showToast({ category: 'success', title: 'Başarılı', description: 'Ücretsiz izin başarıyla eklendi.' });
-                $('#form-add-ucretsiz-izin')[0].reset();
-                $('#ucretsiz-izin-calc-days').text('Süre: - gün');
+                const actionWord = idVal ? 'güncellendi' : 'eklendi';
+                showToast({ category: 'success', title: 'Başarılı', description: `Ücretsiz izin başarıyla ${actionWord}.` });
+                cancelUcretsizIzinEdit();
                 loadUcretsizIzinList(personel_id);
                 if (window.personnelTable) {
                     window.personnelTable.ajax.reload(null, false);
                 }
             } else {
-                showToast({ category: 'error', title: 'Hata', description: res.error || 'İzin eklenirken hata oluştu.' });
+                showToast({ category: 'error', title: 'Hata', description: res.error || 'İşlem gerçekleştirilirken hata oluştu.' });
             }
         });
     });
@@ -2259,7 +2288,7 @@ function contextAction(action) {
 // Ücretsiz İzin Modal Açma
 function openUcretsizIzinModal(p) {
     closeAllDropdowns();
-    $('#form-add-ucretsiz-izin')[0].reset();
+    cancelUcretsizIzinEdit();
     $('#ucretsiz_izin_personel_id').val(p.id);
     $('#ucretsiz-izin-personnel-name').text(p.ad_soyad);
     $('#ucretsiz-izin-calc-days').text('Süre: - gün');
@@ -2275,6 +2304,7 @@ function loadUcretsizIzinList(personel_id) {
     
     $.get('<?php echo routeUrl("personel-ucretsiz-izin-list"); ?>', { personel_id: personel_id }, function(res) {
         if (res.success && res.data) {
+            window.currentUcretsizIzinler = res.data;
             if (res.data.length === 0) {
                 tbody.html('<tr><td colspan="5" class="text-center py-4 text-zinc-400">Kayıtlı ücretsiz izin bulunmuyor.</td></tr>');
                 return;
@@ -2282,16 +2312,22 @@ function loadUcretsizIzinList(personel_id) {
             
             let html = '';
             res.data.forEach(item => {
-                const start = new Date(item.baslangic_tarihi).toLocaleDateString('tr-TR');
-                const end = new Date(item.bitis_tarihi).toLocaleDateString('tr-TR');
+                const startParts = item.baslangic_tarihi.split('-');
+                const start = `${startParts[2]}.${startParts[1]}.${startParts[0]}`;
+                const endParts = item.bitis_tarihi.split('-');
+                const end = `${endParts[2]}.${endParts[1]}.${endParts[0]}`;
+                
                 html += `
                 <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800/40">
                     <td class="px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300">${start}</td>
                     <td class="px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300">${end}</td>
                     <td class="px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 text-center font-semibold">${item.gun_sayisi} gün</td>
                     <td class="px-4 py-2 text-sm text-zinc-500 truncate max-w-[150px]" title="${item.aciklama || ''}">${item.aciklama || '-'}</td>
-                    <td class="px-4 py-2 text-right">
-                        <button onclick="deleteUcretsizIzin(${item.id}, ${personel_id})" class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-all cursor-pointer">
+                    <td class="px-4 py-2 text-right whitespace-nowrap">
+                        <button onclick="triggerEditUcretsizIzin(${item.id})" class="text-blue-500 hover:text-blue-700 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all cursor-pointer mr-1" title="Düzenle">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                        </button>
+                        <button onclick="deleteUcretsizIzin(${item.id}, ${personel_id})" class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-all cursor-pointer" title="Sil">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
                         </button>
                     </td>
@@ -2305,29 +2341,155 @@ function loadUcretsizIzinList(personel_id) {
     });
 }
 
-// İzin Süresi Hesaplama
-function calculateUcretsizIzinDays() {
-    const startVal = $('#ucretsiz_izin_baslangic').val();
-    const endVal = $('#ucretsiz_izin_bitis').val();
-    if (!startVal || !endVal) {
-        $('#ucretsiz-izin-calc-days').text('Süre: - gün');
-        return;
+function triggerEditUcretsizIzin(id) {
+    if (!window.currentUcretsizIzinler) return;
+    const item = window.currentUcretsizIzinler.find(x => x.id == id);
+    if (!item) return;
+    
+    const startParts = item.baslangic_tarihi.split('-');
+    const start = `${startParts[2]}.${startParts[1]}.${startParts[0]}`;
+    
+    const endParts = item.bitis_tarihi.split('-');
+    const end = `${endParts[2]}.${endParts[1]}.${endParts[0]}`;
+    
+    editUcretsizIzin(item.id, start, end, item.gun_sayisi, item.aciklama || '');
+}
+
+function editUcretsizIzin(id, start, end, days, desc) {
+    $('#ucretsiz_izin_id').val(id);
+    
+    const startInput = document.getElementById('ucretsiz_izin_baslangic');
+    const bitisInput = document.getElementById('ucretsiz_izin_bitis');
+    
+    if (startInput && startInput._flatpickr) {
+        startInput._flatpickr.setDate(start, false, 'd.m.Y');
+    } else {
+        $('#ucretsiz_izin_baslangic').val(start);
     }
     
+    if (bitisInput && bitisInput._flatpickr) {
+        bitisInput._flatpickr.setDate(end, false, 'd.m.Y');
+    } else {
+        $('#ucretsiz_izin_bitis').val(end);
+    }
+    
+    $('#ucretsiz_izin_gun_sayisi').val(days);
+    $('#ucretsiz_izin_aciklama').val(desc);
+    
+    $('#btn-submit-ucretsiz-izin').text('İzin Güncelle');
+    $('#btn-cancel-edit-ucretsiz-izin').removeClass('hidden');
+}
+
+function cancelUcretsizIzinEdit() {
+    $('#ucretsiz_izin_id').val('');
+    $('#form-add-ucretsiz-izin')[0].reset();
+    
+    const startInput = document.getElementById('ucretsiz_izin_baslangic');
+    const bitisInput = document.getElementById('ucretsiz_izin_bitis');
+    if (startInput && startInput._flatpickr) {
+        startInput._flatpickr.clear();
+    }
+    if (bitisInput && bitisInput._flatpickr) {
+        bitisInput._flatpickr.clear();
+    }
+    
+    $('#btn-submit-ucretsiz-izin').text('İzin Ekle');
+    $('#btn-cancel-edit-ucretsiz-izin').addClass('hidden');
+}
+
+// Tarihleri manuel yazarken dd.mm.yyyy formatlama maskesi
+function applyDateMask(input) {
+    input.addEventListener('input', function(e) {
+        let value = this.value.replace(/\D/g, ''); // Sayı dışındakileri sil
+        let formatted = '';
+        
+        if (value.length > 0) {
+            formatted += value.substring(0, 2);
+            if (value.length > 2) {
+                formatted += '.' + value.substring(2, 4);
+                if (value.length > 4) {
+                    formatted += '.' + value.substring(4, 8);
+                }
+            }
+        }
+        
+        this.value = formatted;
+        
+        // Format tamamlandığında senkronizasyonu tetikle
+        if (formatted.length === 10) {
+            if (this.id === 'ucretsiz_izin_baslangic') {
+                const daysVal = $('#ucretsiz_izin_gun_sayisi').val();
+                if (daysVal && parseInt(daysVal) > 0) {
+                    syncUcretsizIzinDates('days');
+                } else {
+                    syncUcretsizIzinDates('dates');
+                }
+            } else if (this.id === 'ucretsiz_izin_bitis') {
+                syncUcretsizIzinDates('dates');
+            }
+        }
+    });
+
+    input.addEventListener('blur', function() {
+        if (this.value.length === 10) {
+            if (this._flatpickr) {
+                this._flatpickr.setDate(this.value, true, 'd.m.Y');
+            }
+        }
+    });
+}
+
+// Tarih veya gün sayısı değişimlerinde çift yönlü senkronizasyon
+function syncUcretsizIzinDates(trigger) {
+    const startVal = $('#ucretsiz_izin_baslangic').val();
+    const endVal = $('#ucretsiz_izin_bitis').val();
+    const daysVal = $('#ucretsiz_izin_gun_sayisi').val();
+    
+    const preg_match_date = (str) => {
+        return /^\d{2}\.\d{2}\.\d{4}$/.test(str);
+    };
+
     const parseDate = (str) => {
+        if (!str || !preg_match_date(str)) return null;
         const parts = str.split('.');
         return new Date(parts[2], parts[1] - 1, parts[0]);
     };
+
+    const formatDate = (date) => {
+        const dd = String(date.getDate()).padStart(2, '0');
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        const yyyy = date.getFullYear();
+        return `${dd}.${mm}.${yyyy}`;
+    };
+
+    // Tarihler değiştiğinde (Başlangıç veya Bitiş) gün sayısını hesapla
+    if (trigger === 'dates') {
+        if (startVal && endVal && preg_match_date(startVal) && preg_match_date(endVal)) {
+            const start = parseDate(startVal);
+            const end = parseDate(endVal);
+            if (end >= start) {
+                const diffTime = Math.abs(end - start);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                $('#ucretsiz_izin_gun_sayisi').val(diffDays);
+            }
+        }
+    }
     
-    const start = parseDate(startVal);
-    const end = parseDate(endVal);
-    
-    if (end >= start) {
-        const diffTime = Math.abs(end - start);
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-        $('#ucretsiz-izin-calc-days').text(`Süre: ${diffDays} gün`);
-    } else {
-        $('#ucretsiz-izin-calc-days').text('Bitiş tarihi başlangıçtan önce!');
+    // Gün sayısı değiştiğinde bitiş tarihini hesapla
+    if (trigger === 'days') {
+        if (startVal && preg_match_date(startVal) && daysVal && parseInt(daysVal) > 0) {
+            const start = parseDate(startVal);
+            const days = parseInt(daysVal);
+            const end = new Date(start);
+            end.setDate(start.getDate() + days - 1);
+            
+            const bitisInput = document.getElementById('ucretsiz_izin_bitis');
+            if (bitisInput._flatpickr) {
+                bitisInput._flatpickr.setDate(end, false, 'd.m.Y'); // triggerChange=false döngüyü engeller
+            } else {
+                $('#ucretsiz_izin_bitis').val(formatDate(end));
+            }
+        }
     }
 }
 
