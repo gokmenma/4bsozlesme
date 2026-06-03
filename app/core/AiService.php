@@ -1,10 +1,17 @@
 <?php
 
 class AiService {
-    private static $apiKey = 'YOUR_GEMINI_API_KEY'; // Buraya Google Gemini API anahtarı gelecek
+    /**
+     * Gemini API anahtarı .env dosyasından (GEMINI_API_KEY) okunur.
+     * Anahtar tanımlı değilse mock veri döndürülür (geliştirme modu).
+     */
+    private static function apiKey(): string {
+        return getenv('GEMINI_API_KEY') ?: '';
+    }
 
     public static function scanImage($base64Image) {
-        if (self::$apiKey === 'YOUR_GEMINI_API_KEY') {
+        $apiKey = self::apiKey();
+        if ($apiKey === '') {
             // Mock veri döndürelim (Geliştirme aşaması için)
             // Gerçek kullanımda burası Gemini API'sine istek atacak
             return [
@@ -17,7 +24,7 @@ class AiService {
             ];
         }
 
-        $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . self::$apiKey;
+        $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" . $apiKey;
 
         $prompt = "Bu bir kimlik kartı veya personel belgesi görselidir. Lütfen görselden şu bilgileri ayıkla ve SADECE JSON formatında döndür: 
         tc_kimlik (11 haneli sayı), 

@@ -2,6 +2,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <?php echo csrf_meta(); ?>
     <script>
         // Screen-size based mobile/tablet redirect
         if (window.innerWidth < 1024) {
@@ -251,6 +252,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables.net-dt/1.13.7/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="<?php echo routeUrl('assets/css/datatable.custom.css'); ?>">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <!-- CSRF Token Interceptor (jQuery'den hemen sonra yüklenmeli) -->
+    <script src="<?php echo routeUrl('assets/js/csrf.js'); ?>"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables.net/1.13.7/jquery.dataTables.min.js"></script>
     <script src="<?php echo routeUrl('assets/js/datatable.init.js'); ?>"></script>
     <script src="<?php echo routeUrl('assets/js/utils.js'); ?>"></script>

@@ -18,7 +18,6 @@ class MatrahController extends Controller {
 
         // Server-Side Processing for DataTables (support both POST and GET)
         if (isset($_REQUEST['draw'])) {
-            file_put_contents('c:/xampp/htdocs/sozlesme-4b/scratch/log.txt', print_r($_REQUEST, true));
             header('Content-Type: application/json');
 
             $draw = (int)($_REQUEST['draw'] ?? 1);

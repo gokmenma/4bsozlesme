@@ -109,6 +109,12 @@ $initials = mb_strtoupper($initials, 'UTF-8');
             Şifre Değiştir
           </button>
 
+          <!-- SMS Tab Button -->
+          <button onclick="switchProfileTab('sms')" class="tab-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer" id="tab-btn-sms" data-tab="sms">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            SMS API Ayarları
+          </button>
+
           <!-- Subscription Tab Button (Only for Admin or Superadmin) -->
           <?php if ($user['role'] === 'admin' || $user['role'] === 'superadmin'): ?>
           <button onclick="switchProfileTab('subscription')" class="tab-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer" id="tab-btn-subscription" data-tab="subscription">
@@ -219,6 +225,70 @@ $initials = mb_strtoupper($initials, 'UTF-8');
               Hesabımı Sil
             </button>
           </div>
+        </div>
+
+        <!-- Tab 4: SMS API Ayarları -->
+        <div id="profile-tab-sms" class="profile-tab-content hidden">
+          <style>
+          #sms_entegrator.custom-select-component { display: block !important; width: 100% !important; }
+          #sms_entegrator-trigger { display: flex !important; width: 100% !important; height: 40px !important; }
+          #sms_entegrator-popover { width: 100% !important; }
+          </style>
+          <div class="flex items-start gap-3">
+            <div class="p-1 text-zinc-900 dark:text-zinc-100 shrink-0 mt-0.5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-zinc-900 dark:text-zinc-50">SMS API Ayarları</h3>
+              <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 font-normal">Personellere SMS göndermek için kendi API entegrasyonu bilgilerinizi girin.</p>
+            </div>
+          </div>
+          
+          <hr class="border-zinc-100 dark:border-zinc-800/80 my-5">
+
+          <form id="form-sms" class="space-y-5">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-100 dark:border-zinc-800">
+              <div class="space-y-0.5">
+                <p class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">SMS Hizmetini Aktifleştir</p>
+                <p class="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">Eğer SMS API entegrasyonunu aktifleştirirseniz sistem üzerinden personellere otomatik veya manuel SMS gönderebilirsiniz.</p>
+              </div>
+              <input type="checkbox" name="sms_active" id="sms_active" value="1" role="switch" class="input" <?php echo ((int)($user['sms_active'] ?? 0) === 1) ? 'checked' : ''; ?>>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div class="flex flex-col gap-1.5">
+                <label for="sms_entegrator" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">SMS Entegratörü</label>
+                <?php 
+                $integratorOptions = [
+                  ['value' => 'NETGSM', 'label' => 'NETGSM'],
+                  ['value' => 'MUTLUCELL', 'label' => 'MUTLUCELL']
+                ];
+                echo renderCustomSelect(
+                  'sms_entegrator', 
+                  'sms_entegrator', 
+                  $integratorOptions, 
+                  getVal('sms_entegrator', $user), 
+                  'w-full'
+                );
+                ?>
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label for="sms_sender" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">SMS Gönderici Başlığı (Originator / Header)</label>
+                <input type="text" id="sms_sender" name="sms_sender" value="<?php echo getVal('sms_sender', $user); ?>" placeholder="Örn: TURK-SMS" class="w-full h-10 px-3 rounded-lg border border-zinc-200 dark:border-zinc-850 bg-white dark:bg-zinc-950 focus:border-zinc-955 focus:ring-2 focus:ring-zinc-955/5 transition-all text-xs font-semibold outline-none">
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label for="sms_api_url" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">SMS API URL</label>
+                <input type="url" id="sms_api_url" name="sms_api_url" value="<?php echo getVal('sms_api_url', $user); ?>" placeholder="https://api.sms-servisi.com/send" class="w-full h-10 px-3 rounded-lg border border-zinc-200 dark:border-zinc-850 bg-white dark:bg-zinc-950 focus:border-zinc-955 focus:ring-2 focus:ring-zinc-955/5 transition-all text-xs font-semibold outline-none">
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label for="sms_api_key" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">SMS API Key / Token</label>
+                <input type="text" id="sms_api_key" name="sms_api_key" value="<?php echo getVal('sms_api_key', $user); ?>" placeholder="API Anahtarınız veya Token" class="w-full h-10 px-3 rounded-lg border border-zinc-200 dark:border-zinc-850 bg-white dark:bg-zinc-950 focus:border-zinc-955 focus:ring-2 focus:ring-zinc-955/5 transition-all text-xs font-semibold outline-none">
+              </div>
+            </div>
+          </form>
         </div>
 
         <!-- Tab 3: Subscription & Packages -->
@@ -600,6 +670,11 @@ function submitActiveForm() {
         if (form && form.reportValidity()) {
             form.requestSubmit();
         }
+    } else if (activeTab === 'sms') {
+        const form = document.getElementById('form-sms');
+        if (form && form.reportValidity()) {
+            form.requestSubmit();
+        }
     }
 }
 
@@ -725,6 +800,15 @@ document.addEventListener('DOMContentLoaded', function() {
         formPassword.addEventListener('submit', function(e) {
             e.preventDefault();
             submitForm(formPassword, 'sifre-degistir', 'Şifreniz başarıyla değiştirildi.');
+        });
+    }
+
+    // Handle SMS Settings Update
+    const formSms = document.getElementById('form-sms');
+    if (formSms) {
+        formSms.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitForm(formSms, 'profil-sms-guncelle', 'SMS API ayarları başarıyla güncellendi.');
         });
     }
 

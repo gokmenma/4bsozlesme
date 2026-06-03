@@ -107,63 +107,7 @@ if (!function_exists('getVal')) {
       </div>
     </div>
 
-    <!-- SMS API Ayarları Section -->
-    <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-      <div class="p-6 border-b border-border bg-muted/30">
-        <div class="flex items-center gap-2">
-          <div class="p-2 rounded-lg bg-primary/10 text-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          </div>
-          <div>
-            <h2 class="text-lg font-semibold leading-none tracking-tight">SMS API Ayarları</h2>
-            <p class="text-sm text-muted-foreground mt-1">Personellere SMS göndermek için API entegrasyonu bilgilerini girin.</p>
-          </div>
-        </div>
-      </div>
-      <div class="p-6 flex flex-col gap-6">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border">
-          <div class="space-y-1">
-            <p class="text-sm font-medium">SMS Hizmetini Aktifleştir</p>
-            <p class="text-xs text-muted-foreground">Eğer SMS API entegrasyonunu aktifleştirirseniz sistem üzerinden personellere otomatik veya manuel SMS gönderebilirsiniz.</p>
-          </div>
-          <input type="checkbox" name="sms_active" id="sms_active" value="1" role="switch" class="input" <?php echo ((int)($settings['sms_active'] ?? 0) === 1) ? 'checked' : ''; ?>>
-        </div>
 
-        <div class="grid gap-6 md:grid-cols-2">
-          <div class="space-y-2">
-            <label for="sms_entegrator" class="text-sm font-medium leading-none">SMS Entegratörü</label>
-            <?php 
-            $integratorOptions = [
-              ['value' => 'NETGSM', 'label' => 'NETGSM'],
-              ['value' => 'MUTLUCELL', 'label' => 'MUTLUCELL']
-            ];
-            echo renderCustomSelect(
-              'sms_entegrator', 
-              'sms_entegrator', 
-              $integratorOptions, 
-              getVal('sms_entegrator', $settings), 
-              'w-full'
-            );
-            ?>
-          </div>
-
-          <div class="space-y-2">
-            <label for="sms_sender" class="text-sm font-medium leading-none">SMS Gönderici Başlığı (Originator / Header)</label>
-            <input type="text" id="sms_sender" name="sms_sender" value="<?php echo getVal('sms_sender', $settings); ?>" placeholder="Örn: KURUM-ADI" class="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-          </div>
-
-          <div class="space-y-2">
-            <label for="sms_api_url" class="text-sm font-medium leading-none">SMS API URL</label>
-            <input type="url" id="sms_api_url" name="sms_api_url" value="<?php echo getVal('sms_api_url', $settings); ?>" placeholder="https://api.sms-servisi.com/send" class="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-          </div>
-          
-          <div class="space-y-2">
-            <label for="sms_api_key" class="text-sm font-medium leading-none">SMS API Key / Token</label>
-            <input type="text" id="sms_api_key" name="sms_api_key" value="<?php echo getVal('sms_api_key', $settings); ?>" placeholder="API Anahtarınız veya Token" class="flex h-10 w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- Submit Section -->
     <div class="flex justify-end">

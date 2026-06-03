@@ -1,6 +1,59 @@
 <?php
 
 /**
+ * =========================================================================
+ *  CSRF (Cross-Site Request Forgery) Koruması
+ * =========================================================================
+ *  - csrf_token(): Oturuma bağlı tekil token üretir/döner.
+ *  - csrf_meta() : <head> içine eklenen meta etiketi (JS bu tokeni okur).
+ *  - csrf_field(): Klasik formlar için gizli input alanı.
+ *  - csrf_verify(): Gelen POST isteğinde tokeni doğrular; geçersizse 403 + JSON döner.
+ *
+ *  İstemci tarafında assets/js/csrf.js tüm fetch / jQuery AJAX isteklerine
+ *  otomatik olarak "X-CSRF-Token" başlığını ekler.
+ */
+function csrf_token(): string
+{
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function csrf_meta(): string
+{
+    return '<meta name="csrf-token" content="' . htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') . '">';
+}
+
+function csrf_field(): string
+{
+    return '<input type="hidden" name="_csrf" value="' . htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') . '">';
+}
+
+function csrf_verify(): void
+{
+    $sent = $_SERVER['HTTP_X_CSRF_TOKEN']
+        ?? ($_POST['_csrf'] ?? ($_POST['csrf_token'] ?? ''));
+
+    $stored = $_SESSION['csrf_token'] ?? '';
+    $valid = is_string($sent) && $sent !== '' && $stored !== '' && hash_equals($stored, $sent);
+
+    if (!$valid) {
+        http_response_code(403);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'success' => false,
+            'error'   => 'csrf',
+            'message' => 'Güvenlik doğrulaması başarısız oldu. Lütfen sayfayı yenileyip tekrar deneyin.'
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+}
+
+/**
  * DataTables için premium preloader HTML şablonunu döner.
  * 
  * @param string $id Preloader ID'si (Varsayılan: table-preloader)

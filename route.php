@@ -28,7 +28,7 @@ function routeUrl(string $path): string
     $url = appBasePath() . '/' . ltrim($path, '/');
     $parsed = parse_url($path);
     $purePath = $parsed['path'] ?? $path;
-    
+
     if (preg_match('/\.(css|js)$/i', $purePath)) {
         $fullPath = __DIR__ . '/' . ltrim($purePath, '/');
         if (file_exists($fullPath)) {
@@ -41,6 +41,131 @@ function routeUrl(string $path): string
     return $url;
 }
 
+/**
+ * =========================================================================
+ *  Merkezi Rota Tablosu (Controller bazlı yönlendirme)
+ * =========================================================================
+ *  Her giriş için anahtarlar:
+ *    'c'    => Controller sınıf adı
+ *    'a'    => Çağrılacak metot
+ *    'm'    => (ops.) Zorunlu HTTP metodu (örn. 'POST'); eşleşmezse 404
+ *    'view' => (ops.) Aksiyon sonrası include edilecek görünüm dosyası (sayfa rotaları)
+ *    'api'  => (ops.) AJAX/JSON/indirme uç noktası -> mobil cihazda yönlendirilmez
+ *    'exit' => (ops.) Aksiyondan sonra çıkış yapılır (kendi çıktısını üreten uçlar)
+ *
+ *  Not: Bu tablo hem renderRoute() hem de isStandaloneRoute() tarafından
+ *  kullanılır; böylece API uç nokta listesi tek bir yerde tutulur.
+ */
+function appRoutes(): array
+{
+    static $routes = null;
+    if ($routes !== null) {
+        return $routes;
+    }
+
+    $routes = [
+        // --- Sayfa rotaları (layout ile sarmalanır) ---
+        '/'                      => ['c' => 'DashboardController',   'a' => 'index', 'view' => 'app/pages/home.php'],
+        '/tanimlamalar'          => ['c' => 'TanimlamalarController', 'a' => 'index', 'view' => 'app/pages/tanimlamalar.php'],
+        '/doner-matrahi-olustur' => ['c' => 'DonerMatrahiController', 'a' => 'index', 'view' => 'app/pages/doner-matrahi-olustur.php'],
+        '/personel-listesi'      => ['c' => 'PersonnelController',    'a' => 'list',  'view' => 'app/pages/personel/list.php'],
+        '/ucret-tanimlari'       => ['c' => 'WageController',         'a' => 'list',  'view' => 'app/pages/ucret-tanimlari/list.php'],
+        '/sozlesme-taslagi'      => ['c' => 'TemplateController',     'a' => 'index', 'view' => 'app/pages/sozlesme-taslagi/list.php'],
+        '/kullanicilar'          => ['c' => 'UserController',         'a' => 'list',  'view' => 'app/pages/users/list.php'],
+        '/abonelik'              => ['c' => 'SubscriptionController',  'a' => 'index', 'view' => 'app/pages/subscription/index.php'],
+        '/kurum-yonetimi'        => ['c' => 'SuperadminController',    'a' => 'tenants', 'view' => 'app/pages/admin/tenants.php'],
+        '/profil'                => ['c' => 'ProfileController',       'a' => 'index', 'view' => 'app/pages/profile.php'],
+        '/ayarlar'               => ['c' => 'SettingsController',      'a' => 'index', 'view' => 'app/pages/ayarlar.php'],
+        '/yapilacaklar'          => ['c' => 'KanbanController',        'a' => 'index', 'view' => 'app/pages/kanban.php'],
+
+        // --- Kendi çıktısını üreten sayfa (layout ile sarmalanır, view yok) ---
+        '/matrah-yonetimi'       => ['c' => 'MatrahController', 'a' => 'index'],
+
+        // --- İndirme (standalone) ---
+        '/doner-matrahi-indir'   => ['c' => 'DonerMatrahiController', 'a' => 'downloadBasis', 'api' => true],
+
+        // --- Personel API ---
+        '/personel-datatable'              => ['c' => 'PersonnelController', 'a' => 'fetchDataTable',     'm' => 'POST', 'api' => true, 'exit' => true],
+        '/personel-ekle'                   => ['c' => 'PersonnelController', 'a' => 'store',              'm' => 'POST', 'api' => true, 'exit' => true],
+        '/personel-get'                    => ['c' => 'PersonnelController', 'a' => 'get',                'api' => true, 'exit' => true],
+        '/personel-guncelle'               => ['c' => 'PersonnelController', 'a' => 'update',             'm' => 'POST', 'api' => true, 'exit' => true],
+        '/personel-ai-scan'                => ['c' => 'PersonnelController', 'a' => 'aiScan',             'm' => 'POST', 'api' => true, 'exit' => true],
+        '/personel-sil'                    => ['c' => 'PersonnelController', 'a' => 'delete',             'm' => 'POST', 'api' => true, 'exit' => true],
+        '/personel-ucretsiz-izin-list'     => ['c' => 'PersonnelController', 'a' => 'ucretsizIzinList',  'api' => true, 'exit' => true],
+        '/personel-ucretsiz-izin-ekle'     => ['c' => 'PersonnelController', 'a' => 'ucretsizIzinEkle',  'm' => 'POST', 'api' => true, 'exit' => true],
+        '/personel-ucretsiz-izin-sil'      => ['c' => 'PersonnelController', 'a' => 'ucretsizIzinSil',   'm' => 'POST', 'api' => true, 'exit' => true],
+        '/personel-ucretsiz-izin-guncelle' => ['c' => 'PersonnelController', 'a' => 'ucretsizIzinGuncelle', 'm' => 'POST', 'api' => true, 'exit' => true],
+        '/personel-get-preview'            => ['c' => 'PersonnelController', 'a' => 'previewContract',    'api' => true, 'exit' => true],
+        '/personel-download-word'          => ['c' => 'PersonnelController', 'a' => 'downloadWord',       'api' => true, 'exit' => true],
+        '/personel-import-excel'           => ['c' => 'PersonnelController', 'a' => 'importExcel',        'm' => 'POST', 'api' => true, 'exit' => true],
+        '/personel-sample-template'        => ['c' => 'PersonnelController', 'a' => 'downloadSample',     'api' => true, 'exit' => true],
+
+        // --- Ücret API ---
+        '/ucret-ekle'           => ['c' => 'WageController', 'a' => 'store',       'm' => 'POST', 'api' => true, 'exit' => true],
+        '/ucret-get'            => ['c' => 'WageController', 'a' => 'get',          'exit' => true],
+        '/ucret-guncelle'       => ['c' => 'WageController', 'a' => 'update',       'm' => 'POST', 'api' => true, 'exit' => true],
+        '/ucret-sil'            => ['c' => 'WageController', 'a' => 'delete',       'm' => 'POST', 'api' => true, 'exit' => true],
+        '/ucret-import'         => ['c' => 'WageController', 'a' => 'import',       'm' => 'POST', 'api' => true, 'exit' => true],
+        '/ucret-donem-kopyala'  => ['c' => 'WageController', 'a' => 'copyPeriod',   'm' => 'POST', 'api' => true, 'exit' => true],
+        '/ucret-donem-sil'      => ['c' => 'WageController', 'a' => 'deletePeriod', 'm' => 'POST', 'api' => true, 'exit' => true],
+
+        // --- Sözleşme taslağı ---
+        '/sozlesme-taslagi-kaydet' => ['c' => 'TemplateController', 'a' => 'save', 'exit' => true],
+
+        // --- Kullanıcı API ---
+        '/kullanici-ekle'              => ['c' => 'UserController', 'a' => 'store',           'm' => 'POST', 'api' => true, 'exit' => true],
+        '/kullanici-get'               => ['c' => 'UserController', 'a' => 'get',             'exit' => true],
+        '/kullanici-guncelle'          => ['c' => 'UserController', 'a' => 'update',          'm' => 'POST', 'api' => true, 'exit' => true],
+        '/kullanici-sil'               => ['c' => 'UserController', 'a' => 'delete',          'm' => 'POST', 'api' => true, 'exit' => true],
+        '/kullanici-kurumlari-getir'   => ['c' => 'UserController', 'a' => 'getUserTenants',  'api' => true, 'exit' => true],
+        '/kullanici-kurumlari-kaydet'  => ['c' => 'UserController', 'a' => 'saveUserTenants', 'm' => 'POST', 'api' => true, 'exit' => true],
+
+        // --- Abonelik API ---
+        '/abonelik-paket-ekle'     => ['c' => 'SubscriptionController', 'a' => 'storePlan',          'm' => 'POST', 'api' => true, 'exit' => true],
+        '/abonelik-paket-get'      => ['c' => 'SubscriptionController', 'a' => 'getPlan',            'exit' => true],
+        '/abonelik-paket-guncelle' => ['c' => 'SubscriptionController', 'a' => 'updatePlan',         'm' => 'POST', 'api' => true, 'exit' => true],
+        '/abonelik-paket-sil'      => ['c' => 'SubscriptionController', 'a' => 'deletePlan',         'm' => 'POST', 'api' => true, 'exit' => true],
+        '/abonelik-satinal'        => ['c' => 'SubscriptionController', 'a' => 'purchase',           'm' => 'POST', 'api' => true, 'exit' => true],
+        '/abonelik-onayla'         => ['c' => 'SubscriptionController', 'a' => 'approve',            'm' => 'POST', 'api' => true, 'exit' => true],
+        '/abonelik-sil'            => ['c' => 'SubscriptionController', 'a' => 'deleteSubscription', 'm' => 'POST', 'api' => true, 'exit' => true],
+        '/abonelik-reddet'         => ['c' => 'SubscriptionController', 'a' => 'reject',             'm' => 'POST', 'api' => true, 'exit' => true],
+
+        // --- Süperadmin / Kurum API ---
+        '/kurum-listesi-json'         => ['c' => 'SuperadminController', 'a' => 'listTenantsJSON',  'api' => true, 'exit' => true],
+        '/kurum-getir-json'           => ['c' => 'SuperadminController', 'a' => 'getTenant',        'api' => true, 'exit' => true],
+        '/kurum-guncelle-json'        => ['c' => 'SuperadminController', 'a' => 'updateTenant',     'm' => 'POST', 'api' => true, 'exit' => true],
+        '/kurum-sil-json'             => ['c' => 'SuperadminController', 'a' => 'deleteTenant',     'm' => 'POST', 'api' => true, 'exit' => true],
+        '/kurum-kullanicilari-getir'  => ['c' => 'SuperadminController', 'a' => 'getTenantUsers',   'api' => true, 'exit' => true],
+        '/kurum-kullanicilari-kaydet' => ['c' => 'SuperadminController', 'a' => 'saveTenantUsers',  'm' => 'POST', 'api' => true, 'exit' => true],
+
+        // --- Profil API ---
+        '/profil-guncelle'     => ['c' => 'ProfileController', 'a' => 'update',             'm' => 'POST', 'api' => true, 'exit' => true],
+        '/profil-sms-guncelle' => ['c' => 'ProfileController', 'a' => 'updateSmsSettings',  'm' => 'POST', 'api' => true, 'exit' => true],
+        '/sifre-degistir'      => ['c' => 'ProfileController', 'a' => 'changePassword',     'm' => 'POST', 'api' => true, 'exit' => true],
+        '/hesap-sil'           => ['c' => 'ProfileController', 'a' => 'deleteAccount',      'm' => 'POST', 'api' => true, 'exit' => true],
+
+        // --- Kurum (tenant) ---
+        '/switch-tenant' => ['c' => 'TenantController', 'a' => 'switch', 'exit' => true],
+        '/kurum-ekle'    => ['c' => 'TenantController', 'a' => 'store',  'm' => 'POST', 'api' => true, 'exit' => true],
+
+        // --- Ayarlar API ---
+        '/ayarlar-kaydet'    => ['c' => 'SettingsController', 'a' => 'save',          'm' => 'POST', 'api' => true, 'exit' => true],
+        '/ayarlar-test-mail' => ['c' => 'SettingsController', 'a' => 'sendTestMail',  'm' => 'POST', 'api' => true, 'exit' => true],
+
+        // --- Kanban API ---
+        '/kanban-gorev-ekle'           => ['c' => 'KanbanController', 'a' => 'store',            'm' => 'POST', 'api' => true, 'exit' => true],
+        '/kanban-gorev-guncelle'       => ['c' => 'KanbanController', 'a' => 'update',           'm' => 'POST', 'api' => true, 'exit' => true],
+        '/kanban-gorev-sil'            => ['c' => 'KanbanController', 'a' => 'delete',           'm' => 'POST', 'api' => true, 'exit' => true],
+        '/kanban-gorev-durum-guncelle' => ['c' => 'KanbanController', 'a' => 'updateStatus',     'm' => 'POST', 'api' => true, 'exit' => true],
+        '/kanban-board-ekle'           => ['c' => 'KanbanController', 'a' => 'addBoard',         'm' => 'POST', 'api' => true, 'exit' => true],
+        '/kanban-board-sil'            => ['c' => 'KanbanController', 'a' => 'deleteBoard',      'm' => 'POST', 'api' => true, 'exit' => true],
+        '/kanban-board-sira-guncelle'  => ['c' => 'KanbanController', 'a' => 'updateBoardOrder', 'm' => 'POST', 'api' => true, 'exit' => true],
+        '/kanban-board-baslik-guncelle' => ['c' => 'KanbanController', 'a' => 'updateBoardTitle', 'm' => 'POST', 'api' => true, 'exit' => true],
+    ];
+
+    return $routes;
+}
+
 function isStandaloneRoute(string $page): bool
 {
     if (in_array($page, ['/login', '/logout', '/register'], true)) {
@@ -49,83 +174,15 @@ function isStandaloneRoute(string $page): bool
     if (strpos($page, '/mobile') === 0) {
         return true;
     }
-    
-    // AJAX APIs & File Download Endpoints (Should never be redirected to /mobile on real devices)
-    $apiAndDownloadRoutes = [
-        // Personnel APIs
-        '/personel-datatable',
-        '/personel-ekle',
-        '/personel-get',
-        '/personel-guncelle',
-        '/personel-ai-scan',
-        '/personel-sil',
-        '/personel-get-preview',
-        '/personel-download-word',
-        '/personel-import-excel',
-        '/personel-sample-template',
-        '/belge-yazdir',
-        '/personel-ucretsiz-izin-list',
-        '/personel-ucretsiz-izin-ekle',
-        '/personel-ucretsiz-izin-sil',
-        '/personel-ucretsiz-izin-guncelle',
-        
-        // Wage/Salary APIs
-        '/ucret-ekle',
-        '/ucret-guncelle',
-        '/ucret-sil',
-        '/ucret-import',
-        '/ucret-donem-kopyala',
-        '/ucret-donem-sil',
-        
-        // User/Auth APIs
-        '/kullanici-ekle',
-        '/kullanici-guncelle',
-        '/kullanici-sil',
-        '/sifre-degistir',
-        '/kullanici-kurumlari-getir',
-        '/kullanici-kurumlari-kaydet',
-        '/kurum-kullanicilari-getir',
-        '/kurum-kullanicilari-kaydet',
-        
-        // Subscription APIs
-        '/abonelik-paket-ekle',
-        '/abonelik-paket-guncelle',
-        '/abonelik-paket-sil',
-        '/abonelik-satinal',
-        '/abonelik-onayla',
-        '/abonelik-sil',
-        '/abonelik-reddet',
-        
-        // Settings/Institution/Profile APIs
-        '/kurum-listesi-json',
-        '/kurum-getir-json',
-        '/kurum-guncelle-json',
-        '/kurum-sil-json',
-        '/profil-guncelle',
-        '/kurum-ekle',
-        '/hesap-sil',
-        '/ayarlar-kaydet',
-        '/ayarlar-test-mail',
-        '/onboarding-complete',
-        
-        // Other download/API endpoints
-        '/doner-matrahi-indir',
-        
-        // Kanban / Todo APIs
-        '/kanban-gorev-ekle',
-        '/kanban-gorev-guncelle',
-        '/kanban-gorev-sil',
-        '/kanban-gorev-durum-guncelle',
-        '/kanban-board-ekle',
-        '/kanban-board-sil',
-        '/kanban-board-sira-guncelle',
-        '/kanban-board-baslik-guncelle'
-    ];
-    if (in_array($page, $apiAndDownloadRoutes, true)) {
+
+    // Tablo dışında özel ele alınan standalone uçlar (indirme / inline API)
+    if (in_array($page, ['/belge-yazdir', '/onboarding-complete'], true)) {
         return true;
     }
-    
-    return false;
+
+    // Rota tablosunda 'api' işaretli AJAX/JSON/indirme uçları
+    $routes = appRoutes();
+    return isset($routes[$page]) && !empty($routes[$page]['api']);
 }
 
 function renderPage(string $page): void
@@ -171,7 +228,11 @@ function logoutUser(): void
     session_destroy();
 }
 
-function renderRoute(string $page): void
+/**
+ * Mobil PWA varlıkları ve sayfaları için özel include'lar.
+ * Eşleşme olursa çıktıyı üretip exit eder, yoksa false döner.
+ */
+function renderMobileRoute(string $page): bool
 {
     if ($page === '/mobile/manifest.json') {
         header('Content-Type: application/json; charset=utf-8');
@@ -190,72 +251,51 @@ function renderRoute(string $page): void
         exit;
     }
 
-    if ($page === '/mobile/pages/home/index.php') {
-        include 'mobile/pages/home/index.php';
+    // mobile/pages/** altındaki bilinen sayfalar
+    $mobilePages = [
+        '/mobile/pages/home/index.php',
+        '/mobile/pages/personel/index.php',
+        '/mobile/pages/ucretler/index.php',
+        '/mobile/pages/profil/index.php',
+        '/mobile/pages/kanban/index.php',
+        '/mobile/pages/other/index.php',
+        '/mobile/pages/other/tenants.php',
+        '/mobile/pages/other/users.php',
+        '/mobile/pages/other/subscription.php',
+        '/mobile/pages/other/template.php',
+        '/mobile/pages/other/settings.php',
+        '/mobile/pages/other/tanimlamalar.php',
+    ];
+    if (in_array($page, $mobilePages, true)) {
+        include ltrim($page, '/');
         exit;
     }
 
-    if ($page === '/mobile/pages/personel/index.php') {
-        include 'mobile/pages/personel/index.php';
-        exit;
+    return false;
+}
+
+function renderRoute(string $page): void
+{
+    // --- Merkezi CSRF koruması: tüm değiştirici (POST) istekleri doğrula ---
+    // login/register kendi standalone akışlarına sahiptir ve hariç tutulur.
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST'
+        && !in_array($page, ['/login', '/register'], true)) {
+        csrf_verify();
     }
 
-    if ($page === '/mobile/pages/ucretler/index.php') {
-        include 'mobile/pages/ucretler/index.php';
-        exit;
+    // --- Mobil PWA rotaları ---
+    if (renderMobileRoute($page)) {
+        return;
     }
 
-    if ($page === '/mobile/pages/profil/index.php') {
-        include 'mobile/pages/profil/index.php';
-        exit;
-    }
-
-    if ($page === '/mobile/pages/kanban/index.php') {
-        include 'mobile/pages/kanban/index.php';
-        exit;
-    }
-
-    if ($page === '/mobile/pages/other/index.php') {
-        include 'mobile/pages/other/index.php';
-        exit;
-    }
-
-    if ($page === '/mobile/pages/other/tenants.php') {
-        include 'mobile/pages/other/tenants.php';
-        exit;
-    }
-
-    if ($page === '/mobile/pages/other/users.php') {
-        include 'mobile/pages/other/users.php';
-        exit;
-    }
-
-    if ($page === '/mobile/pages/other/subscription.php') {
-        include 'mobile/pages/other/subscription.php';
-        exit;
-    }
-
-    if ($page === '/mobile/pages/other/template.php') {
-        include 'mobile/pages/other/template.php';
-        exit;
-    }
-
-    if ($page === '/mobile/pages/other/settings.php') {
-        include 'mobile/pages/other/settings.php';
-        exit;
-    }
-
-    if ($page === '/mobile/pages/other/tanimlamalar.php') {
-        include 'mobile/pages/other/tanimlamalar.php';
-        exit;
-    }
-
+    // --- Belge yazdırma (standalone indirme) ---
     if ($page === '/belge-yazdir') {
         $controller = new PersonnelController();
         $controller->printDocument();
         exit;
     }
 
+    // --- Kimlik / oturum sayfaları ---
     if ($page === '/login') {
         include 'login.php';
         exit;
@@ -272,401 +312,7 @@ function renderRoute(string $page): void
         exit;
     }
 
-    // Controller bazlı yönlendirme
-    if ($page === '/tanimlamalar') {
-        $controller = new TanimlamalarController();
-        $data = $controller->index();
-        extract($data);
-        include 'app/pages/tanimlamalar.php';
-        return;
-    }
-
-    if ($page === '/doner-matrahi-olustur') {
-        $controller = new DonerMatrahiController();
-        $data = $controller->index();
-        extract($data);
-        include 'app/pages/doner-matrahi-olustur.php';
-        return;
-    }
-
-    if ($page === '/doner-matrahi-indir') {
-        $controller = new DonerMatrahiController();
-        $controller->downloadBasis();
-        return;
-    }
-
-    if ($page === '/matrah-yonetimi') {
-        $controller = new MatrahController();
-        $controller->index();
-        return;
-    }
-
-    if ($page === '/personel-listesi') {
-        $controller = new PersonnelController();
-        $data = $controller->list();
-        extract($data);
-        include 'app/pages/personel/list.php';
-        return;
-    }
-
-    if ($page === '/personel-datatable' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new PersonnelController();
-        $controller->fetchDataTable();
-        exit;
-    }
-
-    if ($page === '/personel-ekle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new PersonnelController();
-        $controller->store();
-        exit;
-    }
-
-    if ($page === '/personel-get') {
-        $controller = new PersonnelController();
-        $controller->get();
-        exit;
-    }
-
-    if ($page === '/personel-guncelle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new PersonnelController();
-        $controller->update();
-        exit;
-    }
-
-    if ($page === '/personel-ai-scan' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new PersonnelController();
-        $controller->aiScan();
-        exit;
-    }
-
-    if ($page === '/personel-sil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new PersonnelController();
-        $controller->delete();
-        exit;
-    }
-
-    if ($page === '/personel-ucretsiz-izin-list') {
-        $controller = new PersonnelController();
-        $controller->ucretsizIzinList();
-        exit;
-    }
-
-    if ($page === '/personel-ucretsiz-izin-ekle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new PersonnelController();
-        $controller->ucretsizIzinEkle();
-        exit;
-    }
-
-    if ($page === '/personel-ucretsiz-izin-sil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new PersonnelController();
-        $controller->ucretsizIzinSil();
-        exit;
-    }
-
-    if ($page === '/personel-ucretsiz-izin-guncelle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new PersonnelController();
-        $controller->ucretsizIzinGuncelle();
-        exit;
-    }
-
-    if ($page === '/personel-get-preview') {
-        $controller = new PersonnelController();
-        $controller->previewContract();
-        exit;
-    }
-
-    if ($page === '/personel-download-word') {
-        $controller = new PersonnelController();
-        $controller->downloadWord();
-        exit;
-    }
-
-    if ($page === '/personel-import-excel' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new PersonnelController();
-        $controller->importExcel();
-        exit;
-    }
-
-    if ($page === '/personel-sample-template') {
-        $controller = new PersonnelController();
-        $controller->downloadSample();
-        exit;
-    }
-
-    if ($page === '/') {
-        $controller = new DashboardController();
-        $data = $controller->index();
-        extract($data);
-        include 'app/pages/home.php';
-        return;
-    }
-
-    if ($page === '/ucret-tanimlari') {
-        $controller = new WageController();
-        $data = $controller->list();
-        extract($data);
-        include 'app/pages/ucret-tanimlari/list.php';
-        return;
-    }
-
-    if ($page === '/ucret-ekle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new WageController();
-        $controller->store();
-        exit;
-    }
-
-    if ($page === '/ucret-get') {
-        $controller = new WageController();
-        $controller->get();
-        exit;
-    }
-
-    if ($page === '/ucret-guncelle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new WageController();
-        $controller->update();
-        exit;
-    }
-
-    if ($page === '/ucret-sil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new WageController();
-        $controller->delete();
-        exit;
-    }
-
-    if ($page === '/ucret-import' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new WageController();
-        $controller->import();
-        exit;
-    }
-
-    if ($page === '/ucret-donem-kopyala' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new WageController();
-        $controller->copyPeriod();
-        exit;
-    }
-
-    if ($page === '/ucret-donem-sil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new WageController();
-        $controller->deletePeriod();
-        exit;
-    }
-
-    if ($page === '/sozlesme-taslagi') {
-        $controller = new TemplateController();
-        $data = $controller->index();
-        extract($data);
-        include 'app/pages/sozlesme-taslagi/list.php';
-        return;
-    }
-
-    if ($page === '/sozlesme-taslagi-kaydet') {
-        $controller = new TemplateController();
-        $controller->save();
-        exit;
-    }
-
-    if ($page === '/kullanicilar') {
-        $controller = new UserController();
-        $data = $controller->list();
-        extract($data);
-        include 'app/pages/users/list.php';
-        return;
-    }
-
-    if ($page === '/kullanici-ekle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new UserController();
-        $controller->store();
-        exit;
-    }
-
-    if ($page === '/kullanici-get') {
-        $controller = new UserController();
-        $controller->get();
-        exit;
-    }
-
-    if ($page === '/kullanici-guncelle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new UserController();
-        $controller->update();
-        exit;
-    }
-
-    if ($page === '/kullanici-sil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new UserController();
-        $controller->delete();
-        exit;
-    }
-
-    if ($page === '/kullanici-kurumlari-getir') {
-        $controller = new UserController();
-        $controller->getUserTenants();
-        exit;
-    }
-
-    if ($page === '/kullanici-kurumlari-kaydet' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new UserController();
-        $controller->saveUserTenants();
-        exit;
-    }
-
-    if ($page === '/abonelik') {
-        $controller = new SubscriptionController();
-        $data = $controller->index();
-        extract($data);
-        include 'app/pages/subscription/index.php';
-        return;
-    }
-
-    if ($page === '/abonelik-paket-ekle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new SubscriptionController();
-        $controller->storePlan();
-        exit;
-    }
-
-    if ($page === '/abonelik-paket-get') {
-        $controller = new SubscriptionController();
-        $controller->getPlan();
-        exit;
-    }
-
-    if ($page === '/abonelik-paket-guncelle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new SubscriptionController();
-        $controller->updatePlan();
-        exit;
-    }
-
-    if ($page === '/abonelik-paket-sil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new SubscriptionController();
-        $controller->deletePlan();
-        exit;
-    }
-
-    if ($page === '/abonelik-satinal' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new SubscriptionController();
-        $controller->purchase();
-        exit;
-    }
-
-    if ($page === '/abonelik-onayla' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new SubscriptionController();
-        $controller->approve();
-        exit;
-    }
-
-    if ($page === '/abonelik-sil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new SubscriptionController();
-        $controller->deleteSubscription();
-        exit;
-    }
-
-    if ($page === '/abonelik-reddet' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new SubscriptionController();
-        $controller->reject();
-        exit;
-    }
-
-    if ($page === '/kurum-yonetimi') {
-        $controller = new SuperadminController();
-        $data = $controller->tenants();
-        extract($data);
-        include 'app/pages/admin/tenants.php';
-        return;
-    }
-
-    if ($page === '/kurum-listesi-json') {
-        $controller = new SuperadminController();
-        $controller->listTenantsJSON();
-        exit;
-    }
-
-    if ($page === '/kurum-getir-json') {
-        $controller = new SuperadminController();
-        $controller->getTenant();
-        exit;
-    }
-
-    if ($page === '/kurum-guncelle-json' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new SuperadminController();
-        $controller->updateTenant();
-        exit;
-    }
-
-    if ($page === '/kurum-sil-json' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new SuperadminController();
-        $controller->deleteTenant();
-        exit;
-    }
-
-    if ($page === '/kurum-kullanicilari-getir') {
-        $controller = new SuperadminController();
-        $controller->getTenantUsers();
-        exit;
-    }
-
-    if ($page === '/kurum-kullanicilari-kaydet' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new SuperadminController();
-        $controller->saveTenantUsers();
-        exit;
-    }
-
-    if ($page === '/profil') {
-        $controller = new ProfileController();
-        $data = $controller->index();
-        extract($data);
-        include 'app/pages/profile.php';
-        return;
-    }
-
-    if ($page === '/profil-guncelle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new ProfileController();
-        $controller->update();
-        exit;
-    }
-
-    if ($page === '/sifre-degistir' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new ProfileController();
-        $controller->changePassword();
-        exit;
-    }
-
-    if ($page === '/switch-tenant') {
-        $controller = new TenantController();
-        $controller->switch();
-        exit;
-    }
-
-    if ($page === '/kurum-ekle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new TenantController();
-        $controller->store();
-        exit;
-    }
-
-    if ($page === '/hesap-sil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new ProfileController();
-        $controller->deleteAccount();
-        exit;
-    }
-
-    if ($page === '/ayarlar') {
-        $controller = new SettingsController();
-        $data = $controller->index();
-        extract($data);
-        include 'app/pages/ayarlar.php';
-        return;
-    }
-
-    if ($page === '/ayarlar-kaydet' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new SettingsController();
-        $controller->save();
-        exit;
-    }
-
-    if ($page === '/ayarlar-test-mail' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new SettingsController();
-        $controller->sendTestMail();
-        exit;
-    }
-
+    // --- Onboarding tamamlama (inline) ---
     if ($page === '/onboarding-complete' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         global $db;
         $user_id = $_SESSION['user_id'] ?? 0;
@@ -678,60 +324,34 @@ function renderRoute(string $page): void
         exit;
     }
 
-    if ($page === '/yapilacaklar') {
-        $controller = new KanbanController();
-        $data = $controller->index();
-        extract($data);
-        include 'app/pages/kanban.php';
+    // --- Tablo bazlı controller yönlendirmesi ---
+    $routes = appRoutes();
+    if (isset($routes[$page])) {
+        $route = $routes[$page];
+
+        // HTTP metot kısıtı
+        if (isset($route['m']) && ($_SERVER['REQUEST_METHOD'] ?? 'GET') !== $route['m']) {
+            renderPage('404');
+            return;
+        }
+
+        $controller = new $route['c']();
+        $result = $controller->{$route['a']}();
+
+        // Görünüm dosyası belirtilmişse veriyi aktarıp include et
+        if (!empty($route['view'])) {
+            if (is_array($result)) {
+                extract($result);
+            }
+            include $route['view'];
+            return;
+        }
+
+        // Kendi çıktısını üreten uçlar
+        if (!empty($route['exit'])) {
+            exit;
+        }
         return;
-    }
-
-    if ($page === '/kanban-gorev-ekle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new KanbanController();
-        $controller->store();
-        exit;
-    }
-
-    if ($page === '/kanban-gorev-guncelle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new KanbanController();
-        $controller->update();
-        exit;
-    }
-
-    if ($page === '/kanban-gorev-sil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new KanbanController();
-        $controller->delete();
-        exit;
-    }
-
-    if ($page === '/kanban-gorev-durum-guncelle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new KanbanController();
-        $controller->updateStatus();
-        exit;
-    }
-
-    if ($page === '/kanban-board-ekle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new KanbanController();
-        $controller->addBoard();
-        exit;
-    }
-
-    if ($page === '/kanban-board-sil' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new KanbanController();
-        $controller->deleteBoard();
-        exit;
-    }
-
-    if ($page === '/kanban-board-sira-guncelle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new KanbanController();
-        $controller->updateBoardOrder();
-        exit;
-    }
-
-    if ($page === '/kanban-board-baslik-guncelle' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller = new KanbanController();
-        $controller->updateBoardTitle();
-        exit;
     }
 
     renderPage('404');

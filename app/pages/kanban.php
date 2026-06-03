@@ -415,6 +415,20 @@ $priorityOptions = [
     </div>
 </dialog>
 
+<!-- 3. Deletion Confirm Dialog -->
+<dialog id="delete-confirm-dialog" class="dialog" style="max-width: 440px; width: 90vw;" onclick="if (event.target === this) this.close()">
+    <div class="dialog-content bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-2xl" onclick="event.stopPropagation()">
+        <div class="mb-5">
+            <h2 id="delete-confirm-title" class="text-lg font-bold text-zinc-900 dark:text-zinc-100">Görevi Sil</h2>
+            <p id="delete-confirm-desc" class="text-sm text-zinc-500 mt-2 leading-relaxed">Bu görevi silmek istediğinize emin misiniz?</p>
+        </div>
+        <div class="flex justify-end gap-3">
+            <button type="button" class="btn-outline px-4 py-2 text-sm font-medium rounded-lg" onclick="document.getElementById('delete-confirm-dialog').close()">Vazgeç</button>
+            <button type="button" onclick="executeDelete()" class="btn bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 px-4 py-2 text-sm font-medium rounded-lg border-none shadow-sm transition-all">Silmeyi Tamamla</button>
+        </div>
+    </div>
+</dialog>
+
 <!-- ==========================================
      PREMIUM SCRIPTS AND INTERACTIONS
      ========================================== -->
@@ -422,6 +436,11 @@ $priorityOptions = [
 // Filter state variables
 let selectedUserFilterId = null;
 let activePriorityFilter = 'all';
+
+// Deletion confirmation state variables
+let deleteTargetType = null;
+let deleteTargetId = null;
+let deleteTargetTitle = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     // Task Form AJAX submit handler
@@ -665,29 +684,13 @@ function openAddBoardDialog() {
 function deleteBoard(boardId, title) {
     event.stopPropagation();
     
-    if (!confirm(`"${title}" sütununu ve içindeki TÜM GÖREVLERİ silmek istediğinize emin misiniz?`)) return;
+    deleteTargetType = 'board';
+    deleteTargetId = boardId;
+    deleteTargetTitle = title;
     
-    const basePath = '<?php echo appBasePath(); ?>';
-    const formData = new FormData();
-    formData.append('board_id', boardId);
-
-    fetch(basePath + '/kanban-board-sil', {
-        method: 'POST',
-        body: formData,
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('Sütun silindi.');
-            setTimeout(() => { window.location.reload(); }, 600);
-        } else {
-            showNotification(data.error || 'Sütun silinemedi.', 'error');
-        }
-    })
-    .catch(err => {
-        showNotification('Sütun silinirken bağlantı hatası oluştu.', 'error');
-    });
+    document.getElementById('delete-confirm-title').innerText = 'Sütunu Sil';
+    document.getElementById('delete-confirm-desc').innerText = `"${title}" sütununu ve içindeki TÜM GÖREVLERİ silmek istediğinize emin misiniz?`;
+    document.getElementById('delete-confirm-dialog').showModal();
 }
 
 // Helper function to set custom select value dynamically
@@ -759,36 +762,77 @@ function openEditTaskModal(btn) {
 function deleteTask(id) {
     event.stopPropagation();
     
-    if (!confirm('Bu görevi silmek istediğinize emin misiniz?')) return;
+    deleteTargetType = 'task';
+    deleteTargetId = id;
+    
+    document.getElementById('delete-confirm-title').innerText = 'Görevi Sil';
+    document.getElementById('delete-confirm-desc').innerText = 'Bu görevi silmek istediğinize emin misiniz?';
+    document.getElementById('delete-confirm-dialog').showModal();
+}
 
+// Execute Deletion
+function executeDelete() {
+    if (!deleteTargetId || !deleteTargetType) return;
+    
+    const id = deleteTargetId;
+    const type = deleteTargetType;
+    
+    // Close dialog
+    document.getElementById('delete-confirm-dialog').close();
+    
+    // Reset state
+    deleteTargetId = null;
+    deleteTargetType = null;
+    
     const basePath = '<?php echo appBasePath(); ?>';
     const formData = new FormData();
-    formData.append('id', id);
-
-    fetch(basePath + '/kanban-gorev-sil', {
-        method: 'POST',
-        body: formData,
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            showNotification('Görev silindi.');
-            const card = document.getElementById('task-card-' + id);
-            if (card) {
-                card.classList.add('scale-95', 'opacity-0');
-                setTimeout(() => {
-                    card.remove();
-                    updateVisualColumnCounts();
-                }, 300);
+    
+    if (type === 'board') {
+        formData.append('board_id', id);
+        fetch(basePath + '/kanban-board-sil', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Sütun silindi.');
+                setTimeout(() => { window.location.reload(); }, 600);
+            } else {
+                showNotification(data.error || 'Sütun silinemedi.', 'error');
             }
-        } else {
-            showNotification(data.error || 'Görev silinemedi.', 'error');
-        }
-    })
-    .catch(err => {
-        showNotification('Sunucu bağlantı hatası.', 'error');
-    });
+        })
+        .catch(err => {
+            showNotification('Sütun silinirken bağlantı hatası oluştu.', 'error');
+        });
+    } else if (type === 'task') {
+        formData.append('id', id);
+        fetch(basePath + '/kanban-gorev-sil', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Görev silindi.');
+                const card = document.getElementById('task-card-' + id);
+                if (card) {
+                    card.classList.add('scale-95', 'opacity-0');
+                    setTimeout(() => {
+                        card.remove();
+                        updateVisualColumnCounts();
+                    }, 300);
+                }
+            } else {
+                showNotification(data.error || 'Görev silinemedi.', 'error');
+            }
+        })
+        .catch(err => {
+            showNotification('Sunucu bağlantı hatası.', 'error');
+        });
+    }
 }
 
 /* ==========================================

@@ -121,6 +121,33 @@ class ProfileController extends Controller {
         }
     }
 
+    public function updateSmsSettings() {
+        $id = $_SESSION['user_id'];
+        
+        $sms_active = isset($_POST['sms_active']) ? 1 : 0;
+        $sms_entegrator = trim($_POST['sms_entegrator'] ?? 'NETGSM');
+        $sms_sender = trim($_POST['sms_sender'] ?? '');
+        $sms_api_url = trim($_POST['sms_api_url'] ?? '');
+        $sms_api_key = trim($_POST['sms_api_key'] ?? '');
+        
+        $data = [
+            'sms_active' => $sms_active,
+            'sms_entegrator' => $sms_entegrator,
+            'sms_sender' => $sms_sender,
+            'sms_api_url' => $sms_api_url,
+            'sms_api_key' => $sms_api_key,
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+        
+        $result = $this->userModel->update($id, $data);
+        
+        if ($result) {
+            echo json_encode(['success' => true, 'message' => 'SMS API ayarları başarıyla güncellendi.']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'SMS API ayarları güncellenirken bir hata oluştu.']);
+        }
+    }
+
     private function isAjax() {
         return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
     }

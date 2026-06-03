@@ -74,6 +74,7 @@ if ($isLoggedIn) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <?php echo csrf_meta(); ?>
     <title>Sözleşme 4B Mobil Portal</title>
     
     <!-- PWA Capabilities & Fullscreen Meta Tags -->
@@ -115,7 +116,9 @@ if ($isLoggedIn) {
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    
+    <!-- CSRF Token Interceptor (jQuery'den hemen sonra yüklenmeli) -->
+    <script src="<?php echo routeUrl('/assets/js/csrf.js'); ?>"></script>
+
     <!-- Tailwind CSS 4 -->
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     

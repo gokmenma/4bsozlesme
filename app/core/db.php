@@ -12,13 +12,6 @@ $password = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '';
 $charset = getenv('DB_CHARSET') ?: 'utf8mb4';
 
 
-// $dbname = 'mbeyazil_sozlesme';
-// $username = 'mbeyazil_4bsozlesme';
-// $password = 'h?]C=qC9qLJ.Cv{C'; // XAMPP varsayılanı boştur
-
-
-
-
 
 $dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
 
