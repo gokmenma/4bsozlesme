@@ -4,3 +4,6 @@
 .env
 .DS_Store
 *.log
+
+# Veritabanı dökümü (gerçek veri içerir, repoda tutulmamalı)
+host_veritabani.sql
