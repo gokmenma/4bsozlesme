@@ -61,16 +61,64 @@ function csrf_verify(): void
  */
 function renderTablePreloader($id = 'table-preloader') {
     return '
-    <!-- Shadcn Style Table Preloader -->
-    <div id="' . $id . '" class="absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-zinc-950/80 backdrop-blur-[2px] transition-all duration-500">
-        <div class="flex flex-col items-center gap-4">
-            <div class="relative flex items-center justify-center">
-                <div class="w-10 h-10 border-2 border-zinc-200 dark:border-zinc-800 rounded-full"></div>
-                <div class="absolute w-10 h-10 border-2 border-zinc-900 dark:border-zinc-100 border-t-transparent rounded-full animate-spin"></div>
+    <!-- Premium CSS Animasyonlu Tablo Preloader -->
+    <div id="' . $id . '" class="absolute inset-0 z-50 flex items-center justify-center bg-zinc-50 dark:bg-zinc-900 transition-all duration-500">
+        <style>
+            @keyframes helperCardShimmer {
+                100% { transform: translateX(100%); }
+            }
+            @keyframes helperFloatScan {
+                0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
+                25% { transform: translate(-40px, -20px) scale(1.08) rotate(-8deg); }
+                50% { transform: translate(-80px, -10px) scale(1.15) rotate(8deg); }
+                75% { transform: translate(-50px, 15px) scale(1.08) rotate(-4deg); }
+            }
+            .animate-helper-card-shimmer {
+                animation: helperCardShimmer 1.8s infinite linear;
+            }
+            .animate-helper-float-scan {
+                animation: helperFloatScan 6s infinite ease-in-out;
+            }
+        </style>
+        <div class="flex flex-col items-center gap-6">
+            <div class="relative w-48 h-32 select-none" draggable="false">
+                <!-- Skeleton Card Container -->
+                <div class="w-full h-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-xl p-4 flex flex-col justify-between overflow-hidden relative">
+                    <!-- Shimmer Gradient -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-100/60 dark:via-zinc-800/40 to-transparent -translate-x-full animate-helper-card-shimmer"></div>
+                    
+                    <div class="flex items-center gap-3">
+                        <!-- Avatar Circle Placeholder -->
+                        <div class="w-9 h-9 rounded-full bg-zinc-200 dark:bg-zinc-800/80 shrink-0"></div>
+                        <!-- Title & Subtitle Line Placeholders -->
+                        <div class="flex-1 space-y-2">
+                            <div class="h-3 bg-zinc-200 dark:bg-zinc-800/80 rounded-md w-3/4"></div>
+                            <div class="h-2 bg-zinc-150 dark:bg-zinc-800/50 rounded-md w-1/2"></div>
+                        </div>
+                    </div>
+                    <!-- Card Footer Lines -->
+                    <div class="space-y-2 pt-3 border-t border-zinc-100 dark:border-zinc-800/40">
+                        <div class="h-2 bg-zinc-150 dark:bg-zinc-800/50 rounded-md w-5/6"></div>
+                        <div class="h-2 bg-zinc-150 dark:bg-zinc-800/50 rounded-md w-2/3"></div>
+                    </div>
+                </div>
+                
+                <!-- Floating Magnifying Glass Scanner -->
+                <div class="absolute -right-3 -bottom-3 text-indigo-600 dark:text-indigo-400 filter drop-shadow-xl animate-helper-float-scan">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                </div>
             </div>
-            <div class="flex flex-col items-center gap-1">
-                <p class="text-sm font-medium text-zinc-900 dark:text-zinc-50 tracking-tight">Veriler işleniyor</p>
-                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Lütfen bekleyin...</p>
+            
+            <div class="flex flex-col items-center gap-1.5 -mt-2">
+                <h4 class="text-sm font-semibold text-zinc-900 dark:text-zinc-50 tracking-tight flex items-center gap-1">
+                    Veriler yükleniyor
+                    <span class="inline-flex gap-0.5">
+                        <span class="w-1 h-1 rounded-full bg-zinc-900 dark:bg-zinc-100 animate-bounce" style="animation-delay: 0s"></span>
+                        <span class="w-1 h-1 rounded-full bg-zinc-900 dark:bg-zinc-100 animate-bounce" style="animation-delay: 0.15s"></span>
+                        <span class="w-1 h-1 rounded-full bg-zinc-900 dark:bg-zinc-100 animate-bounce" style="animation-delay: 0.3s"></span>
+                    </span>
+                </h4>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Veriler hazırlanıyor, lütfen bekleyin...</p>
             </div>
         </div>
     </div>';

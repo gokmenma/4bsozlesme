@@ -19,15 +19,7 @@ $pageSubtitle = 'Sistemdeki tüm kurumları ve aktiflik durumlarını yönetin';
     </div>
 
     <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden relative flex flex-col h-[calc(100vh-230px)]">
-        <div id="table-preloader" class="absolute inset-0 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-[1px] flex items-center justify-center z-10">
-            <div class="flex flex-col items-center gap-3">
-                <div class="relative">
-                    <div class="w-10 h-10 border-2 border-zinc-200 dark:border-zinc-800 rounded-full"></div>
-                    <div class="w-10 h-10 border-t-2 border-primary rounded-full animate-spin absolute top-0 left-0"></div>
-                </div>
-                <span class="text-xs font-medium text-zinc-500 animate-pulse">Veriler yükleniyor...</span>
-            </div>
-        </div>
+        <?php echo renderTablePreloader(); ?>
 
         <div id="table-container" class="flex-1 flex flex-col overflow-hidden" style="display: none;">
             <table id="tenantTable" class="w-full text-left">

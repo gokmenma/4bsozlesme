@@ -101,7 +101,7 @@ if (!document.getElementById('toaster')) {
         </div>
     </div>
 
-    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden relative flex flex-col max-h-[calc(100vh-200px)] min-h-0 h-fit">
+    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden relative flex flex-col h-[calc(100vh-200px)] min-h-[450px]">
         <?php echo renderTablePreloader(); ?>
 
         <div id="table-container" class="flex-1 flex flex-col overflow-hidden" style="display: none;">
@@ -1023,7 +1023,45 @@ $(document).ready(function() {
         ],
         order: [[2, 'asc']],
         dom: '<"flex-1 overflow-auto"rt><"mt-auto border-t border-zinc-200 dark:border-zinc-800 flex flex-row justify-between items-center py-0 px-4 bg-zinc-50/50 dark:bg-zinc-800/30"lip>',
-        preloader: '#table-preloader'
+        preloader: '#table-preloader',
+        language: {
+            processing: `
+                <div class="custom-processing-content flex flex-col items-center gap-4 px-6 py-5 bg-white/95 dark:bg-zinc-950/95 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl backdrop-blur-md relative overflow-hidden w-64">
+                    <div class="relative w-36 h-24 select-none shrink-0" draggable="false">
+                        <!-- Skeleton Card Container -->
+                        <div class="w-full h-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 flex flex-col justify-between overflow-hidden relative">
+                            <!-- Shimmer Gradient -->
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/80 dark:via-zinc-800/40 to-transparent -translate-x-full animate-card-shimmer"></div>
+                            
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-full bg-zinc-200/80 dark:bg-zinc-800 shrink-0"></div>
+                                <div class="flex-1 space-y-1.5">
+                                    <div class="h-2 bg-zinc-200/80 dark:bg-zinc-800 rounded w-3/4"></div>
+                                    <div class="h-1.5 bg-zinc-150/60 dark:bg-zinc-850 rounded w-1/2"></div>
+                                </div>
+                            </div>
+                            <div class="space-y-1.5 pt-2 border-t border-zinc-200/50 dark:border-zinc-800/40">
+                                <div class="h-1.5 bg-zinc-150/60 dark:bg-zinc-850 rounded w-5/6"></div>
+                                <div class="h-1.5 bg-zinc-150/60 dark:bg-zinc-850 rounded w-2/3"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Floating Magnifying Glass Scanner -->
+                        <div class="absolute -right-2 -bottom-2 text-indigo-600 dark:text-indigo-400 filter drop-shadow-md animate-float-scan">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                        </div>
+                    </div>
+                    <span class="text-[12px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight uppercase flex items-center gap-1">
+                        Güncelleniyor
+                        <span class="inline-flex gap-0.5">
+                            <span class="w-1 h-1 rounded-full bg-zinc-900 dark:bg-zinc-100 animate-bounce" style="animation-delay: 0s"></span>
+                            <span class="w-1 h-1 rounded-full bg-zinc-900 dark:bg-zinc-100 animate-bounce" style="animation-delay: 0.15s"></span>
+                            <span class="w-1 h-1 rounded-full bg-zinc-900 dark:bg-zinc-100 animate-bounce" style="animation-delay: 0.3s"></span>
+                        </span>
+                    </span>
+                </div>
+            `
+        }
     });
 
     window.personnelTable = table;
