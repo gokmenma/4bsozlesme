@@ -82,6 +82,10 @@ function isStandaloneRoute(string $page): bool
         '/kullanici-guncelle',
         '/kullanici-sil',
         '/sifre-degistir',
+        '/kullanici-kurumlari-getir',
+        '/kullanici-kurumlari-kaydet',
+        '/kurum-kullanicilari-getir',
+        '/kurum-kullanicilari-kaydet',
         
         // Subscription APIs
         '/abonelik-paket-ekle',
@@ -493,6 +497,18 @@ function renderRoute(string $page): void
         exit;
     }
 
+    if ($page === '/kullanici-kurumlari-getir') {
+        $controller = new UserController();
+        $controller->getUserTenants();
+        exit;
+    }
+
+    if ($page === '/kullanici-kurumlari-kaydet' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new UserController();
+        $controller->saveUserTenants();
+        exit;
+    }
+
     if ($page === '/abonelik') {
         $controller = new SubscriptionController();
         $data = $controller->index();
@@ -578,6 +594,18 @@ function renderRoute(string $page): void
     if ($page === '/kurum-sil-json' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $controller = new SuperadminController();
         $controller->deleteTenant();
+        exit;
+    }
+
+    if ($page === '/kurum-kullanicilari-getir') {
+        $controller = new SuperadminController();
+        $controller->getTenantUsers();
+        exit;
+    }
+
+    if ($page === '/kurum-kullanicilari-kaydet' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller = new SuperadminController();
+        $controller->saveTenantUsers();
         exit;
     }
 

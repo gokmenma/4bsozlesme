@@ -150,6 +150,99 @@ class SuperadminController extends Controller {
         exit;
     }
 
+    public function getTenantUsers() {
+        if (ob_get_level()) {
+            ob_clean();
+        }
+        header('Content-Type: application/json; charset=utf-8');
+
+        try {
+            $tenantId = $_GET['id'] ?? 0;
+            $allUsers = $this->userModel->all();
+
+            global $db;
+            $stmt = $db->prepare("SELECT user_id FROM user_tenants WHERE tenant_id = ?");
+            $stmt->execute([$tenantId]);
+            $assignedUserIds = array_column($stmt->fetchAll(), 'user_id');
+
+            $data = [];
+            foreach ($allUsers as $u) {
+                $data[] = [
+                    'id' => $u['id'],
+                    'name' => $u['name'],
+                    'email' => $u['email'],
+                    'selected' => in_array($u['id'], $assignedUserIds)
+                ];
+            }
+            echo json_encode(['success' => true, 'users' => $data]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Hata: ' . $e->getMessage()]);
+        }
+        exit;
+    }
+
+    public function saveTenantUsers() {
+        if (ob_get_level()) {
+            ob_clean();
+        }
+        header('Content-Type: application/json; charset=utf-8');
+
+        try {
+            $tenantId = $_POST['tenant_id'] ?? 0;
+            $selectedUsers = $_POST['users'] ?? [];
+
+            global $db;
+            $db->beginTransaction();
+
+            // Önce bu kurumun mevcut ilişkilerini silelim
+            $stmt = $db->prepare("DELETE FROM user_tenants WHERE tenant_id = ?");
+            $stmt->execute([$tenantId]);
+
+            // Seçilen kullanıcıları ekleyelim
+            $stmtInsert = $db->prepare("INSERT INTO user_tenants (user_id, tenant_id, role, created_at) VALUES (?, ?, 'admin', NOW())");
+            foreach ($selectedUsers as $userId) {
+                $stmtInsert->execute([$userId, $tenantId]);
+
+                $user = $this->userModel->find($userId);
+                if ($user) {
+                    $currentPrimary = $user['tenant_id'];
+                    if (empty($currentPrimary)) {
+                        $stmtUpdate = $db->prepare("UPDATE users SET tenant_id = ? WHERE id = ?");
+                        $stmtUpdate->execute([$tenantId, $userId]);
+                    }
+                }
+            }
+
+            // İlişkisi kesilen kullanıcıların primary tenant_id'sini düzeltelim
+            $stmtFixUsers = $db->prepare("SELECT id FROM users WHERE tenant_id = ?");
+            $stmtFixUsers->execute([$tenantId]);
+            $usersWithThisPrimary = array_column($stmtFixUsers->fetchAll(), 'id');
+
+            foreach ($usersWithThisPrimary as $uid) {
+                if (!in_array($uid, $selectedUsers)) {
+                    $otherTenants = $this->userModel->getTenants($uid);
+                    if (!empty($otherTenants)) {
+                        $newPrimary = $otherTenants[0]['id'];
+                        $stmtUpdate = $db->prepare("UPDATE users SET tenant_id = ? WHERE id = ?");
+                        $stmtUpdate->execute([$newPrimary, $uid]);
+                    } else {
+                        $stmtUpdate = $db->prepare("UPDATE users SET tenant_id = NULL WHERE id = ?");
+                        $stmtUpdate->execute([$uid]);
+                    }
+                }
+            }
+
+            $db->commit();
+            echo json_encode(['success' => true, 'message' => 'Kurum kullanıcıları başarıyla güncellendi.']);
+        } catch (Exception $e) {
+            if (isset($db) && $db->inTransaction()) {
+                $db->rollBack();
+            }
+            echo json_encode(['success' => false, 'message' => 'Hata: ' . $e->getMessage()]);
+        }
+        exit;
+    }
+
     private function isAjax() {
         return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
     }

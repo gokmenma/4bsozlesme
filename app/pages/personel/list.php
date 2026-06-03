@@ -1031,27 +1031,53 @@ $(document).ready(function() {
     // Load persisted column visibility preferences
     loadColumnPreferences();
 
-    // URL'den gelen filtreleri işle (Kadro Dolmuş Kısayolu)
+    // URL'den gelen filtreleri işle (Kadro Dolmuş Kısayolu ve Aktif Personel Alt Kırılımları)
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('filter') === 'kadro_dolmus') {
-        // 1. Durum = Aktif (Kolon 8)
-        table.column(8).search('Aktif', false, true); 
-        
-        // 2. Kadroya Geçiş <= Bugün (Kolon 10)
-        const today = new Date();
-        const dd = String(today.getDate()).padStart(2, '0');
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const yyyy = today.getFullYear();
-        const todayStr = `${dd}.${mm}.${yyyy}`;
-        
+    const filterType = urlParams.get('filter');
+    if (filterType) {
         const columnFilterState = table.table().node().getAttribute('data-columnFilterState') || '{}';
         const stateObj = JSON.parse(columnFilterState);
-        stateObj[10] = { 
-            match: 'all', 
-            rules: [{ operator: 'lte', value: todayStr, type: 'date' }] 
-        };
+
+        if (filterType === 'kadro_dolmus') {
+            // 1. Durum = Aktif (Kolon 8)
+            stateObj[8] = {
+                match: 'any',
+                rules: [{ operator: 'equals', value: 'aktif', type: 'text' }]
+            };
+            table.column(8).search('.*', true, false); 
+            
+            // 2. Kadroya Geçiş <= Bugün (Kolon 10)
+            const today = new Date();
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const yyyy = today.getFullYear();
+            const todayStr = `${dd}.${mm}.${yyyy}`;
+            
+            stateObj[10] = { 
+                match: 'all', 
+                rules: [{ operator: 'lte', value: todayStr, type: 'date' }] 
+            };
+        } else if (filterType === 'aktif_calisan') {
+            stateObj[8] = {
+                match: 'any',
+                rules: [{ operator: 'equals', value: 'aktif', type: 'text' }]
+            };
+            table.column(8).search('.*', true, false);
+        } else if (filterType === 'dilekce_alindi') {
+            stateObj[8] = {
+                match: 'any',
+                rules: [{ operator: 'equals', value: 'dilekçe alındı', type: 'text' }]
+            };
+            table.column(8).search('.*', true, false);
+        } else if (filterType === 'kadroya_gecmeyecek') {
+            stateObj[8] = {
+                match: 'any',
+                rules: [{ operator: 'equals', value: 'kadroya geçmeyecek', type: 'text' }]
+            };
+            table.column(8).search('.*', true, false);
+        }
+
         $(table.table().node()).data('columnFilterState', stateObj);
-        
         table.draw();
     }
 

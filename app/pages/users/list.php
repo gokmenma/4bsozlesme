@@ -87,7 +87,17 @@ $viewType = $viewType ?? $_GET['view_type'] ?? 'mine';
                                 </span>
                             </td>
                             <td class="text-zinc-600 dark:text-zinc-400">
-                                <?php echo htmlspecialchars($u['tenant_name'] ?? '-'); ?>
+                                <?php 
+                                $tenantCount = count($u['tenant_names'] ?? []);
+                                if ($tenantCount > 0):
+                                    $allNames = implode(', ', array_map(fn($n) => htmlspecialchars($n, ENT_QUOTES, 'UTF-8'), $u['tenant_names']));
+                                    ?>
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-zinc-50 dark:bg-zinc-800 border border-zinc-100 dark:border-zinc-800 text-xs font-semibold cursor-help underline decoration-dotted" title="<?php echo $allNames; ?>">
+                                        <?php echo $tenantCount; ?> Kurum
+                                    </span>
+                                <?php else: ?>
+                                    -
+                                <?php endif; ?>
                             </td>
                             <?php if ($isSuperAdmin): ?>
                             <td class="text-zinc-600 dark:text-zinc-400">
@@ -148,6 +158,9 @@ $viewType = $viewType ?? $_GET['view_type'] ?? 'mine';
                             <td class="text-zinc-600 dark:text-zinc-400"><?php echo htmlspecialchars($u['creator_name'] ?? '-'); ?></td>
                             <td class="text-right">
                                 <div class="flex items-center justify-end gap-2">
+                                    <button onclick="manageUserTenants(<?php echo $u['id']; ?>, '<?php echo htmlspecialchars($u['name'], ENT_QUOTES, 'UTF-8'); ?>')" class="p-1.5 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 rounded text-indigo-500 transition-colors" title="Kurum Yetkileri">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 18h12"/><path d="M6 14h12"/><path d="M6 10h12"/><path d="M10 6h4"/></svg>
+                                    </button>
                                     <button onclick="editUser(<?php echo $u['id']; ?>)" class="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded text-zinc-400 transition-colors" title="Düzenle">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                                     </button>
@@ -291,6 +304,36 @@ $viewType = $viewType ?? $_GET['view_type'] ?? 'mine';
     <footer class="mt-6 flex justify-end gap-3">
       <button type="button" class="btn-outline" onclick="this.closest('dialog').close()">İptal</button>
       <button type="button" onclick="saveUser()" class="btn">Değişiklikleri Kaydet</button>
+    </footer>
+
+    <button type="button" class="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600" onclick="this.closest('dialog').close()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+</dialog>
+
+<!-- Kurum Yetkileri Dialog -->
+<dialog id="dialog-user-tenants" class="dialog w-full sm:max-w-[500px] !overflow-visible" onclick="if (event.target === this) this.close()">
+  <div class="dialog-content bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-2xl !overflow-visible" onclick="event.stopPropagation()">
+    <header class="mb-6">
+      <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Kurum Yetkileri</h2>
+      <p class="text-sm text-zinc-500"><span id="user-tenants-name" class="font-semibold text-zinc-700 dark:text-zinc-300"></span> kullanıcısının yetkili olduğu kurumları seçin.</p>
+    </header>
+
+    <div class="mb-4">
+        <input type="text" id="user-tenant-search" class="block w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 text-sm placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Kurum ara..." />
+    </div>
+
+    <form id="form-user-tenants" class="form grid gap-4 max-h-[300px] overflow-y-auto pr-1">
+        <input type="hidden" name="user_id" id="user_tenants_id" />
+        <div id="user-tenants-list" class="grid gap-3">
+            <!-- AJAX ile dolacak -->
+        </div>
+    </form>
+
+    <footer class="mt-6 flex justify-end gap-3">
+      <button type="button" class="btn-outline" onclick="this.closest('dialog').close()">İptal</button>
+      <button type="button" onclick="saveUserTenants()" class="btn">Yetkileri Kaydet</button>
     </footer>
 
     <button type="button" class="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600" onclick="this.closest('dialog').close()">
@@ -484,6 +527,73 @@ function confirmDelete() {
         } finally {
             document.getElementById('alert-dialog-delete').close();
             userToDelete = null;
+        }
+    });
+}
+function manageUserTenants(id, name) {
+    $('#user_tenants_id').val(id);
+    $('#user-tenants-name').text(name);
+    $('#user-tenant-search').val('');
+    $('#user-tenants-list').html('<p class="text-zinc-500 text-sm animate-pulse">Kurumlar yükleniyor...</p>');
+    
+    $.get('<?php echo routeUrl("kullanici-kurumlari-getir"); ?>', { id: id }, function(response) {
+        try {
+            if (typeof response === 'string') {
+                response = JSON.parse(response);
+            }
+            if (response.success) {
+                let html = '';
+                response.tenants.forEach(function(tenant) {
+                    html += `
+                    <label class="flex items-center gap-3 p-3 border border-zinc-100 dark:border-zinc-800 rounded-lg hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 cursor-pointer transition-colors">
+                        <input type="checkbox" name="tenants[]" value="${tenant.id}" ${tenant.selected ? 'checked' : ''} class="w-4 h-4 text-primary border-zinc-300 rounded focus:ring-primary" />
+                        <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">${tenant.name}</span>
+                    </label>
+                    `;
+                });
+                if (response.tenants.length === 0) {
+                    html = '<p class="text-zinc-500 text-sm">Sistemde henüz kurum bulunmuyor.</p>';
+                }
+                $('#user-tenants-list').html(html);
+                
+                // Search filter event listener
+                $('#user-tenant-search').off('keyup').on('keyup', function() {
+                    const query = $(this).val().toLowerCase();
+                    $('#user-tenants-list label').each(function() {
+                        const text = $(this).text().toLowerCase();
+                        if (text.indexOf(query) > -1) {
+                            $(this).removeClass('hidden').addClass('flex');
+                        } else {
+                            $(this).removeClass('flex').addClass('hidden');
+                        }
+                    });
+                });
+
+                document.getElementById('dialog-user-tenants').showModal();
+            } else {
+                showToast({ category: 'error', title: 'Hata', description: response.message });
+            }
+        } catch (err) {
+            showToast({ category: 'error', title: 'Hata', description: 'Veriler alınırken bir sorun oluştu.' });
+        }
+    });
+}
+
+function saveUserTenants() {
+    $.post('<?php echo routeUrl("kullanici-kurumlari-kaydet"); ?>', $('#form-user-tenants').serialize(), function(response) {
+        try {
+            if (typeof response === 'string') {
+                response = JSON.parse(response);
+            }
+            if (response.success) {
+                showToast({ category: 'success', title: 'Başarılı', description: response.message });
+                document.getElementById('dialog-user-tenants').close();
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showToast({ category: 'error', title: 'Hata', description: response.message });
+            }
+        } catch (err) {
+            showToast({ category: 'error', title: 'Hata', description: 'İşlem tamamlanırken bir hata oluştu.' });
         }
     });
 }

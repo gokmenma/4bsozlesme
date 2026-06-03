@@ -91,27 +91,27 @@ if ($currentUserTrialEnds) {
         
         <!-- Premium Breakdown Sub-section -->
         <div class="grid grid-cols-1 gap-1.5 pt-2 mt-2 border-t border-border/60">
-          <div class="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
+          <a href="<?= routeUrl('personel-listesi') ?>?filter=aktif_calisan" class="flex items-center justify-between text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 p-1 -mx-1 rounded transition-colors">
             <span class="flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
               Aktif Çalışan
             </span>
             <span class="font-semibold text-foreground"><?= $stats['active_only'] ?></span>
-          </div>
-          <div class="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
+          </a>
+          <a href="<?= routeUrl('personel-listesi') ?>?filter=dilekce_alindi" class="flex items-center justify-between text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 p-1 -mx-1 rounded transition-colors">
             <span class="flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
               Dilekçe Alınan
             </span>
             <span class="font-semibold text-foreground"><?= $stats['dilekce_alindi'] ?></span>
-          </div>
-          <div class="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
+          </a>
+          <a href="<?= routeUrl('personel-listesi') ?>?filter=kadroya_gecmeyecek" class="flex items-center justify-between text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 p-1 -mx-1 rounded transition-colors">
             <span class="flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
               Kadroya Geçmeyecek
             </span>
             <span class="font-semibold text-foreground"><?= $stats['kadroya_gecmeyecek'] ?></span>
-          </div>
+          </a>
         </div>
       </div>
     </div>

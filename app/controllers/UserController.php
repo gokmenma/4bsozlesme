@@ -59,6 +59,13 @@ class UserController extends Controller {
                 $user['tenant_name'] = null;
             }
 
+            // Yetkili olduğu tüm kurumları çekelim
+            $stmtTenants = $db->prepare("SELECT t.name FROM tenants t 
+                                         JOIN user_tenants ut ON t.id = ut.tenant_id 
+                                         WHERE ut.user_id = ?");
+            $stmtTenants->execute([$user['id']]);
+            $user['tenant_names'] = $stmtTenants->fetchAll(PDO::FETCH_COLUMN) ?: [];
+
             return $user;
         }, $users);
 
@@ -245,6 +252,85 @@ class UserController extends Controller {
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => 'Hata: ' . $e->getMessage()]);
         }
+    }
+
+    public function getUserTenants() {
+        if (ob_get_level()) {
+            ob_clean();
+        }
+        header('Content-Type: application/json; charset=utf-8');
+
+        try {
+            $userId = $_GET['id'] ?? 0;
+            $tenantModel = new Tenant();
+            $allTenants = $tenantModel->all();
+
+            $userTenants = $this->userModel->getTenants($userId);
+            $userTenantIds = array_column($userTenants, 'id');
+
+            $data = [];
+            foreach ($allTenants as $t) {
+                $data[] = [
+                    'id' => $t['id'],
+                    'name' => $t['name'],
+                    'selected' => in_array($t['id'], $userTenantIds)
+                ];
+            }
+            echo json_encode(['success' => true, 'tenants' => $data]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Hata: ' . $e->getMessage()]);
+        }
+        exit;
+    }
+
+    public function saveUserTenants() {
+        if (ob_get_level()) {
+            ob_clean();
+        }
+        header('Content-Type: application/json; charset=utf-8');
+
+        try {
+            $userId = $_POST['user_id'] ?? 0;
+            $selectedTenants = $_POST['tenants'] ?? [];
+
+            global $db;
+            $db->beginTransaction();
+
+            // Önce mevcut ilişkileri silelim
+            $stmt = $db->prepare("DELETE FROM user_tenants WHERE user_id = ?");
+            $stmt->execute([$userId]);
+
+            // Yeni ilişkileri ekleyelim
+            $stmtInsert = $db->prepare("INSERT INTO user_tenants (user_id, tenant_id, role, created_at) VALUES (?, ?, 'admin', NOW())");
+            foreach ($selectedTenants as $tenantId) {
+                $stmtInsert->execute([$userId, $tenantId]);
+            }
+
+            // Kullanıcının primary tenant_id'sini de kontrol et / güncelle
+            $user = $this->userModel->find($userId);
+            if ($user) {
+                $currentPrimary = $user['tenant_id'];
+                if (!empty($selectedTenants)) {
+                    if (!in_array($currentPrimary, $selectedTenants)) {
+                        $newPrimary = $selectedTenants[0];
+                        $stmtUpdate = $db->prepare("UPDATE users SET tenant_id = ? WHERE id = ?");
+                        $stmtUpdate->execute([$newPrimary, $userId]);
+                    }
+                } else {
+                    $stmtUpdate = $db->prepare("UPDATE users SET tenant_id = NULL WHERE id = ?");
+                    $stmtUpdate->execute([$userId]);
+                }
+            }
+
+            $db->commit();
+            echo json_encode(['success' => true, 'message' => 'Kurum yetkileri başarıyla güncellendi.']);
+        } catch (Exception $e) {
+            if (isset($db) && $db->inTransaction()) {
+                $db->rollBack();
+            }
+            echo json_encode(['success' => false, 'message' => 'Hata: ' . $e->getMessage()]);
+        }
+        exit;
     }
 
     private function isAjax() {

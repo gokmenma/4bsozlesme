@@ -80,6 +80,36 @@ $pageSubtitle = 'Sistemdeki tüm kurumları ve aktiflik durumlarını yönetin';
   </div>
 </dialog>
 
+<!-- Kuruma Kullanıcı Ekle Dialog -->
+<dialog id="dialog-tenant-users" class="dialog w-full sm:max-w-[500px] !overflow-visible" onclick="if (event.target === this) this.close()">
+  <div class="dialog-content bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-2xl !overflow-visible" onclick="event.stopPropagation()">
+    <header class="mb-6">
+      <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Kurum Kullanıcı Yetkilendirmesi</h2>
+      <p class="text-sm text-zinc-500"><span id="tenant-users-name" class="font-semibold text-zinc-700 dark:text-zinc-300"></span> kurumuna yetkili olan kullanıcıları seçin.</p>
+    </header>
+
+    <div class="mb-4">
+        <input type="text" id="tenant-user-search" class="block w-full px-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 text-sm placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Kullanıcı ara..." />
+    </div>
+
+    <form id="form-tenant-users" class="form grid gap-4 max-h-[300px] overflow-y-auto pr-1">
+        <input type="hidden" name="tenant_id" id="tenant_users_id" />
+        <div id="tenant-users-list" class="grid gap-3">
+            <!-- AJAX ile dolacak -->
+        </div>
+    </form>
+
+    <footer class="mt-6 flex justify-end gap-3">
+      <button type="button" class="btn-outline" onclick="this.closest('dialog').close()">İptal</button>
+      <button type="button" onclick="saveTenantUsers()" class="btn">Yetkileri Kaydet</button>
+    </footer>
+
+    <button type="button" class="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600" onclick="this.closest('dialog').close()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+  </div>
+</dialog>
+
 <!-- Silme Onay Dialog -->
 <dialog id="alert-dialog-delete" class="dialog" aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description" onclick="if (event.target === this) this.close()">
   <div class="bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-2xl max-w-[400px] w-full" onclick="event.stopPropagation()">
@@ -96,8 +126,10 @@ $pageSubtitle = 'Sistemdeki tüm kurumları ve aktiflik durumlarını yönetin';
 </dialog>
 
 <script>
+let tenantTable;
+
 $(document).ready(function() {
-    const table = initDataTable('#tenantTable', {
+    tenantTable = initDataTable('#tenantTable', {
         ajax: '<?php echo routeUrl("kurum-listesi-json"); ?>',
         createdRow: function(row, data, dataIndex) {
             if (data.is_current) {
@@ -161,6 +193,9 @@ $(document).ready(function() {
                 render: function(data, type, row) {
                     return `
                         <div class="flex items-center justify-end gap-2">
+                            <button onclick="manageTenantUsers(${row.id}, '${row.name.replace(/'/g, "\\'")}')" class="p-1.5 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 rounded text-indigo-500 transition-colors" title="Kullanıcı Yetkilendir">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                            </button>
                             <button onclick="editTenant(${row.id})" class="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded text-zinc-400 transition-colors" title="Düzenle">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
                             </button>
@@ -181,13 +216,15 @@ $(document).ready(function() {
     });
 
     $('#tenantSearch').on('keyup', function() {
-        table.search(this.value).draw();
+        tenantTable.search(this.value).draw();
     });
 });
 
 function editTenant(id) {
     $.get('<?php echo routeUrl("kurum-getir-json"); ?>', { id: id }, function(data) {
-        data = JSON.parse(data);
+        if (typeof data === 'string') {
+            data = JSON.parse(data);
+        }
         $('#edit_tenant_id').val(data.id);
         $('#edit_tenant_name').val(data.name);
         $('#edit_tenant_active').prop('checked', data.is_active == 1);
@@ -197,10 +234,17 @@ function editTenant(id) {
 
 function saveTenant() {
     $.post('<?php echo routeUrl("kurum-guncelle-json"); ?>', $('#form-edit-tenant').serialize(), function(response) {
-        response = JSON.parse(response);
+        if (typeof response === 'string') {
+            response = JSON.parse(response);
+        }
         if (response.success) {
             showToast({ category: 'success', title: 'Başarılı', description: response.message });
-            setTimeout(() => location.reload(), 1500);
+            document.getElementById('dialog-edit-tenant').close();
+            if (tenantTable) {
+                tenantTable.ajax.reload(null, false);
+            } else {
+                setTimeout(() => location.reload(), 1000);
+            }
         } else {
             showToast({ category: 'error', title: 'Hata', description: response.message });
         }
@@ -219,10 +263,16 @@ function confirmDelete() {
     
     $.post('<?php echo routeUrl("kurum-sil-json"); ?>', { id: tenantToDelete }, function(response) {
         try {
-            response = JSON.parse(response);
+            if (typeof response === 'string') {
+                response = JSON.parse(response);
+            }
             if (response.success) {
                 showToast({ category: 'success', title: 'Başarılı', description: response.message });
-                setTimeout(() => location.reload(), 1500);
+                if (tenantTable) {
+                    tenantTable.ajax.reload(null, false);
+                } else {
+                    setTimeout(() => location.reload(), 1000);
+                }
             } else {
                 showToast({ category: 'error', title: 'Hata', description: response.message });
             }
@@ -231,6 +281,80 @@ function confirmDelete() {
         } finally {
             document.getElementById('alert-dialog-delete').close();
             tenantToDelete = null;
+        }
+    });
+}
+function manageTenantUsers(id, name) {
+    $('#tenant_users_id').val(id);
+    $('#tenant-users-name').text(name);
+    $('#tenant-user-search').val('');
+    $('#tenant-users-list').html('<p class="text-zinc-500 text-sm animate-pulse">Kullanıcılar yükleniyor...</p>');
+
+    $.get('<?php echo routeUrl("kurum-kullanicilari-getir"); ?>', { id: id }, function(response) {
+        try {
+            if (typeof response === 'string') {
+                response = JSON.parse(response);
+            }
+            if (response.success) {
+                let html = '';
+                response.users.forEach(function(user) {
+                    html += `
+                    <label class="flex items-center gap-3 p-3 border border-zinc-100 dark:border-zinc-800 rounded-lg hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 cursor-pointer transition-colors">
+                        <input type="checkbox" name="users[]" value="${user.id}" ${user.selected ? 'checked' : ''} class="w-4 h-4 text-primary border-zinc-300 rounded focus:ring-primary" />
+                        <div class="flex flex-col">
+                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">${user.name}</span>
+                            <span class="text-xs text-zinc-400">${user.email}</span>
+                        </div>
+                    </label>
+                    `;
+                });
+                if (response.users.length === 0) {
+                    html = '<p class="text-zinc-500 text-sm">Sistemde henüz kullanıcı bulunmuyor.</p>';
+                }
+                $('#tenant-users-list').html(html);
+
+                // Search filter event listener
+                $('#tenant-user-search').off('keyup').on('keyup', function() {
+                    const query = $(this).val().toLowerCase();
+                    $('#tenant-users-list label').each(function() {
+                        const text = $(this).text().toLowerCase();
+                        if (text.indexOf(query) > -1) {
+                            $(this).removeClass('hidden').addClass('flex');
+                        } else {
+                            $(this).removeClass('flex').addClass('hidden');
+                        }
+                    });
+                });
+
+                document.getElementById('dialog-tenant-users').showModal();
+            } else {
+                showToast({ category: 'error', title: 'Hata', description: response.message });
+            }
+        } catch (err) {
+            showToast({ category: 'error', title: 'Hata', description: 'Veriler alınırken bir sorun oluştu.' });
+        }
+    });
+}
+
+function saveTenantUsers() {
+    $.post('<?php echo routeUrl("kurum-kullanicilari-kaydet"); ?>', $('#form-tenant-users').serialize(), function(response) {
+        try {
+            if (typeof response === 'string') {
+                response = JSON.parse(response);
+            }
+            if (response.success) {
+                showToast({ category: 'success', title: 'Başarılı', description: response.message });
+                document.getElementById('dialog-tenant-users').close();
+                if (tenantTable) {
+                    tenantTable.ajax.reload(null, false);
+                } else {
+                    setTimeout(() => location.reload(), 1500);
+                }
+            } else {
+                showToast({ category: 'error', title: 'Hata', description: response.message });
+            }
+        } catch (err) {
+            showToast({ category: 'error', title: 'Hata', description: 'İşlem tamamlanırken bir hata oluştu.' });
         }
     });
 }
