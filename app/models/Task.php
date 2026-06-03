@@ -171,13 +171,16 @@ class Task extends Model {
         
         $params = [$tenant_id];
 
-        if ($filter === 'my' && $my_user_id !== null) {
-            $sql .= " AND (t.user_id = ? OR t.id IN (SELECT task_id FROM kanban_task_users WHERE user_id = ?))";
-            $params[] = $my_user_id;
-            $params[] = $my_user_id;
-        } elseif ($filter === 'assigned' && $my_user_id !== null) {
-            $sql .= " AND t.id IN (SELECT task_id FROM kanban_task_users WHERE user_id = ?)";
-            $params[] = $my_user_id;
+        // Görevi ekleyen veya göreve atanan kullanıcılar görebilir
+        if ($my_user_id !== null) {
+            if ($filter === 'assigned') {
+                $sql .= " AND t.id IN (SELECT task_id FROM kanban_task_users WHERE user_id = ?)";
+                $params[] = $my_user_id;
+            } else {
+                $sql .= " AND (t.user_id = ? OR t.id IN (SELECT task_id FROM kanban_task_users WHERE user_id = ?))";
+                $params[] = $my_user_id;
+                $params[] = $my_user_id;
+            }
         }
 
         $sql .= " ORDER BY t.id DESC";
