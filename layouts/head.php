@@ -10,7 +10,7 @@
         }
     </script>
     <!-- Favicon -->
-    <link rel="icon" href="<?php echo routeUrl('/assets/images/favicon.svg'); ?>" type="image/svg+xml">
+    <link rel="icon" href="<?php echo routeUrl('/assets/images/favicon.png'); ?>" type="image/png">
     <!-- Premium Google Fonts: Geist -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
