@@ -1184,12 +1184,13 @@ $(document).ready(function() {
             url: $(this).attr('action'),
             method: 'POST',
             data: formData,
+            dataType: 'json',
             headers: { 'X-Requested-With': 'XMLHttpRequest' },
             success: function(response) {
-                if (response.success) {
-                    showToast({ 
-                        category: 'success', 
-                        title: 'Başarılı', 
+                if (response && response.success) {
+                    showToast({
+                        category: 'success',
+                        title: 'Başarılı',
                         description: 'Yeni personel başarıyla eklendi.',
                         duration: 2000
                     });
@@ -1198,8 +1199,16 @@ $(document).ready(function() {
                         window.personnelTable.ajax.reload(null, false);
                     }
                 } else {
-                    showToast({ category: 'error', title: 'Hata', description: 'Ekleme sırasında bir hata oluştu.' });
+                    showToast({ category: 'error', title: 'Hata', description: (response && response.error) ? response.error : 'Ekleme sırasında bir hata oluştu.' });
                 }
+            },
+            error: function(xhr) {
+                let msg = 'Sunucu hatası oluştu. Lütfen tekrar deneyin.';
+                try {
+                    const r = JSON.parse(xhr.responseText);
+                    if (r && r.error) msg = r.error;
+                } catch (e) {}
+                showToast({ category: 'error', title: 'Hata', description: msg });
             }
         });
     });
