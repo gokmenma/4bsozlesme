@@ -130,6 +130,7 @@ if (!function_exists('getVal')) {
       </div>
     </div>
 
+    <?php if (($_SESSION['role'] ?? '') === 'superadmin'): ?>
     <!-- Katsayı Bilgileri Section -->
     <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
       <div class="p-6 border-b border-border bg-muted/30">
@@ -167,6 +168,7 @@ if (!function_exists('getVal')) {
         </div>
       </div>
     </div>
+    <?php endif; ?>
 
     <!-- Submit Button -->
     <div class="flex items-center justify-end gap-4">

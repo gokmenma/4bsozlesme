@@ -46,13 +46,24 @@ class ProfileController extends Controller {
         $historyQuery .= " ORDER BY s.created_at DESC";
         $history = $db->query($historyQuery)->fetchAll();
 
+        // Get tenant settings for notification settings page
+        $settingsStmt = $db->prepare("SELECT * FROM tenant_settings WHERE tenant_id = ?");
+        $settingsStmt->execute([$user['tenant_id'] ?? 0]);
+        $settings = $settingsStmt->fetch(PDO::FETCH_ASSOC);
+        if (!$settings) {
+            $settings = [
+                'kadro_bildirim_aktif' => 1
+            ];
+        }
+
         return [
             'pageTitle' => 'Profil',
             'pageSubtitle' => 'Hesap bilgilerinizi yönetin',
             'user' => $user,
             'subscription' => $subscription,
             'plans' => $plans,
-            'history' => $history
+            'history' => $history,
+            'settings' => $settings
         ];
     }
 
@@ -128,13 +139,17 @@ class ProfileController extends Controller {
         $sms_entegrator = trim($_POST['sms_entegrator'] ?? 'NETGSM');
         $sms_sender = trim($_POST['sms_sender'] ?? '');
         $sms_api_url = trim($_POST['sms_api_url'] ?? '');
+        $sms_username = trim($_POST['sms_username'] ?? '');
+        $sms_password = trim($_POST['sms_password'] ?? '');
         $sms_api_key = trim($_POST['sms_api_key'] ?? '');
-        
+
         $data = [
             'sms_active' => $sms_active,
             'sms_entegrator' => $sms_entegrator,
             'sms_sender' => $sms_sender,
             'sms_api_url' => $sms_api_url,
+            'sms_username' => $sms_username,
+            'sms_password' => $sms_password,
             'sms_api_key' => $sms_api_key,
             'updated_at' => date('Y-m-d H:i:s')
         ];
@@ -146,6 +161,95 @@ class ProfileController extends Controller {
         } else {
             echo json_encode(['success' => false, 'message' => 'SMS API ayarları güncellenirken bir hata oluştu.']);
         }
+    }
+
+    /**
+     * Formda girili (henüz kaydedilmemiş) ayarlarla test SMS'i gönderir.
+     */
+    public function sendTestSms() {
+        $test_number = trim($_POST['test_number'] ?? '');
+        if ($test_number === '') {
+            echo json_encode(['success' => false, 'message' => 'Test için bir telefon numarası girin.']);
+            exit;
+        }
+
+        $username   = trim($_POST['sms_username'] ?? '');
+        $password   = trim($_POST['sms_password'] ?? '');
+        $originator = trim($_POST['sms_sender'] ?? '');
+        $api_url    = trim($_POST['sms_api_url'] ?? '');
+        $token      = trim($_POST['sms_api_key'] ?? '');
+
+        if ($username === '' || $password === '') {
+            echo json_encode(['success' => false, 'message' => 'SMS kullanıcı adı ve şifresi alanları boş olamaz.']);
+            exit;
+        }
+
+        $service = new SmsGonderService($username, $password, $originator, $api_url ?: null, $token);
+        $result = $service->send(
+            'Bu bir test mesajidir. SMS API ayarlariniz dogru calisiyor.',
+            $test_number,
+            true
+        );
+
+        $message = $result['message'];
+
+        if (!$result['success']) {
+            // Başlık tanımsızsa: onaylı başlıkları sorgulayıp kullanıcıya öner
+            if (($result['raw'] ?? '') === '06') {
+                $orig = $service->queryOriginators();
+                if ($orig['success'] && !empty($orig['originators'])) {
+                    $message .= ' Hesabınızdaki onaylı başlık(lar): ' . implode(', ', $orig['originators'])
+                              . '. Lütfen "SMS Gönderici Başlığı" alanına bunlardan birini birebir (boşluklar dahil) yazın.';
+                }
+            }
+            // Kredi yetersizse: kalan kontörü göster
+            if (($result['raw'] ?? '') === '02') {
+                $credit = $service->queryCredit();
+                if ($credit['success']) {
+                    $message .= ' Hesabınızdaki kalan kontör: ' . $credit['credit'] . '.';
+                }
+            }
+        }
+
+        echo json_encode([
+            'success' => $result['success'],
+            'message' => $message
+        ]);
+        exit;
+    }
+
+    public function updateNotificationSettings() {
+        global $db;
+        $user = $this->userModel->find($_SESSION['user_id']);
+        $tenant_id = $user['tenant_id'] ?? 0;
+        
+        $kadro_bildirim_aktif = isset($_POST['kadro_bildirim_aktif']) ? 1 : 0;
+        
+        try {
+            $stmt = $db->prepare("SELECT id FROM tenant_settings WHERE tenant_id = ?");
+            $stmt->execute([$tenant_id]);
+            $exists = $stmt->fetch();
+            
+            if ($exists) {
+                $updateStmt = $db->prepare("
+                    UPDATE tenant_settings 
+                    SET kadro_bildirim_aktif = ?, 
+                        updated_at = NOW() 
+                    WHERE tenant_id = ?
+                ");
+                $updateStmt->execute([$kadro_bildirim_aktif, $tenant_id]);
+            } else {
+                $insertStmt = $db->prepare("
+                    INSERT INTO tenant_settings (tenant_id, kadro_bildirim_aktif) 
+                    VALUES (?, ?)
+                ");
+                $insertStmt->execute([$tenant_id, $kadro_bildirim_aktif]);
+            }
+            echo json_encode(['success' => true, 'message' => 'Bildirim ayarları başarıyla güncellendi.']);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => 'Hata: ' . $e->getMessage()]);
+        }
+        exit;
     }
 
     private function isAjax() {

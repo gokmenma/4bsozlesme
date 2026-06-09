@@ -3,8 +3,8 @@
 class SettingsController extends Controller {
 
     public function __construct() {
-        // Admin veya Superadmin kontrolü
-        if (($_SESSION['role'] ?? '') !== 'superadmin' && ($_SESSION['role'] ?? '') !== 'admin') {
+        // Superadmin kontrolü
+        if (($_SESSION['role'] ?? '') !== 'superadmin') {
             if ($this->isAjax()) {
                 echo json_encode(['success' => false, 'message' => 'Yetkiniz yok.']);
                 exit;

@@ -2,6 +2,13 @@
 
 class DonerMatrahiController extends Controller {
     
+    public function __construct() {
+        if (($_SESSION['role'] ?? '') !== 'superadmin') {
+            header('Location: ' . routeUrl('/'));
+            exit;
+        }
+    }
+
     public function index() {
         $definitionModel = new Definition();
         $tenant_id = $_SESSION['tenant_id'] ?? 0;

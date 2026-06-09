@@ -77,6 +77,7 @@ function appRoutes(): array
         '/profil'                => ['c' => 'ProfileController',       'a' => 'index', 'view' => 'app/pages/profile.php'],
         '/ayarlar'               => ['c' => 'SettingsController',      'a' => 'index', 'view' => 'app/pages/ayarlar.php'],
         '/yapilacaklar'          => ['c' => 'KanbanController',        'a' => 'index', 'view' => 'app/pages/kanban.php'],
+        '/geri-bildirimler'      => ['c' => 'FeedbackController',      'a' => 'adminIndex', 'view' => 'app/pages/admin/feedbacks.php'],
 
         // --- Kendi çıktısını üreten sayfa (layout ile sarmalanır, view yok) ---
         '/matrah-yonetimi'       => ['c' => 'MatrahController', 'a' => 'index'],
@@ -141,6 +142,8 @@ function appRoutes(): array
         // --- Profil API ---
         '/profil-guncelle'     => ['c' => 'ProfileController', 'a' => 'update',             'm' => 'POST', 'api' => true, 'exit' => true],
         '/profil-sms-guncelle' => ['c' => 'ProfileController', 'a' => 'updateSmsSettings',  'm' => 'POST', 'api' => true, 'exit' => true],
+        '/profil-sms-test'     => ['c' => 'ProfileController', 'a' => 'sendTestSms',        'm' => 'POST', 'api' => true, 'exit' => true],
+        '/profil-bildirim-guncelle' => ['c' => 'ProfileController', 'a' => 'updateNotificationSettings',  'm' => 'POST', 'api' => true, 'exit' => true],
         '/sifre-degistir'      => ['c' => 'ProfileController', 'a' => 'changePassword',     'm' => 'POST', 'api' => true, 'exit' => true],
         '/hesap-sil'           => ['c' => 'ProfileController', 'a' => 'deleteAccount',      'm' => 'POST', 'api' => true, 'exit' => true],
 
@@ -161,6 +164,15 @@ function appRoutes(): array
         '/kanban-board-sil'            => ['c' => 'KanbanController', 'a' => 'deleteBoard',      'm' => 'POST', 'api' => true, 'exit' => true],
         '/kanban-board-sira-guncelle'  => ['c' => 'KanbanController', 'a' => 'updateBoardOrder', 'm' => 'POST', 'api' => true, 'exit' => true],
         '/kanban-board-baslik-guncelle' => ['c' => 'KanbanController', 'a' => 'updateBoardTitle', 'm' => 'POST', 'api' => true, 'exit' => true],
+
+        // --- Geri Bildirim API ---
+        '/geri-bildirim-gonder'        => ['c' => 'FeedbackController', 'a' => 'store',    'm' => 'POST', 'api' => true, 'exit' => true],
+        '/geri-bildirim-guncelle'      => ['c' => 'FeedbackController', 'a' => 'update',   'm' => 'POST', 'api' => true, 'exit' => true],
+        '/geri-bildirim-sil'           => ['c' => 'FeedbackController', 'a' => 'delete',   'm' => 'POST', 'api' => true, 'exit' => true],
+
+        // --- Bildirim API ---
+        '/bildirim-okundu'             => ['c' => 'NotificationController', 'a' => 'markRead',    'm' => 'POST', 'api' => true, 'exit' => true],
+        '/bildirim-tumu-okundu'        => ['c' => 'NotificationController', 'a' => 'markAllRead', 'm' => 'POST', 'api' => true, 'exit' => true],
     ];
 
     return $routes;

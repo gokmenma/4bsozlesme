@@ -85,12 +85,44 @@ class PersonnelController extends Controller {
             'tenant_id' => $tenant_id
         ];
 
-        $columns = implode(', ', array_keys($data));
-        $placeholders = implode(', ', array_fill(0, count($data), '?'));
-        
-        $sql = "INSERT INTO personeller ({$columns}) VALUES ({$placeholders})";
-        $stmt = $db->prepare($sql);
-        $success = $stmt->execute(array_values($data));
+        try {
+            // Aynı TC ile daha önce silinmiş (soft-deleted) bir kayıt varsa,
+            // benzersiz kısıt (tenant_id, tc_kimlik) ihlalini önlemek için
+            // yeni kayıt eklemek yerine mevcut kaydı geri yükleyip güncelliyoruz.
+            $deletedStmt = $db->prepare("SELECT id FROM personeller WHERE tenant_id = ? AND tc_kimlik = ? AND deleted_at IS NOT NULL LIMIT 1");
+            $deletedStmt->execute([$tenant_id, $tc_kimlik]);
+            $deletedId = $deletedStmt->fetchColumn();
+
+            if ($deletedId) {
+                $data['deleted_at'] = null;
+                unset($data['tc_kimlik'], $data['tenant_id'], $data['created_at']);
+
+                $assignments = implode(', ', array_map(fn($col) => "{$col} = ?", array_keys($data)));
+                $sql = "UPDATE personeller SET {$assignments} WHERE id = ? AND tenant_id = ?";
+                $stmt = $db->prepare($sql);
+                $values = array_values($data);
+                $values[] = $deletedId;
+                $values[] = $tenant_id;
+                $success = $stmt->execute($values);
+            } else {
+                $columns = implode(', ', array_keys($data));
+                $placeholders = implode(', ', array_fill(0, count($data), '?'));
+
+                $sql = "INSERT INTO personeller ({$columns}) VALUES ({$placeholders})";
+                $stmt = $db->prepare($sql);
+                $success = $stmt->execute(array_values($data));
+            }
+        } catch (PDOException $e) {
+            error_log('Personel ekleme hatası: ' . $e->getMessage());
+            if ($isAjax) {
+                header('Content-Type: application/json', true, 500);
+                echo json_encode(['success' => false, 'error' => 'Personel kaydedilirken bir hata oluştu.']);
+                exit;
+            }
+            $_SESSION['error'] = 'Personel kaydedilirken bir hata oluştu.';
+            header('Location: ' . routeUrl('personel-listesi'));
+            exit;
+        }
 
         if ($isAjax) {
             header('Content-Type: application/json');

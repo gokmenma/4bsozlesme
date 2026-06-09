@@ -9,6 +9,11 @@ class SubscriptionController extends Controller {
     }
 
     public function index() {
+        if (($_SESSION['role'] ?? '') !== 'superadmin') {
+            header('Location: ' . routeUrl('/'));
+            exit;
+        }
+
         // Paketleri getir
         $stmt = $this->db->query("SELECT * FROM subscription_plans WHERE is_active = 1");
         $plans = $stmt->fetchAll();

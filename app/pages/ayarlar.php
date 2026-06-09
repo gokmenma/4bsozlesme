@@ -24,30 +24,6 @@ if (!function_exists('getVal')) {
   </div>
 
   <form id="form-settings" class="flex flex-col gap-8">
-    <!-- Kadro Bildirim Ayarları Section -->
-    <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-      <div class="p-6 border-b border-border bg-muted/30">
-        <div class="flex items-center gap-2">
-          <div class="p-2 rounded-lg bg-primary/10 text-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-          </div>
-          <div>
-            <h2 class="text-lg font-semibold leading-none tracking-tight">Kadro Bildirim Ayarları</h2>
-            <p class="text-sm text-muted-foreground mt-1">Personellerin kadroya geçiş sürecinde otomatik e-posta gönderimi.</p>
-          </div>
-        </div>
-      </div>
-      <div class="p-6">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div class="space-y-1">
-            <p class="text-sm font-medium">E-posta Bildirimlerini Aç/Kapat</p>
-            <p class="text-xs text-muted-foreground">Her gün saat 08:00'da kadroya geçecekleri (göreve başlama tarihinden tam 3 yıl geçmiş personelleri) ilgili tenant kullanıcılarına mail yoluyla gönderir.</p>
-          </div>
-          <input type="checkbox" name="kadro_bildirim_aktif" id="kadro_bildirim_aktif" value="1" role="switch" class="input" <?php echo ((int)($settings['kadro_bildirim_aktif'] ?? 1) === 1) ? 'checked' : ''; ?>>
-        </div>
-      </div>
-    </div>
-
     <!-- SMTP E-posta Ayarları Section -->
     <div class="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
       <div class="p-6 border-b border-border bg-muted/30">

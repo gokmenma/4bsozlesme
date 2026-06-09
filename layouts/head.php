@@ -11,7 +11,7 @@
         }
     </script>
     <!-- Favicon -->
-    <link rel="icon" href="<?php echo routeUrl('/assets/images/favicon.png'); ?>" type="image/png">
+    <link rel="icon" href="<?php echo routeUrl('/assets/images/favicon.svg'); ?>" type="image/svg+xml">
     <!-- Premium Google Fonts: Geist -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -223,11 +223,11 @@
         .dialog-header,
         .modal-header {
             display: flex !important;
-            flex-direction: row !important;
-            align-items: center !important;
-            justify-content: space-between !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            justify-content: flex-start !important;
             width: 100% !important;
-            gap: 1rem !important;
+            gap: 0.25rem !important;
         }
 
         /* Ensure flatpickr calendar appears above dialogs */

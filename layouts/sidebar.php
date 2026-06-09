@@ -281,7 +281,7 @@ function isMenuActive($href, $currentPage)
               </li>
             <?php endif; ?>
 
-              <?php if ($currentUserRole === 'superadmin' || $currentUserRole === 'admin'): ?>
+              <?php if ($currentUserRole === 'superadmin'): ?>
 
                 <li>
                   <a href="ayarlar"
@@ -293,6 +293,19 @@ function isMenuActive($href, $currentPage)
                         d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z" />
                     </svg>
                     <span>Ayarlar</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="geri-bildirimler"
+                    class="<?php echo isMenuActive('geri-bildirimler', $currentPage) ? 'bg-muted font-medium text-foreground' : ''; ?>">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                      class="lucide lucide-message-square-text">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                      <path d="M7 9h10" />
+                      <path d="M7 13h6" />
+                    </svg>
+                    <span>Geri Bildirimler</span>
                   </a>
                 </li>
               <?php endif; ?>
@@ -345,6 +358,17 @@ function isMenuActive($href, $currentPage)
             </svg>
             Profil
           </a>
+
+          <button type="button" onclick="openFeedbackDialog()"
+            class="flex w-full items-center gap-2 rounded px-2 py-2 text-sm hover:bg-muted">
+            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              <path d="M7 9h10" />
+              <path d="M7 13h6" />
+            </svg>
+            Geri Bildirim
+          </button>
 
           <a href="logout"
             class="flex items-center gap-2 rounded px-2 py-2 text-sm text-red-600 hover:bg-muted dark:text-red-400">

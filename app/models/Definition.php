@@ -15,6 +15,15 @@ class Definition extends Model {
         foreach ($settings as $setting) {
             $result[$setting['key']] = $setting['value'];
         }
+
+        if (empty($result['kurum_adi']) && $tenant_id > 0) {
+            $stmtTenant = $this->db->prepare("SELECT name FROM tenants WHERE id = ?");
+            $stmtTenant->execute([$tenant_id]);
+            $t = $stmtTenant->fetch();
+            if ($t) {
+                $result['kurum_adi'] = $t['name'];
+            }
+        }
         return $result;
     }
 

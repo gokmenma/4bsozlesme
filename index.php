@@ -30,5 +30,6 @@ $pageContent = ob_get_clean();
     </main>
   </div>
 </div>
+<?php require_once 'layouts/feedback-widget.php'; ?>
 </body>
 </html>

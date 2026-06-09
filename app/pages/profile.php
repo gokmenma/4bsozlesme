@@ -25,6 +25,31 @@ if (count($nameParts) >= 2) {
     $initials = 'U';
 }
 $initials = mb_strtoupper($initials, 'UTF-8');
+
+// Kullanıcı bildirimleri (Bildirimlerim sekmesi)
+$inboxItems = [];
+if (!empty($_SESSION['user_id'])) {
+    try {
+        $inboxModel = new Notification();
+        $inboxItems = $inboxModel->getForUser((int)$_SESSION['user_id'], 100);
+    } catch (Exception $e) {
+        $inboxItems = [];
+    }
+}
+
+if (!function_exists('fbTimeAgo')) {
+    function fbTimeAgo($datetime): string {
+        if (empty($datetime)) return '';
+        $ts = strtotime($datetime);
+        if (!$ts) return '';
+        $diff = time() - $ts;
+        if ($diff < 60) return 'az önce';
+        if ($diff < 3600) return floor($diff / 60) . ' dk önce';
+        if ($diff < 86400) return floor($diff / 3600) . ' saat önce';
+        if ($diff < 604800) return floor($diff / 86400) . ' gün önce';
+        return date('d.m.Y H:i', $ts);
+    }
+}
 ?>
 
 <div class="flex flex-col gap-6 max-w-6xl mx-auto px-2 md:px-4">
@@ -113,6 +138,18 @@ $initials = mb_strtoupper($initials, 'UTF-8');
           <button onclick="switchProfileTab('sms')" class="tab-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer" id="tab-btn-sms" data-tab="sms">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             SMS API Ayarları
+          </button>
+
+          <!-- Notification Tab Button -->
+          <button onclick="switchProfileTab('notification')" class="tab-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer" id="tab-btn-notification" data-tab="notification">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            Bildirim Ayarları
+          </button>
+
+          <!-- Inbox (Bildirimlerim) Tab Button -->
+          <button onclick="switchProfileTab('inbox')" class="tab-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 cursor-pointer" id="tab-btn-inbox" data-tab="inbox">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+            Bildirimlerim
           </button>
 
           <!-- Subscription Tab Button (Only for Admin or Superadmin) -->
@@ -260,6 +297,7 @@ $initials = mb_strtoupper($initials, 'UTF-8');
                 <label for="sms_entegrator" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">SMS Entegratörü</label>
                 <?php 
                 $integratorOptions = [
+                  ['value' => 'SMSMAX', 'label' => 'SMSMAX'],
                   ['value' => 'NETGSM', 'label' => 'NETGSM'],
                   ['value' => 'MUTLUCELL', 'label' => 'MUTLUCELL']
                 ];
@@ -279,16 +317,129 @@ $initials = mb_strtoupper($initials, 'UTF-8');
               </div>
 
               <div class="flex flex-col gap-1.5">
-                <label for="sms_api_url" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">SMS API URL</label>
-                <input type="url" id="sms_api_url" name="sms_api_url" value="<?php echo getVal('sms_api_url', $user); ?>" placeholder="https://api.sms-servisi.com/send" class="w-full h-10 px-3 rounded-lg border border-zinc-200 dark:border-zinc-850 bg-white dark:bg-zinc-950 focus:border-zinc-955 focus:ring-2 focus:ring-zinc-955/5 transition-all text-xs font-semibold outline-none">
+                <label for="sms_username" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">API Kullanıcı Adı</label>
+                <input type="text" id="sms_username" name="sms_username" value="<?php echo getVal('sms_username', $user); ?>" placeholder="SMSMAX kullanıcı adınız (e-posta)" autocomplete="off" class="w-full h-10 px-3 rounded-lg border border-zinc-200 dark:border-zinc-850 bg-white dark:bg-zinc-950 focus:border-zinc-955 focus:ring-2 focus:ring-zinc-955/5 transition-all text-xs font-semibold outline-none">
               </div>
 
               <div class="flex flex-col gap-1.5">
-                <label for="sms_api_key" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">SMS API Key / Token</label>
-                <input type="text" id="sms_api_key" name="sms_api_key" value="<?php echo getVal('sms_api_key', $user); ?>" placeholder="API Anahtarınız veya Token" class="w-full h-10 px-3 rounded-lg border border-zinc-200 dark:border-zinc-850 bg-white dark:bg-zinc-950 focus:border-zinc-955 focus:ring-2 focus:ring-zinc-955/5 transition-all text-xs font-semibold outline-none">
+                <label for="sms_password" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">API Şifre</label>
+                <input type="password" id="sms_password" name="sms_password" value="<?php echo getVal('sms_password', $user); ?>" placeholder="SMSMAX şifreniz" autocomplete="new-password" class="w-full h-10 px-3 rounded-lg border border-zinc-200 dark:border-zinc-850 bg-white dark:bg-zinc-950 focus:border-zinc-955 focus:ring-2 focus:ring-zinc-955/5 transition-all text-xs font-semibold outline-none">
+              </div>
+
+              <div class="flex flex-col gap-1.5 md:col-span-2">
+                <label for="sms_api_url" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">SMS API URL <span class="text-zinc-400 font-normal">(opsiyonel)</span></label>
+                <input type="url" id="sms_api_url" name="sms_api_url" value="<?php echo getVal('sms_api_url', $user); ?>" placeholder="https://www.sosyomaks.com/api/send/post" class="w-full h-10 px-3 rounded-lg border border-zinc-200 dark:border-zinc-850 bg-white dark:bg-zinc-950 focus:border-zinc-955 focus:ring-2 focus:ring-zinc-955/5 transition-all text-xs font-semibold outline-none">
+                <span class="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">Boş bırakılırsa SMSMAX varsayılan (token'sız çalışan) adresi kullanılır.</span>
+              </div>
+
+              <div class="flex flex-col gap-1.5 md:col-span-2">
+                <label for="sms_api_key" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">API Token (Bearer) <span class="text-zinc-400 font-normal">(opsiyonel)</span></label>
+                <input type="text" id="sms_api_key" name="sms_api_key" value="<?php echo getVal('sms_api_key', $user); ?>" placeholder="Sadece yeni gateway için gereklidir" autocomplete="off" class="w-full h-10 px-3 rounded-lg border border-zinc-200 dark:border-zinc-850 bg-white dark:bg-zinc-950 focus:border-zinc-955 focus:ring-2 focus:ring-zinc-955/5 transition-all text-xs font-semibold outline-none">
+                <span class="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">Varsayılan adres token istemez; boş bırakın. Yalnızca yeni <code class="font-mono">test-sosyomaks.com</code> gateway'ine geçerseniz, oradan aldığınız Bearer token'ı buraya girin.</span>
+              </div>
+            </div>
+
+            <!-- Test Connection -->
+            <div class="mt-2 bg-zinc-50/60 dark:bg-zinc-950/30 border border-zinc-150 dark:border-zinc-800 rounded-xl p-5">
+              <div class="flex items-start gap-3 mb-4">
+                <div class="p-1.5 bg-blue-50 dark:bg-blue-950/40 rounded-lg text-blue-500 shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                </div>
+                <div>
+                  <h4 class="text-xs font-bold text-zinc-900 dark:text-zinc-50">Bağlantıyı Test Et</h4>
+                  <p class="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed">Yukarıdaki ayarlarla bir telefon numarasına test SMS'i gönderin. (Kaydetmeden test edebilirsiniz.)</p>
+                </div>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-3">
+                <input type="tel" id="sms_test_number" placeholder="Örn: 0532 123 45 67" class="flex-1 h-10 px-3 rounded-lg border border-zinc-200 dark:border-zinc-850 bg-white dark:bg-zinc-950 focus:border-zinc-955 focus:ring-2 focus:ring-zinc-955/5 transition-all text-xs font-semibold outline-none">
+                <button type="button" id="btn-sms-test" onclick="sendTestSms()" class="inline-flex items-center justify-center gap-2 px-5 h-10 bg-zinc-950 hover:bg-zinc-900 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 rounded-lg text-xs font-bold transition-all shadow-sm active:scale-[0.98] cursor-pointer select-none shrink-0">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                  Test SMS Gönder
+                </button>
               </div>
             </div>
           </form>
+        </div>
+
+        <!-- Tab 5: Bildirim Ayarları -->
+        <div id="profile-tab-notification" class="profile-tab-content hidden">
+          <div class="flex items-start gap-3">
+            <div class="p-1 text-zinc-900 dark:text-zinc-100 shrink-0 mt-0.5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+            </div>
+            <div>
+              <h3 class="text-sm font-bold text-zinc-900 dark:text-zinc-50">Kadro Bildirim Ayarları</h3>
+              <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 font-normal">Personellerin kadroya geçiş sürecinde otomatik e-posta gönderimi tercihlerini düzenleyin.</p>
+            </div>
+          </div>
+          
+          <hr class="border-zinc-100 dark:border-zinc-800/80 my-5">
+
+          <form id="form-notification" class="space-y-5">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-zinc-100 dark:border-zinc-800">
+              <div class="space-y-1 pr-4">
+                <p class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">E-posta Bildirimlerini Aç/Kapat</p>
+                <p class="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium leading-relaxed">Her gün saat 08:00'da kadroya geçecekleri (göreve başlama tarihinden tam 3 yıl geçmiş personelleri) ilgili kurum kullanıcılarına mail yoluyla gönderir.</p>
+              </div>
+              <input type="checkbox" name="kadro_bildirim_aktif" id="kadro_bildirim_aktif" value="1" role="switch" class="input shrink-0" <?php echo ((int)($settings['kadro_bildirim_aktif'] ?? 1) === 1) ? 'checked' : ''; ?>>
+            </div>
+          </form>
+        </div>
+
+        <!-- Tab: Bildirimlerim (Inbox) -->
+        <div id="profile-tab-inbox" class="profile-tab-content hidden">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-start gap-3">
+              <div class="p-1 text-zinc-900 dark:text-zinc-100 shrink-0 mt-0.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+              </div>
+              <div>
+                <h3 class="text-sm font-bold text-zinc-900 dark:text-zinc-50">Bildirimlerim</h3>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5 font-normal">Geri bildirim yanıtları ve sistem bildirimlerinizin tamamı.</p>
+              </div>
+            </div>
+            <?php if (!empty($inboxItems)): ?>
+              <button type="button" onclick="markAllInboxRead()" id="inbox-mark-all"
+                class="text-[11px] font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 whitespace-nowrap">Tümünü okundu işaretle</button>
+            <?php endif; ?>
+          </div>
+
+          <hr class="border-zinc-100 dark:border-zinc-800/80 my-5">
+
+          <div class="flex flex-col gap-2" id="inbox-list">
+            <?php if (empty($inboxItems)): ?>
+              <div class="flex flex-col items-center justify-center py-16 text-center">
+                <div class="size-14 flex items-center justify-center rounded-2xl bg-zinc-100 dark:bg-zinc-800 mb-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-400"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                </div>
+                <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Henüz bildiriminiz yok</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">Bildirimleriniz burada görünecek.</p>
+              </div>
+            <?php else: ?>
+              <?php foreach ($inboxItems as $item):
+                $isUnread = (int)($item['is_read'] ?? 0) === 0;
+              ?>
+                <div class="inbox-item flex gap-3 p-3.5 rounded-xl border border-zinc-100 dark:border-zinc-800 <?php echo $isUnread ? 'bg-blue-50/50 dark:bg-blue-500/5' : 'bg-white dark:bg-zinc-900'; ?>"
+                  data-notif-id="<?php echo (int)$item['id']; ?>" data-unread="<?php echo $isUnread ? '1' : '0'; ?>">
+                  <div class="mt-0.5 size-9 shrink-0 flex items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-start justify-between gap-2">
+                      <span class="text-xs font-bold text-zinc-900 dark:text-zinc-100"><?php echo htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8'); ?></span>
+                      <div class="flex items-center gap-2 shrink-0">
+                        <span class="text-[10px] text-zinc-400"><?php echo fbTimeAgo($item['created_at']); ?></span>
+                        <?php if ($isUnread): ?><span class="size-2 rounded-full bg-blue-500 inline-block"></span><?php endif; ?>
+                      </div>
+                    </div>
+                    <?php if (!empty($item['body'])): ?>
+                      <p class="text-[11px] text-zinc-600 dark:text-zinc-300 mt-1 whitespace-pre-line break-words"><?php echo htmlspecialchars($item['body'], ENT_QUOTES, 'UTF-8'); ?></p>
+                    <?php endif; ?>
+                  </div>
+                </div>
+              <?php endforeach; ?>
+            <?php endif; ?>
+          </div>
         </div>
 
         <!-- Tab 3: Subscription & Packages -->
@@ -645,7 +796,7 @@ function switchProfileTab(tabName) {
     // Show/hide global save button based on active tab
     const globalSaveBtn = document.getElementById('btn-global-save');
     if (globalSaveBtn) {
-        if (tabName === 'subscription') {
+        if (tabName === 'subscription' || tabName === 'inbox') {
             globalSaveBtn.style.opacity = '0';
             globalSaveBtn.style.pointerEvents = 'none';
         } else {
@@ -653,7 +804,37 @@ function switchProfileTab(tabName) {
             globalSaveBtn.style.pointerEvents = 'auto';
         }
     }
+
+    // Bildirimlerim sekmesi açıldığında tümünü okundu işaretle
+    if (tabName === 'inbox') {
+        markAllInboxRead();
+    }
 }
+
+// Bildirimlerim: tümünü okundu işaretle (sunucu + arayüz)
+function markAllInboxRead() {
+    const list = document.getElementById('inbox-list');
+    if (!list) return;
+    const hasUnread = list.querySelector('.inbox-item[data-unread="1"]');
+    if (hasUnread) {
+        fetch('<?php echo routeUrl('/bildirim-tumu-okundu'); ?>', {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        }).catch(() => {});
+    }
+    list.querySelectorAll('.inbox-item[data-unread="1"]').forEach((el) => {
+        el.setAttribute('data-unread', '0');
+        el.classList.remove('bg-blue-50/50', 'dark:bg-blue-500/5');
+        el.classList.add('bg-white', 'dark:bg-zinc-900');
+        el.querySelector('.bg-blue-500')?.remove();
+    });
+    // Topbar rozetini de gizle
+    const badge = document.getElementById('notif-badge');
+    if (badge) badge.classList.add('hidden');
+    const markAllBtn = document.getElementById('inbox-mark-all');
+    if (markAllBtn) markAllBtn.classList.add('hidden');
+}
+
 
 function submitActiveForm() {
     const activeTabEl = document.querySelector('.tab-btn[data-active="true"]');
@@ -675,7 +856,57 @@ function submitActiveForm() {
         if (form && form.reportValidity()) {
             form.requestSubmit();
         }
+    } else if (activeTab === 'notification') {
+        const form = document.getElementById('form-notification');
+        if (form && form.reportValidity()) {
+            form.requestSubmit();
+        }
     }
+}
+
+function sendTestSms() {
+    const btn = document.getElementById('btn-sms-test');
+    const numberEl = document.getElementById('sms_test_number');
+    const number = (numberEl.value || '').trim();
+
+    if (!number) {
+        window.showToast({ category: 'error', title: 'Hata', description: 'Lütfen test için bir telefon numarası girin.' });
+        numberEl.focus();
+        return;
+    }
+
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<svg class="animate-spin h-4 w-4 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Gönderiliyor...`;
+
+    const formData = new FormData();
+    formData.append('test_number', number);
+    formData.append('sms_username', document.getElementById('sms_username').value);
+    formData.append('sms_password', document.getElementById('sms_password').value);
+    formData.append('sms_sender', document.getElementById('sms_sender').value);
+    formData.append('sms_api_url', document.getElementById('sms_api_url').value);
+    formData.append('sms_api_key', document.getElementById('sms_api_key').value);
+
+    fetch('<?php echo routeUrl("profil-sms-test"); ?>', {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        window.showToast({
+            category: data.success ? 'success' : 'error',
+            title: data.success ? 'Başarılı' : 'Hata',
+            description: data.message || (data.success ? 'Test SMS gönderildi.' : 'Test SMS gönderilemedi.')
+        });
+    })
+    .catch(() => {
+        window.showToast({ category: 'error', title: 'Hata', description: 'Sunucu ile iletişim kurulamadı.' });
+    })
+    .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+    });
 }
 
 function openDeleteModal() {
@@ -782,8 +1013,10 @@ function cancelSubscriptionPurchase(id, planName) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Set default active tab
-    switchProfileTab('personal');
+    // Set active tab (URL'de ?tab=... varsa onu, yoksa varsayılan personal)
+    const _params = new URLSearchParams(window.location.search);
+    const _tab = _params.get('tab');
+    switchProfileTab(_tab && document.getElementById('tab-btn-' + _tab) ? _tab : 'personal');
 
     // Handle Profile Update
     const formProfile = document.getElementById('form-profile');
@@ -809,6 +1042,15 @@ document.addEventListener('DOMContentLoaded', function() {
         formSms.addEventListener('submit', function(e) {
             e.preventDefault();
             submitForm(formSms, 'profil-sms-guncelle', 'SMS API ayarları başarıyla güncellendi.');
+        });
+    }
+
+    // Handle Notification Settings Update
+    const formNotification = document.getElementById('form-notification');
+    if (formNotification) {
+        formNotification.addEventListener('submit', function(e) {
+            e.preventDefault();
+            submitForm(formNotification, 'profil-bildirim-guncelle', 'Bildirim ayarları başarıyla güncellendi.');
         });
     }
 
