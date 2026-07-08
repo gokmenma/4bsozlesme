@@ -231,19 +231,6 @@ function isMenuActive($href, $currentPage)
         </ul>
       </div>
 
-      <div role="group" aria-labelledby="group-label-toplu">
-        <h3 id="group-label-toplu">Toplu İşlemler</h3>
-        <ul>
-          <li>
-            <a href="sendika-uye-islemleri"
-              class="<?php echo isMenuActive('sendika-uye-islemleri', $currentPage) ? 'bg-muted font-medium text-foreground' : ''; ?>">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              <span>Sendika Üye İşlemleri</span>
-            </a>
-          </li>
-        </ul>
-      </div>
-
       <?php if ($currentUserRole === 'superadmin' || $currentUserRole === 'admin'): ?>
         <div role="group" aria-labelledby="group-label-saas">
           <h3 id="group-label-saas">Sistem Yönetimi</h3>
