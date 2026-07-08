@@ -9,21 +9,16 @@ class TanimlamalarController extends Controller {
 
         // Form gönderildiyse (Update/Create işlemi)
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            header('Content-Type: application/json; charset=utf-8');
             try {
                 foreach ($_POST as $key => $value) {
                     $definitionModel->setSetting($key, $value, $tenant_id);
                 }
-                if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
-                    echo json_encode(['success' => true, 'message' => 'Değişiklikler başarıyla kaydedildi.']);
-                    exit;
-                }
-                $successMessage = "Değişiklikler başarıyla kaydedildi.";
-            } catch (Exception $e) {
-                if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
-                    echo json_encode(['success' => false, 'message' => 'Hata: ' . $e->getMessage()]);
-                    exit;
-                }
-                $errorMessage = "Hata: " . $e->getMessage();
+                echo json_encode(['success' => true, 'message' => 'Değişiklikler başarıyla kaydedildi.']);
+                exit;
+            } catch (Throwable $e) {
+                echo json_encode(['success' => false, 'message' => 'Hata: ' . $e->getMessage()]);
+                exit;
             }
         }
 
