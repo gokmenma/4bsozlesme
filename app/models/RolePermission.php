@@ -16,7 +16,6 @@ class RolePermission extends Model {
             '/sozlesme-taslagi'      => ['title' => 'Sözleşme Taslağı', 'category' => 'Diğer İşlemler', 'icon' => 'file-text'],
             '/tanimlamalar'          => ['title' => 'Tanımlamalar', 'category' => 'Diğer İşlemler', 'icon' => 'file-cog'],
             '/yapilacaklar'          => ['title' => 'Yapılacaklar (Kanban)', 'category' => 'Diğer İşlemler', 'icon' => 'list-todo'],
-            '/sendika-uye-islemleri' => ['title' => 'Sendika Üye İşlemleri', 'category' => 'Diğer İşlemler', 'icon' => 'users-round'],
             '/matrah-yonetimi'       => ['title' => 'Matrah Yönetimi', 'category' => 'Yönetim', 'icon' => 'calculator'],
             '/doner-matrahi-olustur' => ['title' => 'Döner Matrahı Oluştur', 'category' => 'Diğer İşlemler', 'icon' => 'banknote'],
             '/kullanicilar'          => ['title' => 'Kullanıcı Yönetimi', 'category' => 'Sistem Yönetimi', 'icon' => 'users'],

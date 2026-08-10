@@ -78,7 +78,6 @@ function appRoutes(): array
         '/ayarlar'               => ['c' => 'SettingsController',      'a' => 'index', 'view' => 'app/pages/ayarlar.php'],
         '/yapilacaklar'          => ['c' => 'KanbanController',        'a' => 'index', 'view' => 'app/pages/kanban.php'],
         '/geri-bildirimler'      => ['c' => 'FeedbackController',      'a' => 'adminIndex', 'view' => 'app/pages/admin/feedbacks.php'],
-        '/sendika-uye-islemleri' => ['c' => 'SendikaController',      'a' => 'index', 'view' => 'app/pages/toplu-islemler/sendika-uye-islemleri.php'],
         '/yetki-gruplari'        => ['c' => 'RoleController',         'a' => 'index', 'view' => 'app/pages/admin/roles.php'],
 
         // --- Kendi çıktısını üreten sayfa (layout ile sarmalanır, view yok) ---
@@ -86,13 +85,6 @@ function appRoutes(): array
 
         // --- İndirme (standalone) ---
         '/doner-matrahi-indir'   => ['c' => 'DonerMatrahiController', 'a' => 'downloadBasis', 'api' => true],
-
-        // --- Sendika API ---
-        '/sendika-uye-ekle'      => ['c' => 'SendikaController', 'a' => 'store',       'm' => 'POST', 'api' => true, 'exit' => true],
-        '/sendika-uye-guncelle'  => ['c' => 'SendikaController', 'a' => 'update',      'm' => 'POST', 'api' => true, 'exit' => true],
-        '/sendika-uye-sil'       => ['c' => 'SendikaController', 'a' => 'delete',      'm' => 'POST', 'api' => true, 'exit' => true],
-        '/sendika-uye-datatable' => ['c' => 'SendikaController', 'a' => 'fetchDataTable', 'm' => 'POST', 'api' => true, 'exit' => true],
-        '/sendika-uye-import'    => ['c' => 'SendikaController', 'a' => 'importExcel', 'm' => 'POST', 'api' => true, 'exit' => true],
 
         // --- Personel API ---
         '/personel-datatable'              => ['c' => 'PersonnelController', 'a' => 'fetchDataTable',     'm' => 'POST', 'api' => true, 'exit' => true],
