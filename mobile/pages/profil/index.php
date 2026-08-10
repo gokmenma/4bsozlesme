@@ -109,7 +109,7 @@ if (!function_exists('getVal')) {
                 </div>
                 <div class="space-y-1.5 opacity-55 select-none pointer-events-none">
                     <label for="username_display" class="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-wider block">Kullanıcı Adı</label>
-                    <input type="text" id="username_display" value="<?php echo explode('@', getVal('email', $user))[0]; ?>" disabled class="mobile-input text-xs font-semibold bg-zinc-100 dark:bg-zinc-950 cursor-not-allowed text-zinc-400 dark:text-zinc-500 outline-none select-none" tabindex="-1">
+                    <input type="text" id="username_display" value="<?php echo htmlspecialchars(!empty($user['username']) ? $user['username'] : explode('@', getVal('email', $user))[0], ENT_QUOTES, 'UTF-8'); ?>" disabled class="mobile-input text-xs font-semibold bg-zinc-100 dark:bg-zinc-950 cursor-not-allowed text-zinc-400 dark:text-zinc-500 outline-none select-none" tabindex="-1">
                 </div>
 
                 <div class="space-y-1.5 opacity-55 select-none pointer-events-none">

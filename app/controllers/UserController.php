@@ -8,8 +8,12 @@ class UserController extends Controller {
     public function __construct() {
         $this->userModel = new User();
         
-        // Admin veya Superadmin kontrolü
-        if ($_SESSION['role'] !== 'superadmin' && $_SESSION['role'] !== 'admin') {
+        $rolePermissionModel = new RolePermission();
+        $userRole = $_SESSION['role'] ?? 'user';
+        $userRoleId = $_SESSION['role_id'] ?? null;
+
+        // Admin, Superadmin veya /kullanicilar yetkisi tanımlanmış grup kontrolü
+        if ($userRole !== 'superadmin' && $userRole !== 'admin' && !$rolePermissionModel->hasAccess($userRoleId, '/kullanicilar', $userRole)) {
             if ($this->isAjax()) {
                 echo json_encode(['success' => false, 'message' => 'Yetkiniz yok.']);
                 exit;
@@ -20,11 +24,12 @@ class UserController extends Controller {
     }
 
     public function list() {
-        $tenant_id = $_SESSION['tenant_id'];
+        $tenant_id = $_SESSION['tenant_id'] ?? null;
+        $userRole = $_SESSION['role'] ?? 'user';
         $subtitle = 'Bu kuruma bağlı kullanıcıları yönetin';
         
         // Superadmin ise ve tenant_id parametresi gelmişse o kurumu filtrele
-        if ($_SESSION['role'] === 'superadmin' && !empty($_GET['tenant_id'])) {
+        if ($userRole === 'superadmin' && !empty($_GET['tenant_id'])) {
             $tenant_id = $_GET['tenant_id'];
             $tenantModel = new Tenant();
             $tenant = $tenantModel->find($tenant_id);
@@ -34,7 +39,7 @@ class UserController extends Controller {
         }
 
         $viewType = $_GET['view_type'] ?? 'mine';
-        if ($_SESSION['role'] === 'superadmin' && $viewType === 'all') {
+        if ($userRole === 'superadmin' && $viewType === 'all') {
             $users = $this->userModel->allWithCreator();
             $subtitle = 'Sistemdeki tüm kullanıcıları yönetin';
         } else {
@@ -69,17 +74,22 @@ class UserController extends Controller {
             return $user;
         }, $users);
 
+        $roleModel = new Role();
+        $rolesList = $roleModel->getAllForTenant($tenant_id);
+
         return [
             'pageTitle' => 'Kullanıcı Yönetimi',
             'pageSubtitle' => $subtitle,
             'users' => $users,
-            'viewType' => $viewType
+            'viewType' => $viewType,
+            'rolesList' => $rolesList
         ];
     }
 
     public function store() {
         try {
             $role = $_POST['role'] ?? 'user';
+            $role_id = !empty($_POST['role_id']) ? (int)$_POST['role_id'] : null;
             $tenant_id = $_SESSION['tenant_id'];
             $email = $_POST['email'];
 
@@ -94,18 +104,30 @@ class UserController extends Controller {
             // Güvenlik Kilidi: Oturum açan kullanıcı ID'si 1 değilse kimseye superadmin yetkisi atayamaz!
             if ($_SESSION['user_id'] != 1 && $role === 'superadmin') {
                 $role = 'admin';
+                if ($role_id == 1) {
+                    $role_id = 2;
+                }
             }
+
+            // role_id'ye göre enum role değerini ayarla
+            if ($role_id == 1) $role = 'superadmin';
+            elseif ($role_id == 2) $role = 'admin';
+            elseif ($role_id > 2 && $role !== 'superadmin' && $role !== 'admin') $role = 'user';
 
             $trial_ends_at = date('Y-m-d', strtotime('+1 month'));
             if ($_SESSION['role'] === 'superadmin' && !empty($_POST['trial_ends_at'])) {
                 $trial_ends_at = date('Y-m-d', strtotime($_POST['trial_ends_at']));
             }
 
+            $username = !empty($_POST['username']) ? trim($_POST['username']) : explode('@', $email)[0];
+
             $data = [
                 'name' => $_POST['name'],
+                'username' => $username,
                 'email' => $email,
                 'password' => password_hash($_POST['password'], PASSWORD_DEFAULT),
                 'role' => $role,
+                'role_id' => $role_id,
                 'tenant_id' => $tenant_id,
                 'created_by' => $_SESSION['user_id'] ?? null,
                 'created_at' => date('Y-m-d H:i:s'),
@@ -163,6 +185,7 @@ class UserController extends Controller {
             }
 
             $role = $_POST['role'] ?? $user['role'];
+            $role_id = isset($_POST['role_id']) ? (int)$_POST['role_id'] : $user['role_id'];
             $tenant_id = $_SESSION['tenant_id'];
             $email = $_POST['email'];
 
@@ -181,16 +204,25 @@ class UserController extends Controller {
             }
 
             // Güvenlik Kilidi: Oturum açan kullanıcı ID'si 1 değilse kimseye superadmin yetkisi atayamaz!
-            if ($_SESSION['user_id'] != 1 && $role === 'superadmin') {
+            if ($_SESSION['user_id'] != 1 && ($role === 'superadmin' || $role_id == 1)) {
                 if ($user['role'] !== 'superadmin') {
                     $role = $user['role']; // Rol yükseltmeyi engelle, eski rolünü koru
+                    $role_id = $user['role_id'];
                 }
             }
 
+            if ($role_id == 1) $role = 'superadmin';
+            elseif ($role_id == 2) $role = 'admin';
+            elseif ($role_id > 2 && $role !== 'superadmin' && $role !== 'admin') $role = 'user';
+
+            $username = !empty($_POST['username']) ? trim($_POST['username']) : explode('@', $email)[0];
+
             $data = [
                 'name' => $_POST['name'],
+                'username' => $username,
                 'email' => $email,
                 'role' => $role,
+                'role_id' => $role_id,
                 'tenant_id' => $tenant_id,
                 'updated_at' => date('Y-m-d H:i:s')
             ];

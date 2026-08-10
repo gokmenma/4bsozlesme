@@ -3,7 +3,11 @@
 class DonerMatrahiController extends Controller {
     
     public function __construct() {
-        if (($_SESSION['role'] ?? '') !== 'superadmin') {
+        $userRole = $_SESSION['role'] ?? 'user';
+        $userRoleId = $_SESSION['role_id'] ?? null;
+        $rolePermissionModel = new RolePermission();
+
+        if ($userRole !== 'superadmin' && $userRole !== 'admin' && !$rolePermissionModel->hasAccess($userRoleId, '/doner-matrahi-olustur', $userRole)) {
             header('Location: ' . routeUrl('/'));
             exit;
         }

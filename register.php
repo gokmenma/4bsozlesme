@@ -53,8 +53,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             // Create User
+            $username = explode('@', $email)[0];
             $userId = $userModel->create([
                 'name' => $userName,
+                'username' => $username,
                 'email' => $email,
                 'password' => password_hash($password, PASSWORD_DEFAULT),
                 'role' => 'admin', // İlk kayıt olan admin olur
@@ -72,8 +74,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Auto login after register
             $user = $userModel->findByUsername($email);
             if ($user) {
+                session_regenerate_id(true);
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['user_name'] = $user['name'];
+                $_SESSION['user_username'] = !empty($user['username']) ? $user['username'] : $username;
                 $_SESSION['user_email'] = $user['email'];
                 $_SESSION['role'] = $user['role'];
                 $_SESSION['tenant_id'] = $user['tenant_id'];

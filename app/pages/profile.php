@@ -204,7 +204,7 @@ if (!function_exists('fbTimeAgo')) {
               
               <div class="flex flex-col gap-1.5">
                 <label for="username_display" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300">Kullanıcı Adı</label>
-                <input type="text" id="username_display" value="<?php echo explode('@', getVal('email', $user))[0]; ?>" readonly class="w-full h-10 px-3 rounded-lg border border-zinc-200 dark:border-zinc-850 bg-zinc-50 dark:bg-zinc-900 cursor-not-allowed text-zinc-400 text-xs font-semibold outline-none select-none" tabindex="-1">
+                <input type="text" id="username_display" value="<?php echo htmlspecialchars(!empty($user['username']) ? $user['username'] : explode('@', getVal('email', $user))[0], ENT_QUOTES, 'UTF-8'); ?>" readonly class="w-full h-10 px-3 rounded-lg border border-zinc-200 dark:border-zinc-850 bg-zinc-50 dark:bg-zinc-900 cursor-not-allowed text-zinc-400 text-xs font-semibold outline-none select-none" tabindex="-1">
               </div>
             </div>
 

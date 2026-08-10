@@ -12,6 +12,14 @@ function isMenuActive($href, $currentPage)
   $href = '/' . ltrim($href, '/');
   return $href === $currentPage;
 }
+
+$rolePermModel = new RolePermission();
+$currentUserRoleId = $_SESSION['role_id'] ?? null;
+function canSeePage($route)
+{
+  global $rolePermModel, $currentUserRoleId, $currentUserRole;
+  return $rolePermModel->hasAccess($currentUserRoleId, $route, $currentUserRole);
+}
 ?>
 
 <aside class="sidebar" data-side="left" aria-hidden="false">
@@ -19,12 +27,37 @@ function isMenuActive($href, $currentPage)
     <?php
     $userModel = new User();
     $tenants = $userModel->getTenants($_SESSION['user_id']);
-    $currentTenantId = $_SESSION['tenant_id'];
+    $currentTenantId = $_SESSION['tenant_id'] ?? null;
     $currentTenant = null;
-    foreach ($tenants as $t) {
-      if ($t['id'] == $currentTenantId) {
-        $currentTenant = $t;
-        break;
+
+    if (!empty($tenants)) {
+      foreach ($tenants as $t) {
+        if ($t['id'] == $currentTenantId) {
+          $currentTenant = $t;
+          break;
+        }
+      }
+      if (!$currentTenant && !empty($tenants[0])) {
+        $currentTenant = $tenants[0];
+        $_SESSION['tenant_id'] = $currentTenant['id'];
+        $currentTenantId = $currentTenant['id'];
+      }
+    }
+
+    if (!$currentTenant && !empty($currentTenantId)) {
+      global $db;
+      $stmtT = $db->prepare("SELECT * FROM tenants WHERE id = ?");
+      $stmtT->execute([$currentTenantId]);
+      $currentTenant = $stmtT->fetch();
+    }
+
+    if (!$currentTenant) {
+      global $db;
+      $stmtFirstT = $db->query("SELECT * FROM tenants ORDER BY id ASC LIMIT 1");
+      $currentTenant = $stmtFirstT->fetch();
+      if ($currentTenant) {
+        $_SESSION['tenant_id'] = $currentTenant['id'];
+        $currentTenantId = $currentTenant['id'];
       }
     }
 
@@ -142,6 +175,7 @@ function isMenuActive($href, $currentPage)
         <h3 id="group-label-content-1">Yönetim</h3>
 
         <ul>
+          <?php if (canSeePage('/')): ?>
           <li>
             <a href="/"
               class="<?php echo isMenuActive('/', $currentPage) ? 'bg-muted font-medium text-foreground' : ''; ?>">
@@ -149,8 +183,9 @@ function isMenuActive($href, $currentPage)
               <span>Ana Sayfa</span>
             </a>
           </li>
-      
+          <?php endif; ?>
 
+          <?php if (canSeePage('/personel-listesi')): ?>
           <li>
             <a href="personel-listesi"
               class="<?php echo isMenuActive('personel-listesi', $currentPage) ? 'bg-muted font-medium text-foreground' : ''; ?>">
@@ -166,6 +201,9 @@ function isMenuActive($href, $currentPage)
               <span>Personeller</span>
             </a>
           </li>
+          <?php endif; ?>
+
+          <?php if (canSeePage('/ucret-tanimlari')): ?>
           <li>
             <a href="ucret-tanimlari"
               class="<?php echo isMenuActive('ucret-tanimlari', $currentPage) ? 'bg-muted font-medium text-foreground' : ''; ?>">
@@ -180,12 +218,14 @@ function isMenuActive($href, $currentPage)
               <span>Ücret Tanımları</span>
             </a>
           </li>
+          <?php endif; ?>
         </ul>
       </div>
 
       <div role="group" aria-labelledby="group-label-content-1">
         <h3 id="group-label-content-1">Diğer İşlemler</h3>
         <ul>
+          <?php if (canSeePage('/sozlesme-taslagi')): ?>
           <li>
             <a href="sozlesme-taslagi"
               class="<?php echo isMenuActive('sozlesme-taslagi', $currentPage) ? 'bg-muted font-medium text-foreground' : ''; ?>">
@@ -202,6 +242,9 @@ function isMenuActive($href, $currentPage)
               <span>Sözleşme Taslağı</span>
             </a>
           </li>
+          <?php endif; ?>
+
+          <?php if (canSeePage('/tanimlamalar')): ?>
           <li>
             <a href="tanimlamalar"
               class="<?php echo isMenuActive('tanimlamalar', $currentPage) ? 'bg-muted font-medium text-foreground' : ''; ?>">
@@ -209,7 +252,9 @@ function isMenuActive($href, $currentPage)
               <span>Tanımlamalar</span>
             </a>
           </li>
+          <?php endif; ?>
               
+          <?php if (canSeePage('/yapilacaklar')): ?>
           <li>
             <a href="yapilacaklar"
               class="<?php echo isMenuActive('yapilacaklar', $currentPage) ? 'bg-muted font-medium text-foreground' : ''; ?>">
@@ -217,9 +262,9 @@ function isMenuActive($href, $currentPage)
               <span>Yapılacaklar</span>
             </a>
           </li>
-      <?php if ($currentUserRole === 'superadmin'): ?>
+          <?php endif; ?>
 
-
+          <?php if (canSeePage('/doner-matrahi-olustur')): ?>
           <li>
             <a href="doner-matrahi-olustur"
               class="<?php echo isMenuActive('doner-matrahi-olustur', $currentPage) ? 'bg-muted font-medium text-foreground' : ''; ?>">
@@ -231,10 +276,11 @@ function isMenuActive($href, $currentPage)
         </ul>
       </div>
 
-      <?php if ($currentUserRole === 'superadmin' || $currentUserRole === 'admin'): ?>
+      <?php if ($currentUserRole === 'superadmin' || $currentUserRole === 'admin' || canSeePage('/kullanicilar') || canSeePage('/yetki-gruplari')): ?>
         <div role="group" aria-labelledby="group-label-saas">
           <h3 id="group-label-saas">Sistem Yönetimi</h3>
           <ul>
+            <?php if (canSeePage('/kullanicilar')): ?>
             <li>
               <a href="kullanicilar"
                 class="<?php echo isMenuActive('kullanicilar', $currentPage) ? 'bg-muted font-medium text-foreground' : ''; ?>">
@@ -248,8 +294,23 @@ function isMenuActive($href, $currentPage)
                 <span>Kullanıcılar</span>
               </a>
             </li>
+            <?php endif; ?>
 
-            <?php if ($currentUserRole === 'superadmin'): ?>
+            <?php if (canSeePage('/yetki-gruplari')): ?>
+            <li>
+              <a href="yetki-gruplari"
+                class="<?php echo isMenuActive('yetki-gruplari', $currentPage) ? 'bg-muted font-medium text-foreground' : ''; ?>">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <path d="m9 12 2 2 4-4"/>
+                </svg>
+                <span>Yetki Grupları</span>
+              </a>
+            </li>
+            <?php endif; ?>
+
+            <?php if ($currentUserRole === 'superadmin' || canSeePage('/kurum-yonetimi')): ?>
               <li>
                 <a href="kurum-yonetimi"
                   class="<?php echo isMenuActive('kurum-yonetimi', $currentPage) ? 'bg-muted font-medium text-foreground' : ''; ?>">
@@ -267,6 +328,9 @@ function isMenuActive($href, $currentPage)
                   <span>Kurum Yönetimi</span>
                 </a>
               </li>
+            <?php endif; ?>
+
+            <?php if ($currentUserRole === 'superadmin' || canSeePage('/abonelik')): ?>
               <li>
                 <a href="abonelik"
                   class="<?php echo isMenuActive('abonelik', $currentPage) ? 'bg-muted font-medium text-foreground' : ''; ?>">
@@ -281,35 +345,36 @@ function isMenuActive($href, $currentPage)
               </li>
             <?php endif; ?>
 
-              <?php if ($currentUserRole === 'superadmin'): ?>
+            <?php if ($currentUserRole === 'superadmin' || canSeePage('/ayarlar')): ?>
+              <li>
+                <a href="ayarlar"
+                  class="<?php echo isMenuActive('ayarlar', $currentPage) ? 'bg-muted font-medium text-foreground' : ''; ?>">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+                  </svg>
+                  <span>Ayarlar</span>
+                </a>
+              </li>
+            <?php endif; ?>
 
-                <li>
-                  <a href="ayarlar"
-                    class="<?php echo isMenuActive('ayarlar', $currentPage) ? 'bg-muted font-medium text-foreground' : ''; ?>">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <circle cx="12" cy="12" r="3" />
-                      <path
-                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z" />
-                    </svg>
-                    <span>Ayarlar</span>
-                  </a>
-                </li>
-                <li>
-                  <a href="geri-bildirimler"
-                    class="<?php echo isMenuActive('geri-bildirimler', $currentPage) ? 'bg-muted font-medium text-foreground' : ''; ?>">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                      class="lucide lucide-message-square-text">
-                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                      <path d="M7 9h10" />
-                      <path d="M7 13h6" />
-                    </svg>
-                    <span>Geri Bildirimler</span>
-                  </a>
-                </li>
-              <?php endif; ?>
-
+            <?php if ($currentUserRole === 'superadmin' || canSeePage('/geri-bildirimler')): ?>
+              <li>
+                <a href="geri-bildirimler"
+                  class="<?php echo isMenuActive('geri-bildirimler', $currentPage) ? 'bg-muted font-medium text-foreground' : ''; ?>">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-message-square-text">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    <path d="M7 9h10" />
+                    <path d="M7 13h6" />
+                  </svg>
+                  <span>Geri Bildirimler</span>
+                </a>
+              </li>
+            <?php endif; ?>
 
           </ul>
         </div>

@@ -18,10 +18,6 @@ if (!document.getElementById('toaster')) {
     <div class="flex items-center justify-between gap-3 mb-6">
         <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">Personeller</h1>
         <div class="flex items-center gap-3">
-            <button id="clearAllFilters" style="display: none;" class="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors shadow-sm whitespace-nowrap">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M7 6v12"/><path d="M11 6v12"/><path d="M15 6v12"/><path d="M19 6v12"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
-                Temizle
-            </button>
             <div class="relative w-full max-w-xs">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="h-4 w-4 text-zinc-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -31,69 +27,86 @@ if (!document.getElementById('toaster')) {
                 <input type="text" id="personnelSearch" class="block w-full pl-10 pr-3 py-2 border border-zinc-200 dark:border-zinc-800 rounded-lg bg-white dark:bg-zinc-900 text-sm placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Personel ara...">
             </div>
             
-            <!-- Sütun Seçimi -->
+            <!-- İşlemler Menüsü -->
             <div class="relative inline-block text-left group-dropdown">
-                <button type="button" onclick="toggleDropdown(this)" class="inline-flex items-center gap-2 px-3 py-2 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors shadow-sm whitespace-nowrap cursor-pointer">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-columns3-cog-icon lucide-columns-3-cog"><path d="M10.5 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5.5"/><path d="m14.3 19.6 1-.4"/><path d="M15 3v7.5"/><path d="m15.2 16.9-.9-.3"/><path d="m16.6 21.7.3-.9"/><path d="m16.8 15.3-.4-1"/><path d="m19.1 15.2.3-.9"/><path d="m19.6 21.7-.4-1"/><path d="m20.7 16.8 1-.4"/><path d="m21.7 19.4-.9-.3"/><path d="M9 3v18"/><circle cx="18" cy="18" r="3"/></svg>
+                <button type="button" onclick="toggleDropdown(this)" class="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors shadow-sm whitespace-nowrap cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                    <span>İşlemler</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-400"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
-                <div class="app-dropdown-menu absolute right-0 mt-2 w-56 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg shadow-lg z-50 hidden opacity-0 translate-y-[-10px] transition-all" onclick="event.stopPropagation()">
-                    <div class="p-2 flex flex-col gap-1 max-h-[350px] overflow-y-auto">
-                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                <div class="app-dropdown-menu absolute right-0 mt-2 w-60 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xl z-50 hidden opacity-0 translate-y-[-10px] transition-all p-2" onclick="event.stopPropagation()">
+                    
+                    <!-- Toplu İşlemler / Veri Aktarımı -->
+                    <div class="px-2 py-1 text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Veri İşlemleri</div>
+                    
+                    <button type="button" onclick="exportToExcel(); $('.app-dropdown-menu').addClass('hidden');" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-left transition-colors cursor-pointer">
+                        <svg class="text-emerald-600 dark:text-emerald-400 shrink-0" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-zinc-900 dark:text-zinc-100">Excel'e Aktar</span>
+                            <span class="text-[10px] text-zinc-400">Listeyi Excel olarak indirin</span>
+                        </div>
+                    </button>
+                    
+                    <button type="button" onclick="document.getElementById('dialog-import-excel').showModal(); $('.app-dropdown-menu').addClass('hidden');" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-left transition-colors cursor-pointer mt-0.5">
+                        <svg class="text-indigo-600 dark:text-indigo-400 shrink-0" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-zinc-900 dark:text-zinc-100">Excel'den Yükle</span>
+                            <span class="text-[10px] text-zinc-400">Toplu personel aktarımı yapın</span>
+                        </div>
+                    </button>
+
+                    <div class="my-1.5 border-t border-zinc-100 dark:border-zinc-800"></div>
+
+                    <!-- Sütun Görünürlüğü -->
+                    <div class="px-2 py-1 text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Sütun Görünürlüğü</div>
+                    <div class="p-1 flex flex-col gap-0.5 max-h-[220px] overflow-y-auto">
+                        <label class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
                             <input type="checkbox" checked data-column-index="2" onchange="toggleColumnVisibility(2, this.checked)" class="input column-toggle cursor-pointer">
-                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Ad Soyad</span>
+                            <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300">Ad Soyad</span>
                         </label>
-                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                        <label class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
                             <input type="checkbox" checked data-column-index="3" onchange="toggleColumnVisibility(3, this.checked)" class="input column-toggle cursor-pointer">
-                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">TC Kimlik</span>
+                            <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300">TC Kimlik</span>
                         </label>
-                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                        <label class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
                             <input type="checkbox" checked data-column-index="4" onchange="toggleColumnVisibility(4, this.checked)" class="input column-toggle cursor-pointer">
-                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Cinsiyet</span>
+                            <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300">Cinsiyet</span>
                         </label>
-                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                        <label class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
                             <input type="checkbox" checked data-column-index="5" onchange="toggleColumnVisibility(5, this.checked)" class="input column-toggle cursor-pointer">
-                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Unvan</span>
+                            <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300">Unvan</span>
                         </label>
-                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                        <label class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
                             <input type="checkbox" checked data-column-index="6" onchange="toggleColumnVisibility(6, this.checked)" class="input column-toggle cursor-pointer">
-                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Öğrenim</span>
+                            <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300">Öğrenim</span>
                         </label>
-                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                        <label class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
                             <input type="checkbox" checked data-column-index="7" onchange="toggleColumnVisibility(7, this.checked)" class="input column-toggle cursor-pointer">
-                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Ücret</span>
+                            <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300">Ücret</span>
                         </label>
-                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                        <label class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
                             <input type="checkbox" checked data-column-index="8" onchange="toggleColumnVisibility(8, this.checked)" class="input column-toggle cursor-pointer">
-                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Durum</span>
+                            <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300">Durum</span>
                         </label>
-                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                        <label class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
                             <input type="checkbox" checked data-column-index="9" onchange="toggleColumnVisibility(9, this.checked)" class="input column-toggle cursor-pointer">
-                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">G. Başlama</span>
+                            <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300">G. Başlama</span>
                         </label>
-                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                        <label class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
                             <input type="checkbox" checked data-column-index="10" onchange="toggleColumnVisibility(10, this.checked)" class="input column-toggle cursor-pointer">
-                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Kadroya Geçiş</span>
+                            <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300">Kadroya Geçiş</span>
                         </label>
-                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                        <label class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
                             <input type="checkbox" checked data-column-index="11" onchange="toggleColumnVisibility(11, this.checked)" class="input column-toggle cursor-pointer">
-                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Ayrılış / Kadro</span>
+                            <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300">Ayrılış / Kadro</span>
                         </label>
-                        <label class="flex items-center gap-3 px-2.5 py-1.5 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
+                        <label class="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-zinc-50 dark:hover:bg-zinc-800/50 cursor-pointer transition-all select-none">
                             <input type="checkbox" checked data-column-index="12" onchange="toggleColumnVisibility(12, this.checked)" class="input column-toggle cursor-pointer">
-                            <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Telefon</span>
+                            <span class="text-xs font-medium text-zinc-700 dark:text-zinc-300">Telefon</span>
                         </label>
                     </div>
                 </div>
             </div>
-
-            <button onclick="exportToExcel()" class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-900 text-green-600 dark:text-green-400 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors shadow-sm whitespace-nowrap">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-                Aktar
-            </button>
-            <button onclick="document.getElementById('dialog-import-excel').showModal()" class="inline-flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors shadow-sm whitespace-nowrap">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                Yükle
-            </button>
             <button onclick="document.getElementById('dialog-add-personnel').showModal()" class="inline-flex items-center gap-2 px-4 py-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg text-sm font-medium hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors shadow-sm whitespace-nowrap">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
                 Yeni Personel
@@ -105,6 +118,17 @@ if (!document.getElementById('toaster')) {
         <?php echo renderTablePreloader(); ?>
 
         <div id="table-container" class="flex-1 flex flex-col overflow-hidden" style="display: none;">
+            <!-- Active Filters Bar -->
+            <div id="active-filters-bar" class="hidden border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-800/50 px-4 py-2.5 flex items-center justify-between gap-3 text-xs shrink-0 transition-all">
+                <div class="flex items-center gap-2 flex-wrap" id="active-filter-badges">
+                    <!-- Badges injected here -->
+                </div>
+                <button type="button" id="clearAllFilters" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs font-medium hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50 transition-all shadow-sm whitespace-nowrap cursor-pointer ml-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                    Filtreleri temizle
+                </button>
+            </div>
+
             <table id="personnelTable" class="w-full text-left">
                 <thead>
                     <tr>
@@ -652,12 +676,12 @@ if (!document.getElementById('toaster')) {
 <!-- Ücretsiz İzin Dialog -->
 <dialog id="dialog-ucretsiz-izin" class="dialog" style="max-width: 800px; width: 90vw;" onclick="if (event.target === this) this.close()">
   <div class="dialog-content bg-white dark:bg-zinc-900 p-6 rounded-xl shadow-2xl" onclick="event.stopPropagation()">
-    <header class="flex items-start justify-between mb-6">
+    <header class="flex items-start justify-between mb-6" style="display: flex !important; flex-direction: row !important; align-items: flex-start !important; justify-content: space-between !important; width: 100% !important;">
       <div>
         <h2 class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Ücretsiz İzin İşlemleri</h2>
         <p id="ucretsiz-izin-personnel-name" class="text-sm text-zinc-500 font-medium"></p>
       </div>
-      <button type="button" class="text-zinc-400 hover:text-zinc-600" onclick="this.closest('dialog').close()">
+      <button type="button" class="text-zinc-400 hover:text-zinc-600 shrink-0 cursor-pointer" onclick="this.closest('dialog').close()">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x">
           <path d="M18 6 6 18" /><path d="m6 6 12 12" />
         </svg>
@@ -740,10 +764,6 @@ if (!document.getElementById('toaster')) {
     </button>
 </div>
 
-<link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="<?php echo routeUrl('assets/css/contract-document.css'); ?>">
 
 
@@ -858,6 +878,43 @@ if (!document.getElementById('toaster')) {
 
 
 <script>
+const _lazyAssetCache = {};
+function loadScriptOnce(src) {
+    if (_lazyAssetCache[src]) return _lazyAssetCache[src];
+    _lazyAssetCache[src] = new Promise((resolve, reject) => {
+        const el = document.createElement('script');
+        el.src = src;
+        el.onload = resolve;
+        el.onerror = reject;
+        document.head.appendChild(el);
+    });
+    return _lazyAssetCache[src];
+}
+function loadStyleOnce(href) {
+    if (_lazyAssetCache[href]) return _lazyAssetCache[href];
+    _lazyAssetCache[href] = new Promise((resolve, reject) => {
+        const el = document.createElement('link');
+        el.rel = 'stylesheet';
+        el.href = href;
+        el.onload = resolve;
+        el.onerror = reject;
+        document.head.appendChild(el);
+    });
+    return _lazyAssetCache[href];
+}
+function loadQuillLib() {
+    return Promise.all([
+        loadStyleOnce('https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css'),
+        loadScriptOnce('https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js')
+    ]);
+}
+function loadExcelJsLib() {
+    return loadScriptOnce('https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js');
+}
+function loadXlsxLib() {
+    return loadScriptOnce('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js');
+}
+
 $(document).ready(function() {
     if (typeof initDataTable !== 'function') {
         console.error('initDataTable function not found!');
@@ -1403,11 +1460,13 @@ function downloadContractAsWord(id) {
 let petitionQuill = null;
 let currentPetitionPersonnel = null;
 
-function openPetitionModal(p) {
+async function openPetitionModal(p) {
     closeAllDropdowns();
     currentPetitionPersonnel = p;
     const dialog = document.getElementById('dialog-petition');
-    
+
+    await loadQuillLib();
+
     // Initialize Quill once
     if (!petitionQuill) {
         petitionQuill = new Quill('#petition-quill-editor', {
@@ -2031,12 +2090,14 @@ $('#btn-confirm-delete-personnel').on('click', function() {
 // Excel Import Mantığı
 let excelData = null;
 
-function handleExcelFile(input) {
+async function handleExcelFile(input) {
     const file = input.files[0];
     if (!file) return;
 
     document.getElementById('excel-filename').innerText = file.name;
     document.getElementById('excel-filename').classList.add('text-primary');
+
+    await loadXlsxLib();
 
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -2062,6 +2123,7 @@ function handleExcelFile(input) {
 }
 
 async function downloadSampleXLSX() {
+    await loadExcelJsLib();
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Personel Yükleme');
 
@@ -2204,6 +2266,8 @@ async function exportToExcel() {
 
     showToast({ category: 'info', title: 'Bilgi', description: 'Veriler hazırlanıyor, lütfen bekleyin...' });
 
+    const excelJsReady = loadExcelJsLib();
+
     // Mevcut filtrelerle tüm verileri sunucudan çek
     const params = table.ajax.params();
     params.length = -1; // Tüm kayıtlar
@@ -2218,6 +2282,7 @@ async function exportToExcel() {
                 return;
             }
 
+            await excelJsReady;
             const workbook = new ExcelJS.Workbook();
             const worksheet = workbook.addWorksheet('Personel Listesi');
 

@@ -5,11 +5,14 @@ class MatrahController extends Controller {
     public function index() {
         global $db;
 
-        // Restriction: Only Superadmin users can view and perform these actions
-        if (($_SESSION['role'] ?? '') !== 'superadmin') {
-            if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $userRole = $_SESSION['role'] ?? 'user';
+        $userRoleId = $_SESSION['role_id'] ?? null;
+        $rolePermissionModel = new RolePermission();
+
+        if ($userRole !== 'superadmin' && $userRole !== 'admin' && !$rolePermissionModel->hasAccess($userRoleId, '/matrah-yonetimi', $userRole)) {
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' || isset($_REQUEST['draw'])) {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Yetkiniz yok. Bu işlemi yalnızca Superadmin yapabilir.']);
+                echo json_encode(['success' => false, 'message' => 'Bu işleme erişim yetkiniz bulunmamaktadır.']);
                 exit;
             }
             header('Location: ' . routeUrl('/'));

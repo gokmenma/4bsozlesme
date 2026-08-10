@@ -488,6 +488,13 @@ function initDataTable(selector, customOptions = {}) {
         console.error('Error loading table state:', e);
     }
 
+    // Kayıtlı sütun filtresini tablo oluşturulmadan (ve ilk otomatik ajax isteği atılmadan) önce
+    // set ediyoruz; aksi halde serverSide tablo önce filtresiz veri çeker, sonra table.draw() ile
+    // ikinci bir istek atarak filtreli veriyi getirir (çift istek + kısa süreli filtresiz flaş).
+    if (savedState.columnFilterState) {
+        $table.data('columnFilterState', savedState.columnFilterState);
+    }
+
     const defaultOptions = {
         language: {
             "emptyTable": emptyTableHtml,
@@ -572,6 +579,7 @@ function initDataTable(selector, customOptions = {}) {
     }, customOptions);
 
     const table = $table.DataTable(options);
+    window.activeFilterTable = $table;
 
     // Save initial / changed order or length
     table.on('order', function() {
@@ -600,16 +608,15 @@ function initDataTable(selector, customOptions = {}) {
         }
     }
 
-    // Restore filter state from localStorage if present
+    // columnFilterState zaten tablo oluşturulmadan önce set edildi (ilk ajax isteği bunu içerdi);
+    // burada sadece sütun arama göstergelerini işaretliyor ve filtre ikonlarını güncelliyoruz.
     if (savedState.columnFilterState) {
-        $table.data('columnFilterState', savedState.columnFilterState);
         for (let colIndex in savedState.columnFilterState) {
             const config = savedState.columnFilterState[colIndex];
             if (config.rules && config.rules.length > 0) {
                 table.column(colIndex).search('.*', true, false);
             }
         }
-        table.draw();
         checkActiveFiltersForTable($table);
     }
 
@@ -874,20 +881,46 @@ window.closeFilterPopover = function() {
     if (window.activeFilterTable) checkActiveFiltersForTable(window.activeFilterTable);
 };
 
-window.clearAllFilters = function() {
-    if (!window.activeFilterTable) {
+window.removeSingleFilter = function(type, colIndex) {
+    if (!window.activeFilterTable || window.activeFilterTable.length === 0) {
         window.activeFilterTable = $('table.dataTable').first();
     }
     const $table = window.activeFilterTable;
-    if ($table.length > 0) {
-        $table.DataTable().columns().search('').draw();
-        $table.data('columnFilterState', {});
-        $table.DataTable().draw();
-        $table.DataTable().search('').draw();
-        
-        $('input[id*="Search"], input[id*="search"]').val('');
+    if (!$table || $table.length === 0) return;
+
+    if (type === 'search') {
+        $('#personnelSearch, input[id*="Search"], input[id*="search"]').val('');
+        if ($.fn.DataTable.isDataTable($table)) {
+            $table.DataTable().search('').draw();
+        }
+    } else if (type === 'column' && colIndex !== undefined && colIndex !== null) {
+        let columnFilterState = $table.data('columnFilterState') || {};
+        delete columnFilterState[colIndex];
+        $table.data('columnFilterState', columnFilterState);
+        if ($.fn.DataTable.isDataTable($table)) {
+            $table.DataTable().column(colIndex).search('');
+            $table.DataTable().draw();
+        }
+    }
+    checkActiveFiltersForTable($table);
+    saveTableStateForTable($table);
+};
+
+window.clearAllFilters = function() {
+    if (!window.activeFilterTable || window.activeFilterTable.length === 0) {
+        window.activeFilterTable = $('table.dataTable').first();
+    }
+    const $table = window.activeFilterTable;
+    if ($table && $table.length > 0) {
+        if ($.fn.DataTable.isDataTable($table)) {
+            $table.DataTable().columns().search('');
+            $table.data('columnFilterState', {});
+            $table.DataTable().search('');
+            $table.DataTable().draw();
+        }
+        $('#personnelSearch, input[id*="Search"], input[id*="search"]').val('');
         $('.column-filter-btn').removeClass('active');
-        $('#clearAllFilters, button[id*="clearAllFilters"]').hide();
+        checkActiveFiltersForTable($table);
         saveTableStateForTable($table);
     }
 };
@@ -895,30 +928,144 @@ window.clearAllFilters = function() {
 $(document).on('click', '#clearAllFilters, button[id*="clearAllFilters"]', window.clearAllFilters);
 
 function checkActiveFiltersForTable($table) {
-    let columnFilterState = $table.data('columnFilterState') || {};
-    let hasFilter = false;
+    if (!$table || !$table.length) return;
     
-    let searchVal = $table.DataTable().search();
+    let columnFilterState = $table.data('columnFilterState') || {};
+    let activeFilters = [];
+
+    // 1. Search Filter
+    let searchVal = '';
+    if ($.fn.DataTable.isDataTable($table)) {
+        searchVal = $table.DataTable().search();
+    }
+    if (!searchVal) {
+        searchVal = $('#personnelSearch').val() || '';
+    }
     if (searchVal && typeof searchVal === 'string' && searchVal.trim().length > 0) {
-        hasFilter = true;
+        activeFilters.push({
+            type: 'search',
+            colName: 'Arama',
+            text: `"${searchVal.trim()}"`
+        });
     }
 
+    // 2. Column Filters
     for (let key in columnFilterState) {
-        if (columnFilterState[key] && columnFilterState[key].rules && columnFilterState[key].rules.length > 0) {
+        const config = columnFilterState[key];
+        if (config && config.rules && config.rules.length > 0) {
             $table.find(`th[data-column="${key}"] .column-filter-btn`).addClass('active');
-            hasFilter = true;
+
+            // Find column title
+            let colName = '';
+            const $th = $table.find(`th[data-column="${key}"]`);
+            if ($th.length > 0) {
+                colName = $th.find('span').first().text().trim();
+            }
+            if (!colName && $.fn.DataTable.isDataTable($table)) {
+                try {
+                    colName = $table.DataTable().column(key).header().textContent.trim();
+                } catch(e){}
+            }
+            if (!colName) colName = `Sütun ${key}`;
+
+            // Build filter text representation
+            let ruleTexts = [];
+            config.rules.forEach(rule => {
+                if (!rule.value && rule.value !== 0) return;
+                let valStr = String(rule.value).trim();
+
+                // Formatting Durum & Cinsiyet values
+                if (colName.includes('Durum') || colName.includes('Cinsiyet')) {
+                    const lower = valStr.toLowerCase();
+                    if (lower === 'aktif') valStr = 'Aktif';
+                    else if (lower === 'pasif') valStr = 'Pasif';
+                    else if (lower === 'dilekce_alindi' || lower === 'dilekçe alındı') valStr = 'Dilekçe Alındı';
+                    else if (lower === 'kadroya_gecti' || lower === 'kadroya geçti') valStr = 'Kadroya Geçti';
+                    else if (lower === 'kadroya_gecmeyecek' || lower === 'kadroya geçmeyecek') valStr = 'Kadroya Geçmeyecek';
+                    else if (lower === 'kadin' || lower === 'kadın') valStr = 'Kadın';
+                    else if (lower === 'erkek') valStr = 'Erkek';
+                }
+
+                let opText = '';
+                if (rule.operator === 'contains') opText = (colName.includes('Durum') || colName.includes('Cinsiyet')) ? '' : 'İçerir ';
+                else if (rule.operator === 'equals') opText = (colName.includes('Durum') || colName.includes('Cinsiyet')) ? '' : 'Eşittir ';
+                else if (rule.operator === 'starts') opText = 'İle Başlar ';
+                else if (rule.operator === 'ends') opText = 'İle Biter ';
+                else if (rule.operator === 'gt') opText = '> ';
+                else if (rule.operator === 'lt') opText = '< ';
+                else if (rule.operator === 'gte') opText = '>= ';
+                else if (rule.operator === 'lte') opText = '<= ';
+
+                if (colName.includes('Durum') || colName.includes('Cinsiyet')) {
+                    ruleTexts.push(valStr);
+                } else if (opText.startsWith('>') || opText.startsWith('<') || opText.startsWith('=')) {
+                    ruleTexts.push(`${opText}${valStr}`);
+                } else {
+                    ruleTexts.push(`${opText}"${valStr}"`);
+                }
+            });
+
+            if (ruleTexts.length > 0) {
+                const joinOp = config.match === 'all' ? ' VE ' : ((colName.includes('Durum') || colName.includes('Cinsiyet')) ? ', ' : ' VEYA ');
+                activeFilters.push({
+                    type: 'column',
+                    colIndex: key,
+                    colName: colName,
+                    text: ruleTexts.join(joinOp)
+                });
+            }
         } else {
             $table.find(`th[data-column="${key}"] .column-filter-btn`).removeClass('active');
         }
     }
 
-    const clearBtn = $('#clearAllFilters, button[id*="clearAllFilters"]');
-    if (clearBtn.length > 0) {
-        if (!hasFilter) {
-            clearBtn.hide();
-        } else {
-            clearBtn.css('display', 'inline-flex');
-        }
+    // Container element
+    let $bar = $('#active-filters-bar');
+    if ($bar.length === 0) {
+        $bar = $(`
+            <div id="active-filters-bar" class="hidden border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-zinc-800/50 px-4 py-2.5 flex items-center justify-between gap-3 text-xs shrink-0 transition-all">
+                <div class="flex items-center gap-2 flex-wrap" id="active-filter-badges"></div>
+                <button type="button" id="clearAllFilters" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs font-medium hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50 transition-all shadow-sm whitespace-nowrap cursor-pointer ml-auto">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                    Filtreleri temizle
+                </button>
+            </div>
+        `);
+        $table.before($bar);
+    }
+
+    const $badgesContainer = $bar.find('#active-filter-badges');
+
+    if (activeFilters.length === 0) {
+        $bar.addClass('hidden').removeClass('flex');
+        $badgesContainer.empty();
+    } else {
+        $bar.removeClass('hidden').addClass('flex');
+        
+        let html = `
+            <span class="inline-flex items-center gap-1.5 text-zinc-500 dark:text-zinc-400 font-semibold text-xs mr-1 select-none">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-400"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                Aktif Filtreler:
+            </span>
+        `;
+
+        activeFilters.forEach(item => {
+            const escapedText = item.text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+            const escapedCol = item.colName.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+            const colArg = item.colIndex !== undefined ? `'${item.colIndex}'` : 'null';
+
+            html += `
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/50 shadow-2xs transition-all">
+                    <span class="font-semibold text-indigo-900 dark:text-indigo-200">${escapedCol}:</span>
+                    <span>${escapedText}</span>
+                    <button type="button" onclick="removeSingleFilter('${item.type}', ${colArg})" class="p-0.5 rounded-full hover:bg-indigo-200/60 dark:hover:bg-indigo-800/60 text-indigo-500 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-100 transition-colors cursor-pointer" title="Filtreyi Kaldır">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </span>
+            `;
+        });
+
+        $badgesContainer.html(html);
     }
 }
 

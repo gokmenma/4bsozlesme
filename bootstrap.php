@@ -61,6 +61,29 @@ if (isset($page) && $page !== '/mobile' && !isStandaloneRoute($page) && !$isPost
     }
 }
 
+// Beni Hatırla (Remember Me) çerezi kontrolü
+if (!isset($_SESSION['user_id']) && !empty($_COOKIE['remember_token'])) {
+    $parts = explode(':', $_COOKIE['remember_token'], 2);
+    if (count($parts) === 2) {
+        $rUserId = (int)$parts[0];
+        $rToken = $parts[1];
+        if ($rUserId > 0 && !empty($rToken)) {
+            $userModel = new User();
+            $user = $userModel->findByRememberToken($rUserId, $rToken);
+            if ($user) {
+                session_regenerate_id(true);
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_name'] = $user['name'];
+                $_SESSION['user_username'] = !empty($user['username']) ? $user['username'] : explode('@', $user['email'])[0];
+                $_SESSION['user_email'] = $user['email'];
+                $_SESSION['role'] = $user['role'];
+                $_SESSION['role_id'] = $user['role_id'] ?? null;
+                $_SESSION['tenant_id'] = $user['tenant_id'];
+            }
+        }
+    }
+}
+
 // Eğer kullanıcı giriş yapmamışsa
 if (!isset($_SESSION['user_id'])) {
     if (isset($page) && PHP_SAPI !== 'cli') {
@@ -101,14 +124,16 @@ if (!isset($_SESSION['user_id'])) {
     }
 }
 
-// Active Subscription & Trial Enforcement
+// Active Subscription & Trial Enforcement and Role Page Permissions
 if (isset($_SESSION['user_id']) && isset($page)) {
-    $uStmt = $db->prepare("SELECT role, tenant_id, trial_ends_at FROM users WHERE id = ?");
+    $uStmt = $db->prepare("SELECT role, role_id, tenant_id, trial_ends_at FROM users WHERE id = ?");
     $uStmt->execute([$_SESSION['user_id']]);
     $uData = $uStmt->fetch();
 
     if ($uData) {
         $userRole = $uData['role'] ?? 'user';
+        $userRoleId = $uData['role_id'] ?? null;
+        $_SESSION['role_id'] = $userRoleId;
         
         // Superadmin and allowed routes are NEVER blocked
         $allowedPages = ['/profil', '/logout', '/abonelik-satinal', '/abonelik-sil', '/abonelik-reddet', '/profil-guncelle', '/sifre-degistir'];
@@ -143,6 +168,25 @@ if (isset($_SESSION['user_id']) && isset($page)) {
                 $_SESSION['subscription_error'] = 'Sistemi kullanabilmek için aktif bir aboneliğinizin veya deneme sürenizin olması gerekmektedir. Lütfen aşağıdaki paketlerden birini seçerek aboneliğinizi başlatın.';
                 
                 header("Location: " . routeUrl('/profil'));
+                exit;
+            }
+
+            // --- Sayfa Bazlı Yetki Kontrolü (Role Permission Enforcement) ---
+            $rolePermissionModel = new RolePermission();
+            if (!$rolePermissionModel->hasAccess($userRoleId, $page, $userRole)) {
+                if ((isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') || ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+                    http_response_code(403);
+                    header('Content-Type: application/json; charset=utf-8');
+                    echo json_encode([
+                        'success' => false,
+                        'error' => 'forbidden',
+                        'message' => 'Bu sayfaya veya işleme erişim yetkiniz bulunmamaktadır.'
+                    ]);
+                    exit;
+                }
+
+                $_SESSION['permission_error'] = 'Bu sayfaya erişim yetkiniz bulunmamaktadır.';
+                header("Location: " . routeUrl('/'));
                 exit;
             }
         }

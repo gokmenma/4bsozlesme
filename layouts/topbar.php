@@ -121,7 +121,8 @@ if (!function_exists('fbTimeAgo')) {
           <path d="M14.5 4.1a5 5 0 0 0-7 4.6c0 1.8-.6 3.4-1.7 4.8L4 16h16l-1.8-2.5a7.8 7.8 0 0 1-1.7-4.8 5 5 0 0 0-2-4.6Z" />
         </svg>
         <span id="notif-badge"
-          class="absolute -right-1 -top-1 inline-flex min-w-[18px] h-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white <?php echo $notifUnread > 0 ? '' : 'hidden'; ?>">
+          class="absolute -right-1 -top-1 inline-flex min-w-[18px] h-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white <?php echo $notifUnread > 0 ? '' : 'hidden'; ?>"
+          <?php if ($notifUnread <= 0): ?>style="display:none"<?php endif; ?>>
           <?php echo $notifUnread > 9 ? '9+' : (int)$notifUnread; ?>
         </span>
       </summary>
@@ -190,8 +191,10 @@ if (!function_exists('fbTimeAgo')) {
       if (count > 0) {
         badge.textContent = count > 9 ? '9+' : count;
         badge.classList.remove('hidden');
+        badge.style.display = '';
       } else {
         badge.classList.add('hidden');
+        badge.style.display = 'none';
         if (markAllBtn) markAllBtn.classList.add('hidden');
       }
     }

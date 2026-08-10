@@ -1,10 +1,15 @@
 <?php 
 $pageTitle = 'Kullanıcı Yönetimi'; 
 $pageSubtitle = 'Sistemdeki tüm kullanıcıların listesi ve yönetimi';
-$isAdmin = $_SESSION['role'] === 'admin';
-$isSuperAdmin = $_SESSION['role'] === 'superadmin';
+$isAdmin = ($_SESSION['role'] ?? '') === 'admin';
+$isSuperAdmin = ($_SESSION['role'] ?? '') === 'superadmin';
 $isDeveloper = isset($_SESSION['user_id']) && $_SESSION['user_id'] == 1;
 $viewType = $viewType ?? $_GET['view_type'] ?? 'mine';
+
+if (!isset($rolesList)) {
+    $roleModel = new Role();
+    $rolesList = $roleModel->getAllForTenant($_SESSION['tenant_id'] ?? null);
+}
 ?>
 
 <div class="p-6">
@@ -50,6 +55,7 @@ $viewType = $viewType ?? $_GET['view_type'] ?? 'mine';
                 <thead>
                     <tr>
                         <th>Ad Soyad</th>
+                        <th>Kullanıcı Adı</th>
                         <th>E-posta</th>
                         <th>Rol</th>
                         <th>Kurum</th>
@@ -76,6 +82,9 @@ $viewType = $viewType ?? $_GET['view_type'] ?? 'mine';
                                     <span class="group-hover/name:underline underline-offset-4 decoration-primary/50"><?php echo htmlspecialchars($u['name']); ?></span>
                                 </button>
                             </td>
+                            <td class="text-zinc-600 dark:text-zinc-400 font-mono text-xs">
+                                @<?php echo htmlspecialchars(!empty($u['username']) ? $u['username'] : explode('@', $u['email'])[0], ENT_QUOTES, 'UTF-8'); ?>
+                            </td>
                             <td class="text-zinc-600 dark:text-zinc-400"><?php echo htmlspecialchars($u['email']); ?></td>
                             <td>
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border <?php 
@@ -83,7 +92,7 @@ $viewType = $viewType ?? $_GET['view_type'] ?? 'mine';
                                         ($u['role'] === 'admin' ? 'border-blue-100 dark:border-blue-900/30 text-blue-700 dark:text-blue-400' : 
                                         'border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400'); 
                                 ?>">
-                                    <?php echo ucfirst($u['role']); ?>
+                                    <?php echo htmlspecialchars($u['role_group_name'] ?? ucfirst($u['role']), ENT_QUOTES, 'UTF-8'); ?>
                                 </span>
                             </td>
                             <td class="text-zinc-600 dark:text-zinc-400">
@@ -191,6 +200,10 @@ $viewType = $viewType ?? $_GET['view_type'] ?? 'mine';
             <input type="text" name="name" id="name" required placeholder="Kullanıcının tam adı" />
         </div>
         <div class="grid gap-2">
+            <label for="username">Kullanıcı Adı <span class="text-xs text-zinc-400 font-normal">(Boş bırakılırsa e-postanın @ öncesi kullanılır)</span></label>
+            <input type="text" name="username" id="username" placeholder="Örn: ahmet.yildiz" />
+        </div>
+        <div class="grid gap-2">
             <label for="email">E-posta</label>
             <input type="email" name="email" id="email" required placeholder="E-posta adresi" />
         </div>
@@ -199,30 +212,24 @@ $viewType = $viewType ?? $_GET['view_type'] ?? 'mine';
             <input type="password" name="password" id="password" required placeholder="En az 6 karakter" />
         </div>
         <div class="grid gap-2">
-            <label for="role">Rol</label>
-            <div id="select-role-add" class="app-select w-full">
-              <button type="button" class="btn-outline w-full justify-between" id="select-role-add-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="select-role-add-listbox" onclick="toggleRoleSelect(this, event)">
-                <span class="truncate">User</span>
+            <label for="select-role-group-add">Yetki Grubu</label>
+            <div id="select-role-group-add" class="app-select w-full">
+              <button type="button" class="btn-outline w-full justify-between" id="select-role-group-add-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="select-role-group-add-listbox" onclick="toggleRoleSelect(this, event)">
+                <span class="truncate"><?php echo htmlspecialchars($rolesList[0]['name'] ?? 'Standart Kullanıcı', ENT_QUOTES, 'UTF-8'); ?></span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevrons-up-down-icon lucide-chevrons-up-down text-muted-foreground opacity-50 shrink-0">
                   <path d="m7 15 5 5 5-5" /><path d="m7 9 5-5 5 5" />
                 </svg>
               </button>
-              <div id="select-role-add-popover" data-popover data-custom-popover aria-hidden="true" class="w-full">
-                <div role="listbox" id="select-role-add-listbox" class="p-1">
-                    <div role="option" data-value="user" onclick="selectRoleOption(this, 'select-role-add')" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded cursor-pointer text-sm flex items-center justify-between">
-                        <span>User</span>
-                    </div>
-                    <div role="option" data-value="admin" onclick="selectRoleOption(this, 'select-role-add')" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded cursor-pointer text-sm flex items-center justify-between">
-                        <span>Admin</span>
-                    </div>
-                    <?php if ($isDeveloper): ?>
-                    <div role="option" data-value="superadmin" onclick="selectRoleOption(this, 'select-role-add')" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded cursor-pointer text-sm flex items-center justify-between">
-                        <span>Superadmin</span>
-                    </div>
-                    <?php endif; ?>
+              <div id="select-role-group-add-popover" data-popover data-custom-popover aria-hidden="true" class="w-full">
+                <div role="listbox" id="select-role-group-add-listbox" class="p-1">
+                    <?php foreach ($rolesList as $r): ?>
+                        <div role="option" data-value="<?php echo $r['id']; ?>" onclick="selectRoleOption(this, 'select-role-group-add')" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded cursor-pointer text-sm flex items-center justify-between">
+                            <span><?php echo htmlspecialchars($r['name'], ENT_QUOTES, 'UTF-8'); ?></span>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
               </div>
-              <input type="hidden" name="role" value="user" />
+              <input type="hidden" name="role_id" value="<?php echo $rolesList[0]['id'] ?? 4; ?>" />
             </div>
         </div>
         <?php if ($isSuperAdmin): ?>
@@ -259,6 +266,10 @@ $viewType = $viewType ?? $_GET['view_type'] ?? 'mine';
             <input type="text" name="name" id="edit_name" required />
         </div>
         <div class="grid gap-2">
+            <label for="edit_username">Kullanıcı Adı <span class="text-xs text-zinc-400 font-normal">(Boş bırakılırsa e-postanın @ öncesi kullanılır)</span></label>
+            <input type="text" name="username" id="edit_username" placeholder="Kullanıcı adı" />
+        </div>
+        <div class="grid gap-2">
             <label for="edit_email">E-posta</label>
             <input type="email" name="email" id="edit_email" required />
         </div>
@@ -267,30 +278,24 @@ $viewType = $viewType ?? $_GET['view_type'] ?? 'mine';
             <input type="password" name="password" id="edit_password" placeholder="Yeni şifre (opsiyonel)" />
         </div>
         <div class="grid gap-2">
-            <label for="edit_role">Rol</label>
-            <div id="select-role-edit" class="app-select w-full">
-              <button type="button" class="btn-outline w-full justify-between" id="select-role-edit-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="select-role-edit-listbox" onclick="toggleRoleSelect(this, event)">
-                <span class="truncate">User</span>
+            <label for="select-role-group-edit">Yetki Grubu</label>
+            <div id="select-role-group-edit" class="app-select w-full">
+              <button type="button" class="btn-outline w-full justify-between" id="select-role-group-edit-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="select-role-group-edit-listbox" onclick="toggleRoleSelect(this, event)">
+                <span class="truncate">Standart Kullanıcı</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevrons-up-down-icon lucide-chevrons-up-down text-muted-foreground opacity-50 shrink-0">
                   <path d="m7 15 5 5 5-5" /><path d="m7 9 5-5 5 5" />
                 </svg>
               </button>
-              <div id="select-role-edit-popover" data-popover data-custom-popover aria-hidden="true" class="w-full">
-                <div role="listbox" id="select-role-edit-listbox" class="p-1">
-                    <div role="option" data-value="user" onclick="selectRoleOption(this, 'select-role-edit')" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded cursor-pointer text-sm flex items-center justify-between">
-                        <span>User</span>
-                    </div>
-                    <div role="option" data-value="admin" onclick="selectRoleOption(this, 'select-role-edit')" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded cursor-pointer text-sm flex items-center justify-between">
-                        <span>Admin</span>
-                    </div>
-                    <?php if ($isDeveloper): ?>
-                    <div role="option" data-value="superadmin" onclick="selectRoleOption(this, 'select-role-edit')" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded cursor-pointer text-sm flex items-center justify-between">
-                        <span>Superadmin</span>
-                    </div>
-                    <?php endif; ?>
+              <div id="select-role-group-edit-popover" data-popover data-custom-popover aria-hidden="true" class="w-full">
+                <div role="listbox" id="select-role-group-edit-listbox" class="p-1">
+                    <?php foreach ($rolesList as $r): ?>
+                        <div role="option" data-value="<?php echo $r['id']; ?>" onclick="selectRoleOption(this, 'select-role-group-edit')" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded cursor-pointer text-sm flex items-center justify-between">
+                            <span><?php echo htmlspecialchars($r['name'], ENT_QUOTES, 'UTF-8'); ?></span>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
               </div>
-              <input type="hidden" name="role" value="user" />
+              <input type="hidden" name="role_id" id="edit_role_id" value="4" />
             </div>
         </div>
         <?php if ($isSuperAdmin): ?>
@@ -457,6 +462,7 @@ function editUser(id) {
             }
             $('#edit_user_id').val(data.id);
             $('#edit_name').val(data.name);
+            $('#edit_username').val(data.username || (data.email ? data.email.split('@')[0] : ''));
             $('#edit_email').val(data.email);
             
             if (data.trial_ends_at) {
@@ -475,10 +481,17 @@ function editUser(id) {
                 }
             }
             
-            // Custom select update for role
-            const roleName = data.role.charAt(0).toUpperCase() + data.role.slice(1);
-            $('#select-role-edit input[type="hidden"]').val(data.role);
-            $('#select-role-edit-trigger span.truncate').text(roleName);
+            // Custom select update for Yetki Grubu (role_id)
+            const roleId = data.role_id || 4;
+            const $option = $('#select-role-group-edit-listbox [data-value="' + roleId + '"]');
+            let groupTitle = 'Standart Kullanıcı';
+            if ($option.length) {
+                groupTitle = $option.find('span').text().trim();
+            } else if (data.role_name) {
+                groupTitle = data.role_name;
+            }
+            $('#edit_role_id').val(roleId);
+            $('#select-role-group-edit-trigger span.truncate').text(groupTitle);
             
             $('#edit_password').val('');
             document.getElementById('dialog-edit-user').showModal();

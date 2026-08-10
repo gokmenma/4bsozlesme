@@ -79,6 +79,7 @@ function appRoutes(): array
         '/yapilacaklar'          => ['c' => 'KanbanController',        'a' => 'index', 'view' => 'app/pages/kanban.php'],
         '/geri-bildirimler'      => ['c' => 'FeedbackController',      'a' => 'adminIndex', 'view' => 'app/pages/admin/feedbacks.php'],
         '/sendika-uye-islemleri' => ['c' => 'SendikaController',      'a' => 'index', 'view' => 'app/pages/toplu-islemler/sendika-uye-islemleri.php'],
+        '/yetki-gruplari'        => ['c' => 'RoleController',         'a' => 'index', 'view' => 'app/pages/admin/roles.php'],
 
         // --- Kendi çıktısını üreten sayfa (layout ile sarmalanır, view yok) ---
         '/matrah-yonetimi'       => ['c' => 'MatrahController', 'a' => 'index'],
@@ -181,6 +182,13 @@ function appRoutes(): array
         // --- Bildirim API ---
         '/bildirim-okundu'             => ['c' => 'NotificationController', 'a' => 'markRead',    'm' => 'POST', 'api' => true, 'exit' => true],
         '/bildirim-tumu-okundu'        => ['c' => 'NotificationController', 'a' => 'markAllRead', 'm' => 'POST', 'api' => true, 'exit' => true],
+
+        // --- Yetki Grupları API ---
+        '/yetki-grubu-ekle'            => ['c' => 'RoleController', 'a' => 'store',            'm' => 'POST', 'api' => true, 'exit' => true],
+        '/yetki-grubu-guncelle'        => ['c' => 'RoleController', 'a' => 'update',           'm' => 'POST', 'api' => true, 'exit' => true],
+        '/yetki-grubu-sil'             => ['c' => 'RoleController', 'a' => 'delete',           'm' => 'POST', 'api' => true, 'exit' => true],
+        '/yetki-izinleri-getir'        => ['c' => 'RoleController', 'a' => 'getPermissions',   'api' => true, 'exit' => true],
+        '/yetki-izinleri-kaydet'       => ['c' => 'RoleController', 'a' => 'savePermissions',  'm' => 'POST', 'api' => true, 'exit' => true],
     ];
 
     return $routes;
@@ -230,6 +238,15 @@ function logoutUser(): void
         session_start();
     }
 
+    if (!empty($_SESSION['user_id'])) {
+        try {
+            $userModel = new User();
+            $userModel->updateRememberToken($_SESSION['user_id'], null);
+        } catch (Exception $e) {
+            error_log("Logout remember_token error: " . $e->getMessage());
+        }
+    }
+
     $_SESSION = [];
 
     if (ini_get('session.use_cookies')) {
@@ -244,6 +261,12 @@ function logoutUser(): void
             $params['httponly'] ?? true
         );
     }
+
+    setcookie('remember_token', '', [
+        'expires' => time() - 3600,
+        'path' => '/',
+        'httponly' => true
+    ]);
 
     session_destroy();
 }

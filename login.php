@@ -1,22 +1,76 @@
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['username'] ?? ''; // Kullanıcı adı olarak email kullanıyoruz
+    $usernameInput = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
 
     $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
-    if (!empty($email) && !empty($password)) {
+    if (!empty($usernameInput) && !empty($password)) {
         $userModel = new User();
-        // findByUsername aslında email ile arama yapacak şekilde güncellenmeli veya modelde yeni method eklenmeli
-        // Mevcut User modeline baktığımızda findByUsername var. Onu kullanalım.
-        $user = $userModel->findByUsername($email);
+        $user = $userModel->findByUsername($usernameInput);
 
         if ($user && password_verify($password, $user['password'])) {
+            session_regenerate_id(true);
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['name'];
+            $_SESSION['user_username'] = !empty($user['username']) ? $user['username'] : explode('@', $user['email'])[0];
             $_SESSION['user_email'] = $user['email'];
             $_SESSION['role'] = $user['role'];
-            $_SESSION['tenant_id'] = $user['tenant_id'];
+            $_SESSION['role_id'] = $user['role_id'] ?? null;
+            $activeTenantId = $user['tenant_id'];
+            if (!empty($activeTenantId)) {
+                $tCheck = $userModel->getDb()->prepare("SELECT id FROM tenants WHERE id = ?");
+                $tCheck->execute([$activeTenantId]);
+                if (!$tCheck->fetch()) {
+                    $activeTenantId = null;
+                }
+            }
+            if (empty($activeTenantId)) {
+                $userTenants = $userModel->getTenants($user['id']);
+                if (!empty($userTenants)) {
+                    $activeTenantId = $userTenants[0]['id'];
+                } else {
+                    $firstTenant = $userModel->getDb()->query("SELECT id FROM tenants ORDER BY id ASC LIMIT 1")->fetch();
+                    $activeTenantId = $firstTenant['id'] ?? null;
+                }
+                if ($activeTenantId) {
+                    $userModel->update($user['id'], ['tenant_id' => $activeTenantId]);
+                }
+            }
+            $_SESSION['tenant_id'] = $activeTenantId;
+
+            // Beni Hatırla (Remember Me) İşlemleri
+            $remember = !empty($_POST['remember']);
+            $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+            if ($remember) {
+                $rememberToken = bin2hex(random_bytes(32));
+                $userModel->updateRememberToken($user['id'], $rememberToken);
+                setcookie('remember_token', $user['id'] . ':' . $rememberToken, [
+                    'expires' => time() + (30 * 86400),
+                    'path' => '/',
+                    'secure' => $isSecure,
+                    'httponly' => true,
+                    'samesite' => 'Lax'
+                ]);
+                setcookie('remember_user', $usernameInput, [
+                    'expires' => time() + (30 * 86400),
+                    'path' => '/',
+                    'secure' => $isSecure,
+                    'httponly' => false,
+                    'samesite' => 'Lax'
+                ]);
+            } else {
+                $userModel->updateRememberToken($user['id'], null);
+                setcookie('remember_token', '', [
+                    'expires' => time() - 3600,
+                    'path' => '/',
+                    'httponly' => true
+                ]);
+                setcookie('remember_user', '', [
+                    'expires' => time() - 3600,
+                    'path' => '/'
+                ]);
+            }
             
             if ($isAjax) {
                 header('Content-Type: application/json');
@@ -27,10 +81,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header("Location: " . routeUrl('/'));
             exit;
         } else {
-            $error = "Hatalı e-posta veya parola.";
+            $error = "Hatalı e-posta / kullanıcı adı veya parola.";
         }
     } else {
-        $error = "Lütfen e-posta ve parola girin.";
+        $error = "Lütfen e-posta / kullanıcı adı ve parola girin.";
     }
 
     if ($isAjax) {
@@ -52,6 +106,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet">
+    <!-- Basecoat UI -->
+    <link rel="stylesheet" href="https://unpkg.com/basecoat-css@0.3.11/dist/basecoat.cdn.min.css">
+    <script src="https://unpkg.com/basecoat-css@0.3.11/dist/js/all.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="<?php echo routeUrl('/assets/css/app.css'); ?>">
     <style>
@@ -109,7 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-zinc-400 dark:text-zinc-500 group-focus-within:text-zinc-900 dark:group-focus-within:text-zinc-100 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                         </span>
-                        <input class="w-full pl-10 pr-4 py-2.5 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-sm placeholder:text-zinc-400 focus:outline-none focus:border-zinc-950 dark:focus:border-zinc-100 focus:ring-1 focus:ring-zinc-950/20 rounded-xl transition-all duration-200" type="text" id="username" name="username" placeholder="kullanici@firma.com" required>
+                        <input class="w-full pl-10 pr-4 py-2.5 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-sm placeholder:text-zinc-400 focus:outline-none focus:border-zinc-950 dark:focus:border-zinc-100 focus:ring-1 focus:ring-zinc-950/20 rounded-xl transition-all duration-200" type="text" id="username" name="username" value="<?php echo htmlspecialchars($_COOKIE['remember_user'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="kullanici@firma.com" required>
                     </div>
                 </div>
 
@@ -130,10 +187,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <!-- Remember Me & Forgot Password -->
                 <div class="flex items-center justify-between pt-1">
-                    <label class="flex items-center gap-2 cursor-pointer select-none">
-                        <input type="checkbox" name="remember" class="w-4.5 h-4.5 border-zinc-200 dark:border-zinc-800 rounded bg-white dark:bg-zinc-900 text-zinc-900 focus:ring-zinc-950/20">
-                        <span class="text-xs text-zinc-550 dark:text-zinc-400 font-medium">Beni Hatırla</span>
-                    </label>
+                    <div role="group" class="fieldset">
+                      <div role="group" class="field cursor-pointer" data-orientation="horizontal">
+                        <input type="checkbox" id="remember" name="remember" class="input cursor-pointer" <?php echo (!empty($_COOKIE['remember_user']) || !empty($_COOKIE['remember_token'])) ? 'checked' : ''; ?> />
+                        <label for="remember" class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer select-none">Beni Hatırla</label>
+                      </div>
+                    </div>
                     <a href="#" class="text-xs font-medium text-zinc-900 dark:text-zinc-100 hover:underline">Şifremi Unuttum</a>
                 </div>
 
