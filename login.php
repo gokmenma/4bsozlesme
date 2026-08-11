@@ -2,6 +2,8 @@
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $usernameInput = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
+    $isMobileLogin = ($_POST['login_context'] ?? '') === 'mobile';
+    $loginRedirect = $isMobileLogin ? routeUrl('/mobile') : routeUrl('/');
 
     $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
 
@@ -74,11 +76,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             if ($isAjax) {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => true, 'redirect' => routeUrl('/')]);
+                echo json_encode(['success' => true, 'redirect' => $loginRedirect]);
                 exit;
             }
             
-            header("Location: " . routeUrl('/'));
+            header("Location: " . $loginRedirect);
             exit;
         } else {
             $error = "Hatalı e-posta / kullanıcı adı veya parola.";

@@ -198,6 +198,7 @@ if ($isLoggedIn) {
                         
                         <!-- Login Form -->
                         <form id="mobileLoginForm" method="POST" action="<?= routeUrl('/login') ?>" class="space-y-4">
+                            <input type="hidden" name="login_context" value="mobile">
                             <!-- Username / Email -->
                             <div class="space-y-1.5">
                                 <label class="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider" for="username">Kullanıcı Adı</label>
@@ -205,7 +206,7 @@ if ($isLoggedIn) {
                                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-400 dark:text-zinc-500 group-focus-within:text-zinc-900 dark:group-focus-within:text-zinc-150 transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                                     </span>
-                                    <input class="w-full pl-10 pr-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900 text-sm font-medium text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-450 focus:outline-none transition-all duration-200 shadow-sm" type="text" id="username" name="username" placeholder="Kullanıcı adınızı girin" required>
+                                    <input class="w-full pl-10 pr-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900 text-sm font-medium text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-450 focus:outline-none transition-all duration-200 shadow-sm" type="text" id="username" name="username" value="<?= htmlspecialchars($_COOKIE['remember_user'] ?? '', ENT_QUOTES, 'UTF-8') ?>" placeholder="Kullanıcı adınızı girin" autocomplete="username" required>
                                 </div>
                             </div>
 
@@ -216,12 +217,19 @@ if ($isLoggedIn) {
                                     <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-400 dark:text-zinc-500 group-focus-within:text-zinc-900 dark:group-focus-within:text-zinc-150 transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                                     </span>
-                                    <input class="w-full pl-10 pr-10 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900 py-2 text-sm font-medium text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-455 focus:outline-none transition-all duration-200 shadow-sm" type="password" id="password" name="password" placeholder="Parolanızı girin" required>
+                                    <input class="w-full pl-10 pr-10 border border-zinc-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900 py-2 text-sm font-medium text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-455 focus:outline-none transition-all duration-200 shadow-sm" type="password" id="password" name="password" placeholder="Parolanızı girin" autocomplete="current-password" required>
                                     <button type="button" id="toggleMobilePassword" class="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-400 dark:text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors cursor-pointer focus:outline-none">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z"/><circle cx="12" cy="12" r="3"/></svg>
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="eye-off-icon hidden"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
                                     </button>
                                 </div>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-0.5">
+                                <label for="remember" class="inline-flex items-center gap-2 text-xs font-semibold text-zinc-700 dark:text-zinc-300 cursor-pointer select-none">
+                                    <input type="checkbox" id="remember" name="remember" value="1" class="size-4 rounded border-zinc-300 dark:border-zinc-700 accent-zinc-900 dark:accent-zinc-100 cursor-pointer" <?= (!empty($_COOKIE['remember_user']) || !empty($_COOKIE['remember_token'])) ? 'checked' : '' ?>>
+                                    <span>Beni Hatırla</span>
+                                </label>
                             </div>
                             
                             <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-zinc-900 dark:bg-zinc-50 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-semibold text-xs tracking-wide uppercase transition-all duration-200 shadow-sm active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2 group mt-2">
@@ -3253,7 +3261,7 @@ if ($isLoggedIn) {
                         if (result.success) {
                             showToast("Giriş başarılı! Yönlendiriliyorsunuz...", "success");
                             setTimeout(() => {
-                                window.location.href = result.redirect || 'index.php';
+                                window.location.replace(result.redirect || '<?= routeUrl('/mobile') ?>');
                             }, 1000);
                         } else {
                             showToast(result.error || "Giriş başarısız.", "error");
@@ -3272,5 +3280,4 @@ if ($isLoggedIn) {
     </script>
 </body>
 </html>
-
 
