@@ -76,7 +76,7 @@ sort($ogrenimler);
     <?php if (empty($personnels)): ?>
         <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-10 rounded-xl text-center space-y-2">
             <p class="text-xs font-bold text-zinc-400">Henüz personel bulunmamaktadır.</p>
-            <button onclick="openEkleSheet()" class="px-4 py-2 bg-zinc-50 hover:bg-zinc-200 rounded-md text-xs font-bold mt-2 text-zinc-950">Personel Ekle</button>
+            <button onclick="openEkleSheet()" class="mobile-add-action px-4 py-2 rounded-md text-xs font-bold mt-2">Personel Ekle</button>
         </div>
     <?php else: ?>
         <div id="personnel-list-wrapper">
@@ -210,7 +210,7 @@ sort($ogrenimler);
     <?php endif; ?>
 
     <!-- Floating Action Button -->
-    <button onclick="openEkleSheet()" class="fixed bottom-24 right-6 w-14 h-14 rounded-full bg-zinc-900 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-950 shadow-lg border border-zinc-200 dark:border-zinc-800 flex items-center justify-center active:scale-95 transition-all cursor-pointer z-40">
+    <button onclick="openEkleSheet()" class="mobile-add-action fixed bottom-24 right-6 w-14 h-14 rounded-full shadow-lg border flex items-center justify-center active:scale-95 transition-transform cursor-pointer z-40">
         <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M5 12h14m-7-7v14"/></svg>
     </button>
 </div>

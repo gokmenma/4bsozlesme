@@ -150,7 +150,7 @@ if (!function_exists('getVal')) {
 
         <!-- Secure Logout Button -->
         <div class="space-y-3">
-            <a href="<?= routeUrl('/logout') ?>" class="w-full py-4 bg-rose-500/10 dark:bg-rose-550/5 border border-rose-500/20 dark:border-rose-900/20 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 active:scale-[0.97] transition-all rounded-xl text-center font-bold text-xs flex items-center justify-center gap-2 cursor-pointer select-none">
+            <a href="<?= routeUrl('/logout?context=mobile') ?>" class="w-full py-4 bg-rose-500/10 dark:bg-rose-550/5 border border-rose-500/20 dark:border-rose-900/20 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 active:scale-[0.97] transition-all rounded-xl text-center font-bold text-xs flex items-center justify-center gap-2 cursor-pointer select-none">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4m11 9H9m7-4 4 4-4 4"/></svg>
                 Güvenli Çıkış Yap
             </a>
@@ -750,7 +750,7 @@ function cancelSubscriptionPurchase(id, planName) {
                 if (data.success) {
                     showToast('Hesabınız başarıyla silindi. Yönlendiriliyorsunuz...', 'success');
                     setTimeout(() => {
-                        window.location.href = '<?= routeUrl("/logout") ?>';
+                        window.location.href = '<?= routeUrl("/logout?context=mobile") ?>';
                     }, 1500);
                 } else {
                     showToast(data.message || 'Hesap silinemedi.', 'error');

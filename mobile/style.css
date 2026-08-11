@@ -33,6 +33,14 @@ html, body {
     font-size: 0.875rem !important;
 }
 
+/* Tema değişiminde yüzlerce öğenin ayrı ayrı animasyona girmesini engeller. */
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+    transition: none !important;
+    animation-duration: 0s !important;
+}
+
 .dark {
     --background: 0 0% 4%; /* #0A0A0A pure black/dark gray base */
     --foreground: 0 0% 98%;
@@ -176,6 +184,42 @@ html, body {
     .screen-content {
         border-radius: 0 !important;
     }
+}
+
+/* Yatay tabletler 1023px'i aşabilir; dokunmatik cihaz yine gerçek mobil kabuk kullanır. */
+@media (hover: none) and (pointer: coarse) {
+    .desktop-bg {
+        background: none !important;
+        padding: 0 !important;
+        min-height: 100% !important;
+    }
+    .phone-frame {
+        width: 100% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        border-radius: 0 !important;
+        border: none !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+    }
+    .notch {
+        display: none !important;
+    }
+    .screen-content {
+        border-radius: 0 !important;
+    }
+}
+
+/* Dinamik yüklenen sayfalardaki ana ekleme aksiyonları için sabit kontrast. */
+.mobile-add-action {
+    background: #18181b !important;
+    color: #fafafa !important;
+    border-color: #3f3f46 !important;
+}
+.dark .mobile-add-action {
+    background: #fafafa !important;
+    color: #18181b !important;
+    border-color: #d4d4d8 !important;
 }
 
 /* Shadcn Cards */
@@ -765,5 +809,4 @@ button,
 .rounded-3xl {
     border-radius: 24px !important; /* 2Xl: 24px as per design system image */
 }
-
 

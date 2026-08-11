@@ -100,7 +100,7 @@ if ($isLoggedIn) {
     <link rel="icon" href="<?php echo routeUrl('/assets/images/favicon.svg'); ?>" type="image/svg+xml">
 
     <!-- Theme Init -->
-    <script src="<?php echo routeUrl('/assets/js/theme.js'); ?>"></script>
+    <script src="<?php echo routeUrl('/assets/js/theme.js'); ?>?v=<?php echo filemtime(__DIR__ . '/../assets/js/theme.js'); ?>"></script>
     
     <!-- Premium Google Fonts: Inter, Geist & Fira Code -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -337,7 +337,7 @@ if ($isLoggedIn) {
                                     <p class="text-[10px] text-zinc-400 dark:text-zinc-505 font-extrabold uppercase tracking-wider mt-0.5"><?= htmlspecialchars($activeTenantName) ?></p>
                                     <p class="text-[9px] text-zinc-500 dark:text-zinc-400 tracking-tight mt-0.5"><?= htmlspecialchars($_SESSION['user_email']) ?></p>
                                 </div>
-                                <a href="<?= routeUrl('/cikis') ?>" class="w-9 h-9 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 flex items-center justify-center text-rose-500 active:scale-95 transition-all cursor-pointer shadow-sm" title="Çıkış Yap">
+                                <a href="<?= routeUrl('/logout?context=mobile') ?>" class="w-9 h-9 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 flex items-center justify-center text-rose-500 active:scale-95 transition-all cursor-pointer shadow-sm" title="Çıkış Yap">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4m7 14 5-5-5-5m5 5H9"/></svg>
                                 </a>
                             </div>
@@ -1658,13 +1658,8 @@ if ($isLoggedIn) {
 
         // Inline Theme Toggle Helper
         function toggleTheme() {
-            const html = document.documentElement;
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-            } else {
-                html.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
+            if (typeof window.toggleAppTheme === 'function') {
+                window.toggleAppTheme();
             }
         }
 
@@ -3280,4 +3275,3 @@ if ($isLoggedIn) {
     </script>
 </body>
 </html>
-

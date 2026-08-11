@@ -343,7 +343,10 @@ function renderRoute(string $page): void
 
     if ($page === '/logout') {
         logoutUser();
-        header('Location: ' . routeUrl('login'));
+        $logoutRedirect = ($_GET['context'] ?? '') === 'mobile'
+            ? routeUrl('/mobile')
+            : routeUrl('/login');
+        header('Location: ' . $logoutRedirect);
         exit;
     }
 
