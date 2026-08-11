@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sozlesme-4b-v2';
+const CACHE_NAME = 'sozlesme-4b-v3';
 const ASSETS_TO_CACHE = [
   'index.php',
   'manifest.json'

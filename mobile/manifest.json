@@ -4,7 +4,6 @@
   "description": "4B Sözleşmeli Personel Sözleşme ve Dilekçe Yönetim Portalı",
   "id": "./",
   "start_url": "./",
-  "display_override": ["fullscreen", "standalone"],
   "display": "standalone",
   "background_color": "#09090b",
   "theme_color": "#09090b",
