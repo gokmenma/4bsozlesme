@@ -2,9 +2,7 @@
 $pageTitle = 'Personeller Listesi'; 
 $pageSubtitle = 'Sistemdeki tüm personellerin detaylı listesi';
 
-$defModel = new Definition();
-$tenant_id = $_SESSION['tenant_id'] ?? 0;
-$tenant_settings = $defModel->getSettings($tenant_id);
+$tenant_settings = $tenant_settings ?? [];
 $custom_petition = $tenant_settings['custom_petition_template'] ?? '';
 ?>
 <script>

@@ -537,9 +537,9 @@ function initDataTable(selector, customOptions = {}) {
         ],
         initComplete: function(settings, json) {
             if (showPreloader) {
-                $(preloaderSelector).fadeOut(300);
-                $('#table-container').fadeIn(300);
-                $table.closest('.overflow-x-auto').fadeIn(300);
+                $(preloaderSelector).hide();
+                $('#table-container').show();
+                $table.closest('.overflow-x-auto').show();
             }
             $table.closest('.dataTables_wrapper').find('.dataTables_length select').each(function() {
                 if (typeof window.convertToCustomSelect === 'function') {
@@ -566,9 +566,9 @@ function initDataTable(selector, customOptions = {}) {
     if (showPreloader) {
         setTimeout(function() {
             if ($(preloaderSelector).is(':visible')) {
-                $(preloaderSelector).fadeOut(300);
-                $('#table-container').fadeIn(300);
-                $table.closest('.overflow-x-auto').fadeIn(300);
+                $(preloaderSelector).hide();
+                $('#table-container').show();
+                $table.closest('.overflow-x-auto').show();
             }
         }, 1500);
     }

@@ -21,7 +21,8 @@ class PersonnelController extends Controller {
 
         return [
             'personnels' => $personnels,
-            'ucretler' => $ucretler
+            'ucretler' => $ucretler,
+            'tenant_settings' => $settings
         ];
     }
 
@@ -865,21 +866,27 @@ class PersonnelController extends Controller {
             $default_period = $settings['default_wage_period'] ?? '2026-1';
             $params[':default_period'] = $default_period;
 
-            $filteredSql = "
-                SELECT COUNT(*) 
-                FROM personeller p 
-                LEFT JOIN ucretler u ON p.ucret_id = u.id 
-                LEFT JOIN ucretler u_def ON u_def.tenant_id = p.tenant_id 
-                                        AND u_def.unvan = u.unvan 
-                                        AND u_def.ogrenim = u.ogrenim 
-                                        AND u_def.kidem_yili = u.kidem_yili
-                                        AND u_def.donem = :default_period
-                                        AND u_def.deleted_at IS NULL
-                WHERE $whereSql
-            ";
-            $filteredStmt = $db->prepare($filteredSql);
-            $filteredStmt->execute($params);
-            $totalRecordsWithFilter = $filteredStmt->fetchColumn();
+            // Filtresiz ilk yüklemede aynı kayıtları ikinci kez saymaya gerek yok.
+            $hasFilters = $searchValue !== '' || !empty($columnFilterState);
+            if ($hasFilters) {
+                $filteredSql = "
+                    SELECT COUNT(*)
+                    FROM personeller p
+                    LEFT JOIN ucretler u ON p.ucret_id = u.id
+                    LEFT JOIN ucretler u_def ON u_def.tenant_id = p.tenant_id
+                                            AND u_def.unvan = u.unvan
+                                            AND u_def.ogrenim = u.ogrenim
+                                            AND u_def.kidem_yili = u.kidem_yili
+                                            AND u_def.donem = :default_period
+                                            AND u_def.deleted_at IS NULL
+                    WHERE $whereSql
+                ";
+                $filteredStmt = $db->prepare($filteredSql);
+                $filteredStmt->execute($params);
+                $totalRecordsWithFilter = $filteredStmt->fetchColumn();
+            } else {
+                $totalRecordsWithFilter = $totalRecords;
+            }
 
             $limitSql = "";
             if ($length != -1) {
@@ -891,8 +898,8 @@ class PersonnelController extends Controller {
                        u.unvan, 
                        COALESCE(u_def.ucret, u.ucret) as ucret, 
                        u.ogrenim,
-                       (SELECT COALESCE(SUM(DATEDIFF(ui.bitis_tarihi, ui.baslangic_tarihi) + 1), 0) FROM ucretsiz_izin ui WHERE ui.personel_id = p.id AND ui.deleted_at IS NULL) as toplam_ucretsiz_izin_gun,
-                       DATE_ADD(DATE_ADD(p.goreve_baslama_tarihi, INTERVAL 3 YEAR), INTERVAL (SELECT COALESCE(SUM(DATEDIFF(ui.bitis_tarihi, ui.baslangic_tarihi) + 1), 0) FROM ucretsiz_izin ui WHERE ui.personel_id = p.id AND ui.deleted_at IS NULL) DAY) as kadroya_gecis_tarihi
+                       COALESCE(izin.toplam_gun, 0) as toplam_ucretsiz_izin_gun,
+                       DATE_ADD(DATE_ADD(p.goreve_baslama_tarihi, INTERVAL 3 YEAR), INTERVAL COALESCE(izin.toplam_gun, 0) DAY) as kadroya_gecis_tarihi
                 FROM personeller p 
                 LEFT JOIN ucretler u ON p.ucret_id = u.id 
                 LEFT JOIN ucretler u_def ON u_def.tenant_id = p.tenant_id 
@@ -901,6 +908,13 @@ class PersonnelController extends Controller {
                                         AND u_def.kidem_yili = u.kidem_yili
                                         AND u_def.donem = :default_period
                                         AND u_def.deleted_at IS NULL
+                LEFT JOIN (
+                    SELECT personel_id,
+                           SUM(DATEDIFF(bitis_tarihi, baslangic_tarihi) + 1) AS toplam_gun
+                    FROM ucretsiz_izin
+                    WHERE deleted_at IS NULL
+                    GROUP BY personel_id
+                ) izin ON izin.personel_id = p.id
                 WHERE $whereSql
                 ORDER BY $orderColumn $orderDir
                 $limitSql
@@ -1472,4 +1486,3 @@ class PersonnelController extends Controller {
         exit;
     }
 }
-
