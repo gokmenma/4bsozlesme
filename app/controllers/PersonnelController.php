@@ -773,6 +773,22 @@ class PersonnelController extends Controller {
                 $params[':search4'] = "%$searchValue%";
             }
 
+            $selectedIds = $_POST['selected_ids'] ?? [];
+            if (!empty($selectedIds) && is_array($selectedIds)) {
+                $selPlaceholders = [];
+                foreach (array_values($selectedIds) as $idx => $sId) {
+                    $sId = (int)$sId;
+                    if ($sId > 0) {
+                        $pKey = ":sel_id_" . $idx;
+                        $selPlaceholders[] = $pKey;
+                        $params[$pKey] = $sId;
+                    }
+                }
+                if (!empty($selPlaceholders)) {
+                    $where[] = "p.id IN (" . implode(',', $selPlaceholders) . ")";
+                }
+            }
+
             if (!empty($columnFilterState) && is_array($columnFilterState)) {
                 foreach ($columnFilterState as $colIdx => $config) {
                     if (empty($config['rules'])) continue;
@@ -867,7 +883,7 @@ class PersonnelController extends Controller {
             $params[':default_period'] = $default_period;
 
             // Filtresiz ilk yüklemede aynı kayıtları ikinci kez saymaya gerek yok.
-            $hasFilters = $searchValue !== '' || !empty($columnFilterState);
+            $hasFilters = $searchValue !== '' || !empty($columnFilterState) || !empty($selectedIds);
             if ($hasFilters) {
                 $filteredSql = "
                     SELECT COUNT(*)
@@ -898,6 +914,7 @@ class PersonnelController extends Controller {
                        u.unvan, 
                        COALESCE(u_def.ucret, u.ucret) as ucret, 
                        u.ogrenim,
+                       COALESCE(u_def.kidem_yili, u.kidem_yili) as kidem_yili,
                        COALESCE(izin.toplam_gun, 0) as toplam_ucretsiz_izin_gun,
                        DATE_ADD(DATE_ADD(p.goreve_baslama_tarihi, INTERVAL 3 YEAR), INTERVAL COALESCE(izin.toplam_gun, 0) DAY) as kadroya_gecis_tarihi
                 FROM personeller p 
@@ -1485,4 +1502,39 @@ class PersonnelController extends Controller {
         echo json_encode(['success' => $success]);
         exit;
     }
+
+    /**
+     * Dışa aktarma ve rapor indirme işlemlerini loglar
+     */
+    public function logExport() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'error' => 'Yetkisiz erişim.']);
+            exit;
+        }
+
+        $type = $_POST['type'] ?? 'excel';
+        $count = (int)($_POST['count'] ?? 0);
+        $action = ($type === 'on_mali_kontrol') ? 'Ön Mali Kontrol Listesi İndirme' : 'Personel Listesi Excel Aktarımı';
+        $desc = ($type === 'on_mali_kontrol') 
+            ? "{$count} personel için Ön Mali Kontrol Listesi Excel formatında indirildi." 
+            : "{$count} personel için Excel aktarımı yapıldı.";
+
+        try {
+            $activityLog = new ActivityLog();
+            $activityLog->log($action, $desc);
+        } catch (\Throwable $e) {
+            error_log('logExport error: ' . $e->getMessage());
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode(['success' => true]);
+        exit;
+    }
 }
+

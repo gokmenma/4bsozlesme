@@ -83,8 +83,9 @@ function appRoutes(): array
         // --- Kendi çıktısını üreten sayfa (layout ile sarmalanır, view yok) ---
         '/matrah-yonetimi'       => ['c' => 'MatrahController', 'a' => 'index'],
 
-        // --- İndirme (standalone) ---
+        // --- İndirme ve Medya (standalone) ---
         '/doner-matrahi-indir'   => ['c' => 'DonerMatrahiController', 'a' => 'downloadBasis', 'api' => true],
+        '/kurum-logo'            => ['c' => 'TanimlamalarController', 'a' => 'getLogo',       'api' => true, 'exit' => true],
 
         // --- Personel API ---
         '/personel-datatable'              => ['c' => 'PersonnelController', 'a' => 'fetchDataTable',     'm' => 'POST', 'api' => true, 'exit' => true],
@@ -101,6 +102,7 @@ function appRoutes(): array
         '/personel-download-word'          => ['c' => 'PersonnelController', 'a' => 'downloadWord',       'api' => true, 'exit' => true],
         '/personel-import-excel'           => ['c' => 'PersonnelController', 'a' => 'importExcel',        'm' => 'POST', 'api' => true, 'exit' => true],
         '/personel-sample-template'        => ['c' => 'PersonnelController', 'a' => 'downloadSample',     'api' => true, 'exit' => true],
+        '/personel-export-log'             => ['c' => 'PersonnelController', 'a' => 'logExport',          'm' => 'POST', 'api' => true, 'exit' => true],
 
         // --- Ücret API ---
         '/ucret-ekle'           => ['c' => 'WageController', 'a' => 'store',       'm' => 'POST', 'api' => true, 'exit' => true],

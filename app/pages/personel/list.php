@@ -30,9 +30,10 @@ if (!document.getElementById('toaster')) {
                 <button type="button" onclick="toggleDropdown(this)" class="inline-flex items-center gap-2 px-3.5 py-2 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800 rounded-lg text-sm font-medium hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors shadow-sm whitespace-nowrap cursor-pointer">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
                     <span>İşlemler</span>
+                    <span id="selectedPersonnelBadge" class="hidden px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold leading-none">0</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-zinc-400"><path d="m6 9 6 6 6-6"/></svg>
                 </button>
-                <div class="app-dropdown-menu absolute right-0 mt-2 w-60 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xl z-50 hidden opacity-0 translate-y-[-10px] transition-all p-2" onclick="event.stopPropagation()">
+                <div class="app-dropdown-menu absolute right-0 mt-2 w-64 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xl z-50 hidden opacity-0 translate-y-[-10px] transition-all p-2" onclick="event.stopPropagation()">
                     
                     <!-- Toplu İşlemler / Veri Aktarımı -->
                     <div class="px-2 py-1 text-[10px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">Veri İşlemleri</div>
@@ -41,7 +42,15 @@ if (!document.getElementById('toaster')) {
                         <svg class="text-emerald-600 dark:text-emerald-400 shrink-0" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
                         <div class="flex flex-col">
                             <span class="font-semibold text-zinc-900 dark:text-zinc-100">Excel'e Aktar</span>
-                            <span class="text-[10px] text-zinc-400">Listeyi Excel olarak indirin</span>
+                            <span class="text-[10px] text-zinc-400" id="export-excel-desc">Listeyi Excel olarak indirin</span>
+                        </div>
+                    </button>
+
+                    <button type="button" onclick="exportOnMaliKontrol(); $('.app-dropdown-menu').addClass('hidden');" class="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 text-left transition-colors cursor-pointer mt-0.5">
+                        <svg class="text-blue-600 dark:text-blue-400 shrink-0" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>
+                        <div class="flex flex-col">
+                            <span class="font-semibold text-zinc-900 dark:text-zinc-100">Ön Mali Kontrol Listesi</span>
+                            <span class="text-[10px] text-zinc-400" id="export-onmali-desc">Seçili personelleri mali kontrol formatında indirin</span>
                         </div>
                     </button>
                     
@@ -121,17 +130,38 @@ if (!document.getElementById('toaster')) {
                 <div class="flex items-center gap-2 flex-wrap" id="active-filter-badges">
                     <!-- Badges injected here -->
                 </div>
-                <button type="button" id="clearAllFilters" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs font-medium hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-900/50 transition-all shadow-sm whitespace-nowrap cursor-pointer ml-auto">
+                <button type="button" id="clearAllFilters" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs font-medium hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:border-red-900/50 transition-all shadow-sm whitespace-nowrap cursor-pointer ml-auto">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                     Filtreleri temizle
                 </button>
+            </div>
+
+            <!-- Selection Actions Bar -->
+            <div id="selection-bar" class="hidden border-b border-indigo-100 dark:border-indigo-950/40 bg-indigo-50/70 dark:bg-indigo-950/20 px-4 py-2 flex items-center justify-between gap-3 text-xs shrink-0 transition-all">
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-indigo-600 text-white text-[11px] font-bold" id="selection-badge-count">0</span>
+                    <span class="font-medium text-indigo-900 dark:text-indigo-200">personel seçildi</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="exportOnMaliKontrol()" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-xs font-medium transition-colors shadow-xs cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>
+                        Ön Mali Kontrol Listesi İndir
+                    </button>
+                    <button type="button" onclick="exportToExcel()" class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-200 hover:bg-zinc-50 dark:hover:bg-zinc-700 rounded-md text-xs font-medium transition-colors shadow-xs cursor-pointer">
+                        <svg class="text-emerald-600 dark:text-emerald-400" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                        Excel'e Aktar
+                    </button>
+                    <button type="button" onclick="clearPersonnelSelection()" class="inline-flex items-center gap-1 px-2 py-1 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 rounded text-xs transition-colors cursor-pointer">
+                        Seçimi Temizle
+                    </button>
+                </div>
             </div>
 
             <table id="personnelTable" class="w-full text-left">
                 <thead>
                     <tr>
                         <th class="w-[5%] no-sort px-2 text-center">
-                             <input type="checkbox" class="input">
+                             <input type="checkbox" id="selectAllPersonnel" class="input cursor-pointer" title="Tümünü Seç / Seçimi Kaldır">
                         </th>
                         <th class="w-[5%] no-sort px-0 text-center"></th>
                         <th data-column="2" class="w-[12%] min-w-[120px]">
@@ -913,6 +943,83 @@ function loadXlsxLib() {
     return loadScriptOnce('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js');
 }
 
+// Seçili personelleri saklayan merkezi state
+const selectedPersonnelMap = new Map();
+
+// Kurum ve rapor bilgileri
+const kurumBilgileri = {
+    kurumAdi: '<?php echo addslashes($tenant_settings['kurum_adi'] ?? ''); ?>',
+    birimAdi: '<?php echo addslashes($tenant_settings['birim_adi'] ?? ''); ?>',
+    yetkiliAdSoyad: '<?php echo addslashes($tenant_settings['yetkili_ad_soyad'] ?? ''); ?>',
+    yetkiliUnvan: '<?php echo addslashes($tenant_settings['yetkili_unvan'] ?? ''); ?>',
+    hazirlayanAdSoyad: '<?php echo addslashes($_SESSION['name'] ?? ''); ?>',
+    hazirlayanUnvan: '<?php echo addslashes($_SESSION['role_name'] ?? $_SESSION['role'] ?? 'Yetkili'); ?>',
+    logoUrl: '<?php echo routeUrl("/kurum-logo"); ?>'
+};
+
+function updateSelectionUI() {
+    const count = selectedPersonnelMap.size;
+    const badge = $('#selectedPersonnelBadge');
+    const descExcel = $('#export-excel-desc');
+    const descOnMali = $('#export-onmali-desc');
+    const selectionBar = $('#selection-bar');
+    const barCount = $('#selection-badge-count');
+
+    if (count > 0) {
+        badge.text(count).removeClass('hidden');
+        descExcel.text(`Seçili ${count} personeli Excel olarak indirin`);
+        descOnMali.text(`Seçili ${count} personeli mali kontrol formatında indirin`);
+        barCount.text(count);
+        selectionBar.removeClass('hidden');
+    } else {
+        badge.text('0').addClass('hidden');
+        descExcel.text('Listeyi Excel olarak indirin');
+        descOnMali.text('Seçili personelleri mali kontrol formatında indirin');
+        selectionBar.addClass('hidden');
+    }
+
+    updateSelectAllCheckboxState();
+}
+
+function updateSelectAllCheckboxState() {
+    const totalVisible = $('#personnelTable tbody .row-checkbox').length;
+    const checkedVisible = $('#personnelTable tbody .row-checkbox:checked').length;
+    const selectAll = document.getElementById('selectAllPersonnel');
+    if (!selectAll) return;
+
+    if (totalVisible === 0) {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+    } else if (checkedVisible === totalVisible) {
+        selectAll.checked = true;
+        selectAll.indeterminate = false;
+    } else if (checkedVisible > 0) {
+        selectAll.checked = false;
+        selectAll.indeterminate = true;
+    } else {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+    }
+}
+
+function clearPersonnelSelection() {
+    selectedPersonnelMap.clear();
+    $('#personnelTable tbody .row-checkbox').prop('checked', false);
+    const selectAll = document.getElementById('selectAllPersonnel');
+    if (selectAll) {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+    }
+    updateSelectionUI();
+}
+
+function logExportActivity(type, count) {
+    $.post('<?php echo routeUrl("personel-export-log"); ?>', {
+        type: type,
+        count: count
+    });
+}
+
 $(document).ready(function() {
     if (typeof initDataTable !== 'function') {
         console.error('initDataTable function not found!');
@@ -934,9 +1041,12 @@ $(document).ready(function() {
         columns: [
             { 
                 data: 'id', 
-                className: 'px-2 text-center',
+                className: 'px-2 text-center select-col',
                 orderable: false,
-                render: (data) => '<input type="checkbox" class="input">' 
+                render: (data) => {
+                    const isChecked = selectedPersonnelMap.has(String(data));
+                    return `<input type="checkbox" class="input row-checkbox cursor-pointer" value="${data}" ${isChecked ? 'checked' : ''}>`;
+                } 
             },
             { 
                 data: null, 
@@ -1120,6 +1230,42 @@ $(document).ready(function() {
     });
 
     window.personnelTable = table;
+
+    // Checkbox seçim olayları
+    $('#personnelTable tbody').on('change', '.row-checkbox', function(e) {
+        e.stopPropagation();
+        const id = String($(this).val());
+        const row = table.row($(this).closest('tr')).data();
+        if (this.checked) {
+            if (row) selectedPersonnelMap.set(id, row);
+        } else {
+            selectedPersonnelMap.delete(id);
+        }
+        updateSelectionUI();
+    });
+
+    $('#selectAllPersonnel').on('change', function() {
+        const isChecked = this.checked;
+        $('#personnelTable tbody .row-checkbox').each(function() {
+            const id = String($(this).val());
+            const row = table.row($(this).closest('tr')).data();
+            $(this).prop('checked', isChecked);
+            if (isChecked) {
+                if (row) selectedPersonnelMap.set(id, row);
+            } else {
+                selectedPersonnelMap.delete(id);
+            }
+        });
+        updateSelectionUI();
+    });
+
+    table.on('draw', function() {
+        $('#personnelTable tbody .row-checkbox').each(function() {
+            const id = String($(this).val());
+            $(this).prop('checked', selectedPersonnelMap.has(id));
+        });
+        updateSelectAllCheckboxState();
+    });
 
     // Load persisted column visibility preferences
     loadColumnPreferences();
@@ -2262,20 +2408,39 @@ async function exportToExcel() {
     const table = $('#personnelTable').DataTable();
     if (!table) return;
 
-    showToast({ category: 'info', title: 'Bilgi', description: 'Veriler hazırlanıyor, lütfen bekleyin...' });
+    const hasSelection = selectedPersonnelMap.size > 0;
+    const selectedCount = selectedPersonnelMap.size;
+
+    showToast({ 
+        category: 'info', 
+        title: 'Bilgi', 
+        description: hasSelection 
+            ? `Seçili ${selectedCount} personel için Excel hazırlanıyor, lütfen bekleyin...` 
+            : 'Veriler hazırlanıyor, lütfen bekleyin...' 
+    });
 
     const excelJsReady = loadExcelJsLib();
 
-    // Mevcut filtrelerle tüm verileri sunucudan çek
+    // Mevcut filtrelerle verileri sunucudan çek
     const params = table.ajax.params();
     params.length = -1; // Tüm kayıtlar
+
+    if (hasSelection) {
+        params.selected_ids = Array.from(selectedPersonnelMap.keys());
+    }
 
     $.ajax({
         url: '<?php echo routeUrl("personel-datatable"); ?>',
         method: 'POST',
         data: params,
         success: async function(response) {
-            if (!response.data || response.data.length === 0) {
+            let data = response.data || [];
+            if (hasSelection) {
+                // Seçili ID'lere göre filtrele
+                data = data.filter(p => selectedPersonnelMap.has(String(p.id)));
+            }
+
+            if (!data || data.length === 0) {
                 showToast({ category: 'warning', title: 'Uyarı', description: 'Aktarılacak veri bulunamadı.' });
                 return;
             }
@@ -2305,7 +2470,7 @@ async function exportToExcel() {
                 fgColor: { argb: 'FFE0E0E0' }
             };
 
-            response.data.forEach(p => {
+            data.forEach(p => {
                 worksheet.addRow({
                     ad_soyad: p.ad_soyad,
                     tc_kimlik: p.tc_kimlik,
@@ -2343,15 +2508,380 @@ async function exportToExcel() {
             const a = document.createElement('a');
             a.href = url;
             const dateStr = new Date().toLocaleDateString('tr-TR').replace(/\./g, '-');
-            a.download = `personel_listesi_${dateStr}.xlsx`;
+            const fileNamePrefix = hasSelection ? `secili_personel_listesi_${data.length}` : 'personel_listesi';
+            a.download = `${fileNamePrefix}_${dateStr}.xlsx`;
             a.click();
             window.URL.revokeObjectURL(url);
+
+            logExportActivity('excel', data.length);
         },
         error: function() {
             showToast({ category: 'error', title: 'Hata', description: 'Veriler alınırken bir hata oluştu.' });
         }
     });
 }
+
+/**
+ * Tablodan seçili personeller için Ön Mali Kontrol Listesi Excel çıktısı oluşturur.
+ * Üst başlıkta kurum bilgileri, sol köşede logo ve resmi standartta onay alanı barındırır.
+ */
+async function exportOnMaliKontrol() {
+    const table = $('#personnelTable').DataTable();
+    if (!table) return;
+
+    if (selectedPersonnelMap.size === 0) {
+        showToast({ 
+            category: 'warning', 
+            title: 'Personel Seçilmedi', 
+            description: 'Ön mali kontrol listesi oluşturmak için tablodan en az bir personel seçmelisiniz.' 
+        });
+        return;
+    }
+
+    const count = selectedPersonnelMap.size;
+    showToast({ 
+        category: 'info', 
+        title: 'Hazırlanıyor', 
+        description: `Seçili ${count} personel için Ön Mali Kontrol Listesi hazırlanıyor, lütfen bekleyin...` 
+    });
+
+    const excelJsReady = loadExcelJsLib();
+
+    // Seçili personellerin güncel verilerini sunucudan çek
+    const params = table.ajax.params();
+    params.length = -1;
+    params.selected_ids = Array.from(selectedPersonnelMap.keys());
+
+    $.ajax({
+        url: '<?php echo routeUrl("personel-datatable"); ?>',
+        method: 'POST',
+        data: params,
+        success: async function(response) {
+            let data = response.data || [];
+            // Sadece seçili olanları filtrele
+            data = data.filter(p => selectedPersonnelMap.has(String(p.id)));
+
+            if (!data || data.length === 0) {
+                showToast({ category: 'warning', title: 'Uyarı', description: 'Aktarılacak personel verisi bulunamadı.' });
+                return;
+            }
+
+            await excelJsReady;
+            const workbook = new ExcelJS.Workbook();
+            workbook.creator = kurumBilgileri.kurumAdi || 'Sözleşme 4/B';
+            workbook.lastModifiedBy = kurumBilgileri.hazirlayanAdSoyad || 'Sistem';
+            workbook.created = new Date();
+            workbook.modified = new Date();
+
+            const worksheet = workbook.addWorksheet('Ön Mali Kontrol Listesi', {
+                views: [{ showGridLines: true }],
+                pageSetup: {
+                    paperSize: 9, // A4
+                    orientation: 'landscape',
+                    fitToPage: true,
+                    fitToWidth: 1,
+                    fitToHeight: 0,
+                    margins: {
+                        left: 0.4, right: 0.4,
+                        top: 0.6, bottom: 0.6,
+                        header: 0.3, footer: 0.3
+                    }
+                }
+            });
+
+            // Sütun genişlikleri:
+            // A: Sıra No, B: TC Kimlik, C: Adı Soyadı, D: Unvanı, E: Öğrenim Durumu, F: Kıdem Yılı, G: Sözleşme Ücreti
+            worksheet.columns = [
+                { key: 'sira', width: 9 },
+                { key: 'tc_kimlik', width: 18 },
+                { key: 'ad_soyad', width: 32 },
+                { key: 'unvan', width: 28 },
+                { key: 'ogrenim', width: 18 },
+                { key: 'kidem_yili', width: 22 },
+                { key: 'ucret', width: 20 }
+            ];
+
+            // 1. Kurum Logosu Yükleme Denemesi (sol üst köşe A1:A4)
+            let logoLoaded = false;
+            try {
+                const logoResp = await fetch(kurumBilgileri.logoUrl);
+                if (logoResp.ok) {
+                    const blob = await logoResp.blob();
+                    if (blob && blob.size > 0 && blob.type.startsWith('image/')) {
+                        const mime = blob.type;
+                        const ext = (mime.includes('jpeg') || mime.includes('jpg')) ? 'jpeg' : 'png';
+                        const base64Data = await new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onloadend = () => resolve(reader.result);
+                            reader.onerror = reject;
+                            reader.readAsDataURL(blob);
+                        });
+
+                        const imageId = workbook.addImage({
+                            base64: base64Data,
+                            extension: ext
+                        });
+
+                        worksheet.addImage(imageId, {
+                            tl: { col: 0.15, row: 0.2 },
+                            ext: { width: 75, height: 70 },
+                            editAs: 'oneCell'
+                        });
+                        logoLoaded = true;
+                    }
+                }
+            } catch (err) {
+                console.warn('Kurum logosu Excel içine aktarılamadı:', err);
+            }
+
+            // Başlık sütun başlangıcı: Logo varsa B-G, logo yoksa A-G merge edilir
+            const startCol = logoLoaded ? 'B' : 'A';
+            
+            // Satır 1: Kurum Adı
+            worksheet.mergeCells(`${startCol}1:G1`);
+            const r1 = worksheet.getCell(`${startCol}1`);
+            r1.value = (kurumBilgileri.kurumAdi || 'T.C. KURUM BİLGİSİ').toUpperCase();
+            r1.font = { name: 'Calibri', size: 14, bold: true, color: { argb: 'FF1E293B' } };
+            r1.alignment = { horizontal: 'center', vertical: 'middle' };
+            worksheet.getRow(1).height = 28;
+
+            // Satır 2: Birim Adı
+            worksheet.mergeCells(`${startCol}2:G2`);
+            const r2 = worksheet.getCell(`${startCol}2`);
+            r2.value = (kurumBilgileri.birimAdi || 'PERSONEL BİRİMİ').toUpperCase();
+            r2.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF475569' } };
+            r2.alignment = { horizontal: 'center', vertical: 'middle' };
+            worksheet.getRow(2).height = 20;
+
+            // Satır 3: Belge Başlığı
+            worksheet.mergeCells(`${startCol}3:G3`);
+            const r3 = worksheet.getCell(`${startCol}3`);
+            r3.value = '4/B SÖZLEŞMELİ PERSONEL ÖN MALİ KONTROL LİSTESİ';
+            r3.font = { name: 'Calibri', size: 12, bold: true, color: { argb: 'FF0F172A' } };
+            r3.alignment = { horizontal: 'center', vertical: 'middle' };
+            worksheet.getRow(3).height = 24;
+
+            // Satır 4: Düzenleme Tarihi
+            worksheet.mergeCells(`${startCol}4:G4`);
+            const r4 = worksheet.getCell(`${startCol}4`);
+            const bugunStr = new Date().toLocaleDateString('tr-TR');
+            r4.value = `Düzenleme Tarihi: ${bugunStr}`;
+            r4.font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF64748B' } };
+            r4.alignment = { horizontal: 'right', vertical: 'middle' };
+            worksheet.getRow(4).height = 18;
+
+            // Satır 5: Boşluk
+            worksheet.getRow(5).height = 10;
+
+            // Satır 6: Tablo Başlıkları
+            const headerRow = worksheet.getRow(6);
+            headerRow.height = 26;
+            headerRow.values = [
+                'SIRA NO',
+                'TC KİMLİK NO',
+                'ADI SOYADI',
+                'UNVANI',
+                'ÖĞRENİM DURUMU',
+                'KIDEM YILI',
+                'SÖZLEŞME ÜCRETİ'
+            ];
+
+            headerRow.eachCell((cell) => {
+                cell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FF1E3A8A' } // Kurumsal Koyu Mavi
+                };
+                cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+                cell.border = {
+                    top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                    left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                    bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                    right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+                };
+            });
+
+            // Veri Satırları (Satır 7'den başlar)
+            let totalAmount = 0;
+            data.forEach((p, idx) => {
+                const rowNum = 7 + idx;
+                const row = worksheet.getRow(rowNum);
+                row.height = 22;
+
+                const ucretVal = p.ucret ? parseFloat(p.ucret) : 0;
+                totalAmount += ucretVal;
+
+                // Kıdem Yılı: Tablodan gelen kidem_yili yoksa goreve_baslama_tarihi ile hesapla
+                let kidemText = p.kidem_yili || '';
+                if (!kidemText && p.goreve_baslama_tarihi) {
+                    const baslama = new Date(p.goreve_baslama_tarihi);
+                    const now = new Date();
+                    let diffYears = now.getFullYear() - baslama.getFullYear();
+                    const m = now.getMonth() - baslama.getMonth();
+                    if (m < 0 || (m === 0 && now.getDate() < baslama.getDate())) diffYears--;
+                    kidemText = (diffYears >= 0 ? diffYears : 0) + ' Yıl';
+                }
+                if (!kidemText) kidemText = '0-5 Yıl (Dahil)';
+
+                row.values = [
+                    idx + 1,
+                    p.tc_kimlik || '',
+                    (p.ad_soyad || '').toUpperCase(),
+                    p.unvan || 'Belirtilmemiş',
+                    p.ogrenim || 'Belirtilmemiş',
+                    kidemText,
+                    ucretVal
+                ];
+
+                const isEven = idx % 2 === 1;
+                const bgColor = isEven ? 'FFF8FAFC' : 'FFFFFFFF';
+
+                row.eachCell((cell, colNumber) => {
+                    cell.font = { name: 'Calibri', size: 10, color: { argb: 'FF1E293B' } };
+                    cell.fill = {
+                        type: 'pattern',
+                        pattern: 'solid',
+                        fgColor: { argb: bgColor }
+                    };
+                    cell.border = {
+                        top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                        left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                        bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+                        right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
+                    };
+
+                    // Sütunlara göre hizalama ve formatlar
+                    if (colNumber === 1) { // Sıra No
+                        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                    } else if (colNumber === 2) { // TC Kimlik
+                        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                        cell.numFmt = '@';
+                    } else if (colNumber === 3) { // Ad Soyad
+                        cell.alignment = { horizontal: 'left', vertical: 'middle' };
+                        cell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
+                    } else if (colNumber === 4) { // Unvan
+                        cell.alignment = { horizontal: 'left', vertical: 'middle' };
+                    } else if (colNumber === 5) { // Öğrenim
+                        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                    } else if (colNumber === 6) { // Kıdem Yılı
+                        cell.alignment = { horizontal: 'center', vertical: 'middle' };
+                    } else if (colNumber === 7) { // Ücret
+                        cell.alignment = { horizontal: 'right', vertical: 'middle' };
+                        cell.numFmt = '#,##0.00 "₺"';
+                    }
+                });
+            });
+
+            // Toplam Satırı
+            const totalRowNum = 7 + data.length;
+            worksheet.mergeCells(`A${totalRowNum}:F${totalRowNum}`);
+            const totalLabelCell = worksheet.getCell(`A${totalRowNum}`);
+            totalLabelCell.value = `GENEL TOPLAM (${data.length} Personel)`;
+            totalLabelCell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF1E293B' } };
+            totalLabelCell.alignment = { horizontal: 'right', vertical: 'middle' };
+
+            const totalValCell = worksheet.getCell(`G${totalRowNum}`);
+            totalValCell.value = { formula: `SUM(G7:G${totalRowNum - 1})`, result: totalAmount };
+            totalValCell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF1E3A8A' } };
+            totalValCell.alignment = { horizontal: 'right', vertical: 'middle' };
+            totalValCell.numFmt = '#,##0.00 "₺"';
+
+            const totalRow = worksheet.getRow(totalRowNum);
+            totalRow.height = 25;
+            totalRow.eachCell((cell) => {
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FFF1F5F9' }
+                };
+                cell.border = {
+                    top: { style: 'thin', color: { argb: 'FF94A3B8' } },
+                    bottom: { style: 'double', color: { argb: 'FF0F172A' } }, // Alt çift çizgi (resmi standart)
+                    left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
+                    right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+                };
+            });
+
+            // İmza / Onay Bloğu
+            const signStartRow = totalRowNum + 3;
+            
+            // Satır 1: Başlıklar
+            worksheet.mergeCells(`B${signStartRow}:C${signStartRow}`);
+            const s1Left = worksheet.getCell(`B${signStartRow}`);
+            s1Left.value = 'Düzenleyen / Hazırlayan';
+            s1Left.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF334155' } };
+            s1Left.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            worksheet.mergeCells(`F${signStartRow}:G${signStartRow}`);
+            const s1Right = worksheet.getCell(`F${signStartRow}`);
+            s1Right.value = 'Harcama Yetkilisi / Onaylayan';
+            s1Right.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF334155' } };
+            s1Right.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            // Satır 2: İsimler
+            const sNameRow = signStartRow + 1;
+            worksheet.mergeCells(`B${sNameRow}:C${sNameRow}`);
+            const s2Left = worksheet.getCell(`B${sNameRow}`);
+            s2Left.value = kurumBilgileri.hazirlayanAdSoyad || '';
+            s2Left.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
+            s2Left.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            worksheet.mergeCells(`F${sNameRow}:G${sNameRow}`);
+            const s2Right = worksheet.getCell(`F${sNameRow}`);
+            s2Right.value = kurumBilgileri.yetkiliAdSoyad || '';
+            s2Right.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
+            s2Right.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            // Satır 3: Unvanlar
+            const sTitleRow = signStartRow + 2;
+            worksheet.mergeCells(`B${sTitleRow}:C${sTitleRow}`);
+            const s3Left = worksheet.getCell(`B${sTitleRow}`);
+            s3Left.value = kurumBilgileri.hazirlayanUnvan || '';
+            s3Left.font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF64748B' } };
+            s3Left.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            worksheet.mergeCells(`F${sTitleRow}:G${sTitleRow}`);
+            const s3Right = worksheet.getCell(`F${sTitleRow}`);
+            s3Right.value = kurumBilgileri.yetkiliUnvan || '';
+            s3Right.font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF64748B' } };
+            s3Right.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            // Satır 4: İmza / Mühür etiketi
+            const sSignRow = signStartRow + 3;
+            worksheet.mergeCells(`B${sSignRow}:C${sSignRow}`);
+            const s4Left = worksheet.getCell(`B${sSignRow}`);
+            s4Left.value = '(İmza)';
+            s4Left.font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF94A3B8' } };
+            s4Left.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            worksheet.mergeCells(`F${sSignRow}:G${sSignRow}`);
+            const s4Right = worksheet.getCell(`F${sSignRow}`);
+            s4Right.value = '(İmza / Mühür)';
+            s4Right.font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF94A3B8' } };
+            s4Right.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            // Excel dosyasını yaz ve indir
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const dateStr = new Date().toLocaleDateString('tr-TR').replace(/\./g, '-');
+            a.download = `on_mali_kontrol_listesi_${data.length}_personel_${dateStr}.xlsx`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+
+            showToast({ category: 'success', title: 'Başarılı', description: 'Ön Mali Kontrol Listesi başarıyla indirildi.' });
+
+            logExportActivity('on_mali_kontrol', data.length);
+        },
+        error: function() {
+            showToast({ category: 'error', title: 'Hata', description: 'Ön mali kontrol listesi oluşturulurken veriler alınamadı.' });
+        }
+    });
+}
+
 
 // SAĞ TIK CONTEXT MENU VE ÜCRETSİZ İZİN JS KODLARI
 let selectedContextRow = null;

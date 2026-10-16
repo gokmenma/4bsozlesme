@@ -46,4 +46,52 @@ class Definition extends Model {
             ]);
         }
     }
+
+    /**
+     * Belirli bir ayarı tekil olarak getirir
+     */
+    public function getSetting($key, $tenant_id, $default = null) {
+        $stmt = $this->db->prepare("SELECT `value` FROM {$this->table} WHERE `key` = ? AND tenant_id = ? LIMIT 1");
+        $stmt->execute([$key, $tenant_id]);
+        $row = $stmt->fetch();
+        return $row !== false && $row['value'] !== null ? $row['value'] : $default;
+    }
+
+    /**
+     * Belirli bir ayarı siler
+     */
+    public function deleteSetting($key, $tenant_id) {
+        $stmt = $this->db->prepare("DELETE FROM {$this->table} WHERE `key` = ? AND tenant_id = ?");
+        return $stmt->execute([$key, $tenant_id]);
+    }
+
+    /**
+     * Kurum logo dosya yolunu ve MIME tipini döner
+     */
+    public function getLogo($tenant_id) {
+        $filePath = $this->getSetting('kurum_logo', $tenant_id, '');
+        $mimeType = $this->getSetting('kurum_logo_mime', $tenant_id, '');
+        return [
+            'path' => $filePath,
+            'mime' => $mimeType
+        ];
+    }
+
+    /**
+     * Kurum logo bilgilerini günceller
+     */
+    public function saveLogo($tenant_id, $filePath, $mimeType = '') {
+        $this->setSetting('kurum_logo', $filePath, $tenant_id);
+        $this->setSetting('kurum_logo_mime', $mimeType, $tenant_id);
+        return true;
+    }
+
+    /**
+     * Kurum logo ayarlarını temizler
+     */
+    public function removeLogo($tenant_id) {
+        $this->setSetting('kurum_logo', '', $tenant_id);
+        $this->setSetting('kurum_logo_mime', '', $tenant_id);
+        return true;
+    }
 }
