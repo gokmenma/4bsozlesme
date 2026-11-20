@@ -241,28 +241,27 @@
     <script src="<?php echo routeUrl('assets/js/theme.js'); ?>"></script>
 
     <!-- Tailwind CSS -->
-    <link rel="stylesheet" href="<?php echo routeUrl('assets/css/app.css'); ?>" type="text/tailwindcss">
-    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="<?php echo routeUrl('assets/css/tailwind.build.css'); ?>?v=<?php echo @filemtime(__DIR__ . '/../assets/css/tailwind.build.css'); ?>">
 
     <!-- Basecoat UI -->
-    <link rel="stylesheet" href="https://unpkg.com/basecoat-css@0.3.11/dist/basecoat.cdn.min.css">
-    <script src="https://unpkg.com/basecoat-css@0.3.11/dist/js/all.min.js" defer></script>
+    <link rel="stylesheet" href="<?php echo routeUrl('assets/vendor/basecoat-0.3.11.min.css'); ?>">
+    <script src="<?php echo routeUrl('assets/vendor/basecoat-0.3.11-all.min.js'); ?>" defer></script>
 
     <!-- DataTables -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/datatables.net-dt/1.13.7/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="<?php echo routeUrl('assets/vendor/jquery.dataTables-1.13.7.min.css'); ?>">
     <link rel="stylesheet" href="<?php echo routeUrl('assets/css/datatable.custom.css'); ?>">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="<?php echo routeUrl('assets/vendor/jquery-3.7.1.min.js'); ?>"></script>
     <!-- CSRF Token Interceptor (jQuery'den hemen sonra yüklenmeli) -->
     <script src="<?php echo routeUrl('assets/js/csrf.js'); ?>"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables.net/1.13.7/jquery.dataTables.min.js"></script>
+    <script src="<?php echo routeUrl('assets/vendor/jquery.dataTables-1.13.7.min.js'); ?>"></script>
     <script src="<?php echo routeUrl('assets/js/datatable.init.js'); ?>"></script>
     <script src="<?php echo routeUrl('assets/js/utils.js'); ?>"></script>
     
     <!-- Flatpickr -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.css">
+    <link rel="stylesheet" href="<?php echo routeUrl('assets/vendor/flatpickr-4.6.13.min.css'); ?>">
     <link rel="stylesheet" href="<?php echo routeUrl('assets/css/flatpickr.custom.css'); ?>">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/flatpickr.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flatpickr/4.6.13/l10n/tr.min.js"></script>
+    <script src="<?php echo routeUrl('assets/vendor/flatpickr-4.6.13.min.js'); ?>"></script>
+    <script src="<?php echo routeUrl('assets/vendor/flatpickr-4.6.13-tr.js'); ?>"></script>
     <script src="<?php echo routeUrl('assets/js/flatpickr.init.js'); ?>"></script>
     
     <!-- Layout Fix -->

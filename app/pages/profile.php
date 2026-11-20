@@ -52,7 +52,7 @@ if (!function_exists('fbTimeAgo')) {
 }
 ?>
 
-<div class="flex flex-col gap-6 max-w-6xl mx-auto px-2 md:px-4">
+<div class="flex flex-col gap-6 max-w-6xl mx-auto px-0">
   <!-- Breadcrumb -->
   <nav class="flex text-xs text-zinc-400 dark:text-zinc-500 font-semibold select-none" aria-label="Breadcrumb">
     <ol class="inline-flex items-center space-x-1.5 md:space-x-2">

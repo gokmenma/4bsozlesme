@@ -878,8 +878,7 @@ class PersonnelController extends Controller {
             $totalRecords = $totalStmt->fetchColumn();
 
             $defModel = new Definition();
-            $settings = $defModel->getSettings($tenant_id);
-            $default_period = $settings['default_wage_period'] ?? '2026-1';
+            $default_period = $defModel->getSetting('default_wage_period', $tenant_id, '2026-1') ?: '2026-1';
             $params[':default_period'] = $default_period;
 
             // Filtresiz ilk yüklemede aynı kayıtları ikinci kez saymaya gerek yok.

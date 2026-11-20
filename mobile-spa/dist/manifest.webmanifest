@@ -1,0 +1,34 @@
+{
+  "id": "/",
+  "name": "Sözleşme 4B Mobil Portal",
+  "short_name": "Sözleşme 4B",
+  "description": "4B Sözleşmeli Personel Sözleşme ve Yönetim Portalı",
+  "lang": "tr",
+  "start_url": "/#/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0d1f3c",
+  "theme_color": "#0d1f3c",
+  "categories": ["business", "productivity"],
+  "icons": [
+    {
+      "src": "/pwa-icons/icon-192.png?v=2",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icons/icon-512.png?v=2",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-icons/icon-maskable-512.png?v=2",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

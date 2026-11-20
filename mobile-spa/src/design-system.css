@@ -1,0 +1,510 @@
+/* ==========================================================================
+   SÖZLEŞME 4B MOBİL SPA — MERKEZİ BENTO & CLAYMORPHIC TASARIM SİSTEMİ
+   Ersan Mobile SPA tasarım sistemi temel alınarak hazırlanmıştır.
+   ========================================================================== */
+
+:root {
+  /* 1. Zemin ve Yüzeyler */
+  --ds-canvas: #e8edf4;
+  --ds-surface: #ffffff;
+  --ds-surface-dark: #0d1f3c;
+  --ds-surface-dark-2: #142f59;
+  --ds-surface-subtle: #f1f5f9;
+  --ds-surface-translucent: rgba(255, 255, 255, 0.85);
+
+  /* 2. Tipografi ve Renkler */
+  --ds-ink: #161920;
+  --ds-ink-light: #ffffff;
+  --ds-muted: #64748b;
+  --ds-muted-light: #94a3b8;
+  --ds-font-main: 'Roboto Condensed', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --ds-font-mono: 'Space Grotesk', monospace;
+
+  /* 3. Sınır Çizgileri */
+  --ds-border: rgba(255, 255, 255, 0.9);
+  --ds-border-subtle: rgba(15, 23, 42, 0.08);
+  --ds-border-dark: rgba(255, 255, 255, 0.08);
+  --ds-focus: #1d4ed8;
+
+  /* 4. Gölgeler */
+  --ds-shadow-bento: 0 4px 14px -6px rgba(15, 23, 42, 0.07), 0 2px 4px rgba(15, 23, 42, 0.02);
+  --ds-shadow-bento-dark: 0 6px 16px -8px rgba(0, 0, 0, 0.2);
+  --ds-shadow-tile: 0 2px 6px rgba(15, 23, 42, 0.035), 0 1px 2px rgba(15, 23, 42, 0.02);
+  --ds-shadow-pill: 0 2px 5px rgba(15, 23, 42, 0.03);
+  --ds-shadow-btn: 0 12px 24px -6px rgba(29, 78, 216, 0.36);
+  --ds-shadow-float: 0 14px 32px -8px rgba(0, 0, 0, 0.35);
+
+  /* 5. Yuvarlatma ve Boşluk */
+  --ds-radius-card: 28px;
+  --ds-radius-tile: 20px;
+  --ds-radius-sm: 14px;
+  --ds-radius-pill: 9999px;
+  --ds-card-gap: 16px;
+
+  /* 6. Renk Paleti */
+  --ds-primary: #1d4ed8;
+  --ds-primary-hover: #1e40af;
+  --ds-primary-ink: #1e40af;
+  --ds-primary-soft: #eff6ff;
+  --ds-brand-accent: #7dd3fc;
+  --ds-brand-accent-soft: #cbd5e1;
+  --ds-brand-highlight: #38bdf8;
+  --ds-blue: #38bdf8;
+  --ds-emerald: #10b981;
+  --ds-amber: #f59e0b;
+  --ds-danger: #ef4444;
+  --ds-danger-bg: #fff2ef;
+  --ds-danger-border: #ffd4cc;
+  --ds-danger-ink: #b83e2c;
+
+  /* Safe area */
+  --ds-safe-top: env(safe-area-inset-top, 0px);
+  --ds-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ==========================================================================
+   GİRİŞ EKRANI (AUTH SCREEN)
+   ========================================================================== */
+.auth-screen {
+  min-height: 100svh;
+  overflow-x: hidden;
+  background: var(--ds-canvas);
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-visual {
+  position: relative;
+  min-height: 46svh;
+  background: radial-gradient(circle at 22% 30%, rgba(37, 99, 235, 0.32) 0%, transparent 56%),
+    linear-gradient(160deg, #09152b 0%, #0f254a 55%, #132d57 100%);
+  color: var(--ds-ink-light);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: calc(16px + var(--ds-safe-top)) 20px 38px;
+}
+
+.auth-top-bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.auth-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  border-radius: var(--ds-radius-pill);
+  background: rgba(9, 21, 43, 0.56);
+  border: 1px solid rgba(147, 197, 253, 0.22);
+  color: #f8fafc;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.auth-status i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ds-emerald);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.75);
+}
+
+.auth-brand-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  text-align: left;
+  margin: auto 0;
+  padding: 8px 0 12px;
+  width: 100%;
+}
+
+.auth-splash-stage {
+  position: relative;
+  width: 156px;
+  height: 156px;
+  display: grid;
+  place-items: center;
+  perspective: 900px;
+  margin-left: -10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.auth-splash-stage .splash-glow {
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.42) 0%, rgba(37, 99, 235, 0.24) 48%, transparent 72%);
+  filter: blur(14px);
+  animation: splash-glow-pulse 2.6s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.auth-splash-stage .splash-orbit {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.14);
+  border-top-color: var(--ds-brand-highlight);
+  border-right-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 22px rgba(56, 189, 248, 0.28);
+  animation: splash-orbit-spin 3.2s linear infinite;
+  pointer-events: none;
+}
+
+.auth-splash-stage .splash-orbit--inner {
+  inset: 12px;
+  border: 1px dashed rgba(147, 197, 253, 0.42);
+  border-bottom-color: #ffffff;
+  animation: splash-orbit-spin-rev 4.4s linear infinite;
+  pointer-events: none;
+}
+
+.auth-splash-stage .splash-logo-card-3d {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  border-radius: 24px;
+  transform-style: preserve-3d;
+  background: #ffffff;
+  box-shadow: 0 22px 44px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+  animation: splash-logo-3d-motion 3.4s ease-in-out infinite alternate;
+}
+
+.auth-splash-stage .splash-logo-card-3d img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.auth-splash-stage .splash-logo-card-3d::after {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: -120%;
+  width: 75%;
+  height: 180%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.58) 50%, transparent 100%);
+  transform: rotate(28deg);
+  animation: splash-logo-sheen 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+.auth-splash-stage.is-spinning-3d .splash-logo-card-3d {
+  animation: splash-logo-3d-click-spin 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards !important;
+}
+
+@keyframes splash-orbit-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes splash-orbit-spin-rev {
+  to { transform: rotate(-360deg); }
+}
+@keyframes splash-glow-pulse {
+  0% { transform: scale(0.92); opacity: 0.6; }
+  100% { transform: scale(1.08); opacity: 0.95; }
+}
+@keyframes splash-logo-3d-motion {
+  0% {
+    transform: translateY(-3px) rotateY(-12deg) rotateX(9deg) scale(1);
+    box-shadow: 12px 22px 42px rgba(0, 0, 0, 0.55), 0 0 24px rgba(56, 189, 248, 0.28);
+  }
+  50% {
+    transform: translateY(3px) rotateY(12deg) rotateX(-7deg) scale(1.03);
+    box-shadow: -12px 24px 44px rgba(0, 0, 0, 0.58), 0 0 28px rgba(255, 255, 255, 0.24);
+  }
+  100% {
+    transform: translateY(-2px) rotateY(-6deg) rotateX(11deg) scale(1.01);
+    box-shadow: 6px 20px 38px rgba(0, 0, 0, 0.52), 0 0 22px rgba(37, 99, 235, 0.30);
+  }
+}
+@keyframes splash-logo-sheen {
+  0% { left: -120%; }
+  55%, 100% { left: 165%; }
+}
+@keyframes splash-logo-3d-click-spin {
+  0% { transform: scale(1) rotateY(0deg) rotateX(0deg); }
+  50% { transform: scale(1.15) rotateY(180deg) rotateX(12deg); }
+  100% { transform: scale(1) rotateY(360deg) rotateX(0deg); }
+}
+
+.auth-brand-titles {
+  margin-top: 14px;
+  text-align: left;
+  width: 100%;
+}
+
+.auth-brand-name {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ds-brand-accent);
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.65);
+}
+
+.auth-brand-sub {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ds-brand-accent-soft);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
+  opacity: 0.94;
+}
+
+.auth-brand-slogan {
+  margin: 10px 0 0;
+  font-size: 14.5px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: rgba(245, 248, 252, 0.92);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.auth-brand-slogan::before {
+  content: '';
+  width: 20px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--ds-brand-highlight);
+}
+
+/* Alt Beyaz Form Kartı */
+.auth-form {
+  position: relative;
+  z-index: 4;
+  flex: 1;
+  display: grid;
+  align-content: start;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+  margin-top: -24px;
+  padding: 16px 20px calc(24px + var(--ds-safe-bottom));
+  border-radius: 26px 26px 0 0;
+  background: var(--ds-surface);
+  box-shadow: 0 -12px 40px rgba(5, 22, 48, 0.14);
+}
+
+.auth-form > *,
+.auth-field,
+.auth-field > div {
+  min-width: 0;
+}
+
+.sheet-handle {
+  width: 38px;
+  height: 4px;
+  margin: 0 auto 2px;
+  border-radius: 99px;
+  background: #e2e8f0;
+}
+
+.section-kicker {
+  display: block;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.auth-form h2 {
+  margin: 4px 0 0;
+  font-size: 25px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: var(--ds-ink);
+}
+
+.auth-form > div:first-of-type > p {
+  margin: 5px 0 0;
+  color: var(--ds-muted);
+  font-size: 13px;
+}
+
+.form-alert {
+  padding: 11px 14px;
+  border: 1px solid var(--ds-danger-border);
+  border-radius: 13px;
+  color: var(--ds-danger-ink);
+  background: var(--ds-danger-bg);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.auth-field {
+  display: grid;
+  gap: 6px;
+  color: var(--ds-muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.auth-field > div {
+  display: flex;
+  height: 52px;
+  align-items: center;
+  gap: 11px;
+  padding: 0 14px;
+  border: 1px solid var(--ds-border-subtle);
+  border-radius: var(--ds-radius-sm);
+  color: #94a3b8;
+  background: var(--ds-surface-subtle);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.auth-field > div:focus-within {
+  border-color: var(--ds-primary);
+  background: var(--ds-surface);
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+}
+
+.auth-field input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  color: var(--ds-ink);
+  background: transparent;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.auth-field input::placeholder {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.auth-field button {
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin-right: -8px;
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.auth-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+  font-size: 13px;
+}
+
+.auth-options label,
+.auth-options a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
+
+.auth-options label {
+  gap: 8px;
+  color: var(--ds-muted);
+  cursor: pointer;
+}
+
+.auth-options input[type='checkbox'] {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--ds-primary);
+  cursor: pointer;
+}
+
+.auth-options a {
+  color: var(--ds-primary-ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.login-button {
+  display: flex;
+  height: 54px;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px 0 22px;
+  border: 0;
+  border-radius: var(--ds-radius-pill);
+  color: var(--ds-ink-light);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  box-shadow: var(--ds-shadow-btn);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.16s, opacity 0.16s, background 0.16s;
+}
+
+.login-button:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+}
+
+.login-button:active {
+  transform: scale(0.985);
+}
+
+.login-button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.auth-help {
+  margin: 4px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #94a3b8;
+  text-align: center;
+  font-size: 12px;
+}
+
+@media (max-height: 720px) {
+  .auth-visual {
+    min-height: 38svh;
+  }
+  .auth-form {
+    gap: 11px;
+    padding-top: 13px;
+  }
+  .auth-field > div {
+    height: 48px;
+  }
+  .login-button {
+    height: 50px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

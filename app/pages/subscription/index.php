@@ -3,7 +3,7 @@ $pageTitle = 'Abonelik Yönetimi';
 $pageSubtitle = 'Abonelik paketlerinizi ve ödeme geçmişinizi yönetin';
 ?>
 
-<div class="p-6">
+<div class="p-0">
     <div class="flex items-center justify-between gap-3 mb-6">
         <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">Abonelik</h1>
         <?php if ($_SESSION['role'] === 'superadmin'): ?>

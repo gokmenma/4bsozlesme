@@ -11,7 +11,7 @@ if (!document.getElementById('toaster')) {
 }
 </script>
 
-<div class="p-6">
+<div class="p-0">
     <!-- Actions Bar -->
     <div class="flex items-center justify-between gap-3 mb-6">
         <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">Personeller</h1>
@@ -121,7 +121,7 @@ if (!document.getElementById('toaster')) {
         </div>
     </div>
 
-    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden relative flex flex-col h-[calc(100vh-200px)] min-h-[450px]">
+    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden relative flex flex-col h-[calc(100vh-175px)] min-h-[450px]">
         <?php echo renderTablePreloader(); ?>
 
         <div id="table-container" class="flex-1 flex flex-col overflow-hidden" style="display: none;">
@@ -795,7 +795,6 @@ if (!document.getElementById('toaster')) {
 <link rel="stylesheet" href="<?php echo routeUrl('assets/css/contract-document.css'); ?>">
 
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/tr.js"></script>
 <style>
     #dialog-petition {
         max-width: 1550px !important;
@@ -948,8 +947,11 @@ const selectedPersonnelMap = new Map();
 
 // Kurum ve rapor bilgileri
 const kurumBilgileri = {
-    kurumAdi: '<?php echo addslashes($tenant_settings['kurum_adi'] ?? ''); ?>',
-    birimAdi: '<?php echo addslashes($tenant_settings['birim_adi'] ?? ''); ?>',
+    kurumAdi: '<?php echo addslashes($tenant_settings['kurum_adi'] ?? 'Düzce Üniversitesi'); ?>',
+    birimAdi: '<?php echo addslashes($tenant_settings['birim_adi'] ?? 'Sağlık Uygulama ve Araştırma Merkezi'); ?>',
+    muhasebeKodu: '<?php echo addslashes($tenant_settings['muhasebe_kodu'] ?? $tenant_settings['muhasebe_birim_kodu'] ?? '81781'); ?>',
+    kurumKodu: '<?php echo addslashes($tenant_settings['kurum_kodu'] ?? '457'); ?>',
+    vknNo: '<?php echo addslashes($tenant_settings['vergi_no'] ?? $tenant_settings['vkn_no'] ?? '0010450321'); ?>',
     yetkiliAdSoyad: '<?php echo addslashes($tenant_settings['yetkili_ad_soyad'] ?? ''); ?>',
     yetkiliUnvan: '<?php echo addslashes($tenant_settings['yetkili_unvan'] ?? ''); ?>',
     hazirlayanAdSoyad: '<?php echo addslashes($_SESSION['name'] ?? ''); ?>',
@@ -1053,14 +1055,13 @@ $(document).ready(function() {
                 className: 'px-0 text-center',
                 orderable: false,
                 render: (data, type, row) => {
-                    const rowData = JSON.stringify(row).replace(/'/g, "&#39;");
                     return `
                     <div class="flex items-center justify-center gap-1">
                         <button onclick='printContract(${row.id})' class="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer" title="Sözleşme Yazdır">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-printer"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
                         </button>
                         ${row.durum !== 'kadroya_gecti' ? `
-                        <button onclick='openPetitionModal(${rowData})' class="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer" title="Dilekçe Yazdır">
+                        <button onclick="openPetitionModal(${row.id})" class="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer" title="Dilekçe Yazdır">
                             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                         </button>
                         ` : ''}
@@ -1132,8 +1133,7 @@ $(document).ready(function() {
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${badgeClass}">${date.toLocaleDateString('tr-TR')}</span>`;
                     
                     if (row.toplam_ucretsiz_izin_gun && parseInt(row.toplam_ucretsiz_izin_gun) > 0) {
-                        const rowData = JSON.stringify(row).replace(/'/g, "&#39;");
-                        html += `<button onclick='openUcretsizIzinModal(${rowData})' class="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 pl-1 hover:underline cursor-pointer text-left focus:outline-none bg-transparent border-none p-0">+${row.toplam_ucretsiz_izin_gun} gün eklendi</button>`;
+                            html += `<button onclick="openUcretsizIzinModal(${row.id})" class="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 pl-1 hover:underline cursor-pointer text-left focus:outline-none bg-transparent border-none p-0">+${row.toplam_ucretsiz_izin_gun} gün eklendi</button>`;
                     }
                     
                     html += `</div>`;
@@ -1151,7 +1151,6 @@ $(document).ready(function() {
                 className: 'text-right',
                 orderable: false,
                 render: (data, type, row) => {
-                    const rowData = JSON.stringify(row).replace(/'/g, "&#39;");
                     return `
                     <div class="relative inline-block text-left group-dropdown">
                         <button type="button" onclick="toggleDropdown(this)" class="p-1.5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded text-zinc-400 transition-colors cursor-pointer" aria-expanded="false">
@@ -1167,11 +1166,11 @@ $(document).ready(function() {
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
                                     Sözleşme Yazdır
                                 </button>
-                                <button onclick='openPetitionModal(${rowData})' class="flex items-center w-full px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
+                                <button onclick="openPetitionModal(${row.id})" class="flex items-center w-full px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                                     Dilekçe Yazdır
                                 </button>
-                                <button onclick='openUcretsizIzinModal(${rowData})' class="flex items-center w-full px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
+                                <button onclick="openUcretsizIzinModal(${row.id})" class="flex items-center w-full px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
                                     Ücretsiz İzinler
                                 </button>
@@ -1188,45 +1187,7 @@ $(document).ready(function() {
         ],
         order: [[2, 'asc']],
         dom: '<"flex-1 overflow-auto"rt><"mt-auto border-t border-zinc-200 dark:border-zinc-800 flex flex-row justify-between items-center py-0 px-4 bg-zinc-50/50 dark:bg-zinc-800/30"lip>',
-        preloader: '#table-preloader',
-        language: {
-            processing: `
-                <div class="custom-processing-content flex flex-col items-center gap-4 px-6 py-5 bg-white/95 dark:bg-zinc-950/95 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl backdrop-blur-md relative overflow-hidden w-64">
-                    <div class="relative w-36 h-24 select-none shrink-0" draggable="false">
-                        <!-- Skeleton Card Container -->
-                        <div class="w-full h-full bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 flex flex-col justify-between overflow-hidden relative">
-                            <!-- Shimmer Gradient -->
-                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/80 dark:via-zinc-800/40 to-transparent -translate-x-full animate-card-shimmer"></div>
-                            
-                            <div class="flex items-center gap-2">
-                                <div class="w-7 h-7 rounded-full bg-zinc-200/80 dark:bg-zinc-800 shrink-0"></div>
-                                <div class="flex-1 space-y-1.5">
-                                    <div class="h-2 bg-zinc-200/80 dark:bg-zinc-800 rounded w-3/4"></div>
-                                    <div class="h-1.5 bg-zinc-150/60 dark:bg-zinc-850 rounded w-1/2"></div>
-                                </div>
-                            </div>
-                            <div class="space-y-1.5 pt-2 border-t border-zinc-200/50 dark:border-zinc-800/40">
-                                <div class="h-1.5 bg-zinc-150/60 dark:bg-zinc-850 rounded w-5/6"></div>
-                                <div class="h-1.5 bg-zinc-150/60 dark:bg-zinc-850 rounded w-2/3"></div>
-                            </div>
-                        </div>
-                        
-                        <!-- Floating Magnifying Glass Scanner -->
-                        <div class="absolute -right-2 -bottom-2 text-indigo-600 dark:text-indigo-400 filter drop-shadow-md animate-float-scan">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                        </div>
-                    </div>
-                    <span class="text-[12px] font-bold text-zinc-900 dark:text-zinc-100 tracking-tight uppercase flex items-center gap-1">
-                        Güncelleniyor
-                        <span class="inline-flex gap-0.5">
-                            <span class="w-1 h-1 rounded-full bg-zinc-900 dark:bg-zinc-100 animate-bounce" style="animation-delay: 0s"></span>
-                            <span class="w-1 h-1 rounded-full bg-zinc-900 dark:bg-zinc-100 animate-bounce" style="animation-delay: 0.15s"></span>
-                            <span class="w-1 h-1 rounded-full bg-zinc-900 dark:bg-zinc-100 animate-bounce" style="animation-delay: 0.3s"></span>
-                        </span>
-                    </span>
-                </div>
-            `
-        }
+        preloader: '#table-preloader'
     });
 
     window.personnelTable = table;
@@ -1604,7 +1565,15 @@ function downloadContractAsWord(id) {
 let petitionQuill = null;
 let currentPetitionPersonnel = null;
 
+function resolvePersonnelRow(p) {
+    if (p && typeof p === 'object') return p;
+    const rows = window.personnelTable ? window.personnelTable.rows().data().toArray() : [];
+    return rows.find(r => String(r.id) === String(p)) || null;
+}
+
 async function openPetitionModal(p) {
+    p = resolvePersonnelRow(p);
+    if (!p) return;
     closeAllDropdowns();
     currentPetitionPersonnel = p;
     const dialog = document.getElementById('dialog-petition');
@@ -2573,7 +2542,7 @@ async function exportOnMaliKontrol() {
             workbook.created = new Date();
             workbook.modified = new Date();
 
-            const worksheet = workbook.addWorksheet('Ön Mali Kontrol Listesi', {
+            const worksheet = workbook.addWorksheet('Sözleşmeli Personel Listesi', {
                 views: [{ showGridLines: true }],
                 pageSetup: {
                     paperSize: 9, // A4
@@ -2582,34 +2551,45 @@ async function exportOnMaliKontrol() {
                     fitToWidth: 1,
                     fitToHeight: 0,
                     margins: {
-                        left: 0.4, right: 0.4,
-                        top: 0.6, bottom: 0.6,
+                        left: 0.35, right: 0.35,
+                        top: 0.5, bottom: 0.5,
                         header: 0.3, footer: 0.3
                     }
                 }
             });
 
-            // Sütun genişlikleri:
-            // A: Sıra No, B: TC Kimlik, C: Adı Soyadı, D: Unvanı, E: Öğrenim Durumu, F: Kıdem Yılı, G: Sözleşme Ücreti
+            // Sütun genişlikleri (A: Sıra, B: Tc Kimlik, C: Adı Soyadı, D: Unvanı, E: Öğrenim, F: Kıdem Yıl, G: Ücret)
             worksheet.columns = [
-                { key: 'sira', width: 9 },
-                { key: 'tc_kimlik', width: 18 },
-                { key: 'ad_soyad', width: 32 },
-                { key: 'unvan', width: 28 },
-                { key: 'ogrenim', width: 18 },
-                { key: 'kidem_yili', width: 22 },
+                { key: 'sira', width: 8 },
+                { key: 'tc_kimlik', width: 17 },
+                { key: 'ad_soyad', width: 28 },
+                { key: 'unvan', width: 26 },
+                { key: 'ogrenim', width: 16 },
+                { key: 'kidem_yili', width: 18 },
                 { key: 'ucret', width: 20 }
             ];
 
-            // 1. Kurum Logosu Yükleme Denemesi (sol üst köşe A1:A4)
-            let logoLoaded = false;
+            // Üst satır yükseklikleri
+            worksheet.getRow(1).height = 14;
+            worksheet.getRow(2).height = 30; // Başlık satırı
+            worksheet.getRow(3).height = 20; // Muhasebe Birim Kodu
+            worksheet.getRow(4).height = 20; // Kurum Kodu - Adı
+            worksheet.getRow(5).height = 20; // VKN No / Vkn Adı
+            worksheet.getRow(6).height = 25; // Tablo başlıkları
+
+            // 1. Başlık: Sözleşmeli Personel Listesi (Satır 2, C2:E2 ortalanmış)
+            worksheet.mergeCells('C2:E2');
+            const titleCell = worksheet.getCell('C2');
+            titleCell.value = 'Sözleşmeli Personel Listesi';
+            titleCell.font = { name: 'Calibri', size: 15, bold: true, color: { argb: 'FF000000' } };
+            titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+            // 2. Sağ Üst Kurum Logosu (Kullanıcı Tanımlamalardan logo yüklediğinde çıktıda sağ üst köşede görünür)
             try {
                 const logoResp = await fetch(kurumBilgileri.logoUrl);
                 if (logoResp.ok) {
                     const blob = await logoResp.blob();
                     if (blob && blob.size > 0 && blob.type.startsWith('image/')) {
-                        const mime = blob.type;
-                        const ext = (mime.includes('jpeg') || mime.includes('jpg')) ? 'jpeg' : 'png';
                         const base64Data = await new Promise((resolve, reject) => {
                             const reader = new FileReader();
                             reader.onloadend = () => resolve(reader.result);
@@ -2617,102 +2597,123 @@ async function exportOnMaliKontrol() {
                             reader.readAsDataURL(blob);
                         });
 
+                        const mime = blob.type;
+                        const ext = (mime.includes('jpeg') || mime.includes('jpg')) ? 'jpeg' : 'png';
                         const imageId = workbook.addImage({
                             base64: base64Data,
                             extension: ext
                         });
 
+                        // Görseldeki sağ üst konuma yerleştir (F1:G4 civarı)
                         worksheet.addImage(imageId, {
-                            tl: { col: 0.15, row: 0.2 },
-                            ext: { width: 75, height: 70 },
+                            tl: { col: 4.8, row: 0.5 },
+                            ext: { width: 195, height: 60 },
                             editAs: 'oneCell'
                         });
-                        logoLoaded = true;
                     }
                 }
             } catch (err) {
-                console.warn('Kurum logosu Excel içine aktarılamadı:', err);
+                console.warn('Kurum logosu alınamadı (henüz yüklenmemiş olabilir):', err);
             }
 
-            // Başlık sütun başlangıcı: Logo varsa B-G, logo yoksa A-G merge edilir
-            const startCol = logoLoaded ? 'B' : 'A';
-            
-            // Satır 1: Kurum Adı
-            worksheet.mergeCells(`${startCol}1:G1`);
-            const r1 = worksheet.getCell(`${startCol}1`);
-            r1.value = (kurumBilgileri.kurumAdi || 'T.C. KURUM BİLGİSİ').toUpperCase();
-            r1.font = { name: 'Calibri', size: 14, bold: true, color: { argb: 'FF1E293B' } };
-            r1.alignment = { horizontal: 'center', vertical: 'middle' };
-            worksheet.getRow(1).height = 28;
+            // 3. Sol Üst Bilgi Kutuları (Satır 3, 4, 5)
+            const infoBorder = {
+                top: { style: 'thin', color: { argb: 'FFD4D4D4' } },
+                left: { style: 'thin', color: { argb: 'FFD4D4D4' } },
+                bottom: { style: 'thin', color: { argb: 'FFD4D4D4' } },
+                right: { style: 'thin', color: { argb: 'FFD4D4D4' } }
+            };
 
-            // Satır 2: Birim Adı
-            worksheet.mergeCells(`${startCol}2:G2`);
-            const r2 = worksheet.getCell(`${startCol}2`);
-            r2.value = (kurumBilgileri.birimAdi || 'PERSONEL BİRİMİ').toUpperCase();
-            r2.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF475569' } };
-            r2.alignment = { horizontal: 'center', vertical: 'middle' };
-            worksheet.getRow(2).height = 20;
-
-            // Satır 3: Belge Başlığı
-            worksheet.mergeCells(`${startCol}3:G3`);
-            const r3 = worksheet.getCell(`${startCol}3`);
-            r3.value = '4/B SÖZLEŞMELİ PERSONEL ÖN MALİ KONTROL LİSTESİ';
-            r3.font = { name: 'Calibri', size: 12, bold: true, color: { argb: 'FF0F172A' } };
-            r3.alignment = { horizontal: 'center', vertical: 'middle' };
-            worksheet.getRow(3).height = 24;
-
-            // Satır 4: Düzenleme Tarihi
-            worksheet.mergeCells(`${startCol}4:G4`);
-            const r4 = worksheet.getCell(`${startCol}4`);
-            const bugunStr = new Date().toLocaleDateString('tr-TR');
-            r4.value = `Düzenleme Tarihi: ${bugunStr}`;
-            r4.font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF64748B' } };
-            r4.alignment = { horizontal: 'right', vertical: 'middle' };
-            worksheet.getRow(4).height = 18;
-
-            // Satır 5: Boşluk
-            worksheet.getRow(5).height = 10;
-
-            // Satır 6: Tablo Başlıkları
-            const headerRow = worksheet.getRow(6);
-            headerRow.height = 26;
-            headerRow.values = [
-                'SIRA NO',
-                'TC KİMLİK NO',
-                'ADI SOYADI',
-                'UNVANI',
-                'ÖĞRENİM DURUMU',
-                'KIDEM YILI',
-                'SÖZLEŞME ÜCRETİ'
+            const infoRows = [
+                {
+                    rowNum: 3,
+                    label: 'Muhasebe Birim Kodu : ',
+                    value: `${kurumBilgileri.muhasebeKodu} - ${kurumBilgileri.kurumAdi}`
+                },
+                {
+                    rowNum: 4,
+                    label: 'Kurum Kodu - Adı : ',
+                    value: `${kurumBilgileri.kurumKodu} - ${kurumBilgileri.kurumAdi}`
+                },
+                {
+                    rowNum: 5,
+                    label: 'VKN No / Vkn Adı : ',
+                    value: `${kurumBilgileri.vknNo} - ${kurumBilgileri.birimAdi}`
+                }
             ];
 
-            headerRow.eachCell((cell) => {
-                cell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FFFFFFFF' } };
+            infoRows.forEach(item => {
+                const r = item.rowNum;
+                // A[r]:B[r] merge (Etiket alanı - sağa yaslı)
+                worksheet.mergeCells(`A${r}:B${r}`);
+                const lbl = worksheet.getCell(`A${r}`);
+                lbl.value = item.label;
+                lbl.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF000000' } };
+                lbl.alignment = { horizontal: 'right', vertical: 'middle' };
+
+                // C[r]:D[r] merge (Değer alanı - sola yaslı)
+                worksheet.mergeCells(`C${r}:D${r}`);
+                const val = worksheet.getCell(`C${r}`);
+                val.value = item.value;
+                val.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF000000' } };
+                val.alignment = { horizontal: 'left', vertical: 'middle' };
+
+                ['A', 'B', 'C', 'D'].forEach(col => {
+                    worksheet.getCell(`${col}${r}`).border = infoBorder;
+                });
+            });
+
+            // 4. Tablo Başlıkları (Satır 6) - Birebir görseldeki gibi gri zemin ve siyah kalın metin
+            const headers = [
+                { col: 1, text: 'Sıra', align: 'center' },
+                { col: 2, text: 'Tc Kimlik', align: 'center' },
+                { col: 3, text: 'Adı Soyadı', align: 'left' },
+                { col: 4, text: 'Unvanı', align: 'left' },
+                { col: 5, text: 'Öğrenim', align: 'center' },
+                { col: 6, text: 'Kıdem Yıl', align: 'center' },
+                { col: 7, text: 'Ücret', align: 'center' }
+            ];
+
+            const headerRow = worksheet.getRow(6);
+            headers.forEach(h => {
+                const cell = headerRow.getCell(h.col);
+                cell.value = h.text;
+                cell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF000000' } };
                 cell.fill = {
                     type: 'pattern',
                     pattern: 'solid',
-                    fgColor: { argb: 'FF1E3A8A' } // Kurumsal Koyu Mavi
+                    fgColor: { argb: 'FFBFBFBF' } // Görseldeki kurumsal gri
                 };
-                cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+                cell.alignment = { horizontal: h.align, vertical: 'middle' };
                 cell.border = {
-                    top: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-                    left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-                    bottom: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-                    right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+                    top: { style: 'thin', color: { argb: 'FF808080' } },
+                    left: { style: 'thin', color: { argb: 'FF808080' } },
+                    bottom: { style: 'thin', color: { argb: 'FF808080' } },
+                    right: { style: 'thin', color: { argb: 'FF808080' } }
                 };
             });
 
-            // Veri Satırları (Satır 7'den başlar)
+            // Görseldeki gibi her sütun başlığında filtreleme butonu
+            worksheet.autoFilter = 'A6:G6';
+
+            // 5. Veri Satırları (Satır 7'den başlar)
+            const cellBorder = {
+                top: { style: 'thin', color: { argb: 'FFD4D4D4' } },
+                left: { style: 'thin', color: { argb: 'FFD4D4D4' } },
+                bottom: { style: 'thin', color: { argb: 'FFD4D4D4' } },
+                right: { style: 'thin', color: { argb: 'FFD4D4D4' } }
+            };
+
             let totalAmount = 0;
             data.forEach((p, idx) => {
                 const rowNum = 7 + idx;
                 const row = worksheet.getRow(rowNum);
-                row.height = 22;
+                row.height = 20;
 
                 const ucretVal = p.ucret ? parseFloat(p.ucret) : 0;
                 totalAmount += ucretVal;
 
-                // Kıdem Yılı: Tablodan gelen kidem_yili yoksa goreve_baslama_tarihi ile hesapla
+                // Kıdem Yılı
                 let kidemText = p.kidem_yili || '';
                 if (!kidemText && p.goreve_baslama_tarihi) {
                     const baslama = new Date(p.goreve_baslama_tarihi);
@@ -2727,44 +2728,29 @@ async function exportOnMaliKontrol() {
                 row.values = [
                     idx + 1,
                     p.tc_kimlik || '',
-                    (p.ad_soyad || '').toUpperCase(),
-                    p.unvan || 'Belirtilmemiş',
-                    p.ogrenim || 'Belirtilmemiş',
+                    (p.ad_soyad || ''),
+                    p.unvan || '',
+                    p.ogrenim || '',
                     kidemText,
                     ucretVal
                 ];
 
-                const isEven = idx % 2 === 1;
-                const bgColor = isEven ? 'FFF8FAFC' : 'FFFFFFFF';
-
                 row.eachCell((cell, colNumber) => {
-                    cell.font = { name: 'Calibri', size: 10, color: { argb: 'FF1E293B' } };
-                    cell.fill = {
-                        type: 'pattern',
-                        pattern: 'solid',
-                        fgColor: { argb: bgColor }
-                    };
-                    cell.border = {
-                        top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
-                        left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
-                        bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
-                        right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
-                    };
+                    cell.font = { name: 'Calibri', size: 10, color: { argb: 'FF000000' } };
+                    cell.border = cellBorder;
 
-                    // Sütunlara göre hizalama ve formatlar
-                    if (colNumber === 1) { // Sıra No
+                    if (colNumber === 1) { // Sıra
                         cell.alignment = { horizontal: 'center', vertical: 'middle' };
-                    } else if (colNumber === 2) { // TC Kimlik
+                    } else if (colNumber === 2) { // Tc Kimlik
                         cell.alignment = { horizontal: 'center', vertical: 'middle' };
                         cell.numFmt = '@';
-                    } else if (colNumber === 3) { // Ad Soyad
+                    } else if (colNumber === 3) { // Adı Soyadı
                         cell.alignment = { horizontal: 'left', vertical: 'middle' };
-                        cell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
-                    } else if (colNumber === 4) { // Unvan
+                    } else if (colNumber === 4) { // Unvanı
                         cell.alignment = { horizontal: 'left', vertical: 'middle' };
                     } else if (colNumber === 5) { // Öğrenim
                         cell.alignment = { horizontal: 'center', vertical: 'middle' };
-                    } else if (colNumber === 6) { // Kıdem Yılı
+                    } else if (colNumber === 6) { // Kıdem Yıl
                         cell.alignment = { horizontal: 'center', vertical: 'middle' };
                     } else if (colNumber === 7) { // Ücret
                         cell.alignment = { horizontal: 'right', vertical: 'middle' };
@@ -2773,93 +2759,30 @@ async function exportOnMaliKontrol() {
                 });
             });
 
-            // Toplam Satırı
+            // 6. Toplam Satırı
             const totalRowNum = 7 + data.length;
             worksheet.mergeCells(`A${totalRowNum}:F${totalRowNum}`);
             const totalLabelCell = worksheet.getCell(`A${totalRowNum}`);
-            totalLabelCell.value = `GENEL TOPLAM (${data.length} Personel)`;
-            totalLabelCell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF1E293B' } };
+            totalLabelCell.value = `Toplam (${data.length} Personel)`;
+            totalLabelCell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF000000' } };
             totalLabelCell.alignment = { horizontal: 'right', vertical: 'middle' };
 
             const totalValCell = worksheet.getCell(`G${totalRowNum}`);
             totalValCell.value = { formula: `SUM(G7:G${totalRowNum - 1})`, result: totalAmount };
-            totalValCell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FF1E3A8A' } };
+            totalValCell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF000000' } };
             totalValCell.alignment = { horizontal: 'right', vertical: 'middle' };
             totalValCell.numFmt = '#,##0.00 "₺"';
 
             const totalRow = worksheet.getRow(totalRowNum);
-            totalRow.height = 25;
+            totalRow.height = 22;
             totalRow.eachCell((cell) => {
-                cell.fill = {
-                    type: 'pattern',
-                    pattern: 'solid',
-                    fgColor: { argb: 'FFF1F5F9' }
-                };
                 cell.border = {
-                    top: { style: 'thin', color: { argb: 'FF94A3B8' } },
-                    bottom: { style: 'double', color: { argb: 'FF0F172A' } }, // Alt çift çizgi (resmi standart)
-                    left: { style: 'thin', color: { argb: 'FFCBD5E1' } },
-                    right: { style: 'thin', color: { argb: 'FFCBD5E1' } }
+                    top: { style: 'thin', color: { argb: 'FF808080' } },
+                    bottom: { style: 'double', color: { argb: 'FF000000' } },
+                    left: { style: 'thin', color: { argb: 'FFD4D4D4' } },
+                    right: { style: 'thin', color: { argb: 'FFD4D4D4' } }
                 };
             });
-
-            // İmza / Onay Bloğu
-            const signStartRow = totalRowNum + 3;
-            
-            // Satır 1: Başlıklar
-            worksheet.mergeCells(`B${signStartRow}:C${signStartRow}`);
-            const s1Left = worksheet.getCell(`B${signStartRow}`);
-            s1Left.value = 'Düzenleyen / Hazırlayan';
-            s1Left.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF334155' } };
-            s1Left.alignment = { horizontal: 'center', vertical: 'middle' };
-
-            worksheet.mergeCells(`F${signStartRow}:G${signStartRow}`);
-            const s1Right = worksheet.getCell(`F${signStartRow}`);
-            s1Right.value = 'Harcama Yetkilisi / Onaylayan';
-            s1Right.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF334155' } };
-            s1Right.alignment = { horizontal: 'center', vertical: 'middle' };
-
-            // Satır 2: İsimler
-            const sNameRow = signStartRow + 1;
-            worksheet.mergeCells(`B${sNameRow}:C${sNameRow}`);
-            const s2Left = worksheet.getCell(`B${sNameRow}`);
-            s2Left.value = kurumBilgileri.hazirlayanAdSoyad || '';
-            s2Left.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
-            s2Left.alignment = { horizontal: 'center', vertical: 'middle' };
-
-            worksheet.mergeCells(`F${sNameRow}:G${sNameRow}`);
-            const s2Right = worksheet.getCell(`F${sNameRow}`);
-            s2Right.value = kurumBilgileri.yetkiliAdSoyad || '';
-            s2Right.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
-            s2Right.alignment = { horizontal: 'center', vertical: 'middle' };
-
-            // Satır 3: Unvanlar
-            const sTitleRow = signStartRow + 2;
-            worksheet.mergeCells(`B${sTitleRow}:C${sTitleRow}`);
-            const s3Left = worksheet.getCell(`B${sTitleRow}`);
-            s3Left.value = kurumBilgileri.hazirlayanUnvan || '';
-            s3Left.font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF64748B' } };
-            s3Left.alignment = { horizontal: 'center', vertical: 'middle' };
-
-            worksheet.mergeCells(`F${sTitleRow}:G${sTitleRow}`);
-            const s3Right = worksheet.getCell(`F${sTitleRow}`);
-            s3Right.value = kurumBilgileri.yetkiliUnvan || '';
-            s3Right.font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF64748B' } };
-            s3Right.alignment = { horizontal: 'center', vertical: 'middle' };
-
-            // Satır 4: İmza / Mühür etiketi
-            const sSignRow = signStartRow + 3;
-            worksheet.mergeCells(`B${sSignRow}:C${sSignRow}`);
-            const s4Left = worksheet.getCell(`B${sSignRow}`);
-            s4Left.value = '(İmza)';
-            s4Left.font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF94A3B8' } };
-            s4Left.alignment = { horizontal: 'center', vertical: 'middle' };
-
-            worksheet.mergeCells(`F${sSignRow}:G${sSignRow}`);
-            const s4Right = worksheet.getCell(`F${sSignRow}`);
-            s4Right.value = '(İmza / Mühür)';
-            s4Right.font = { name: 'Calibri', size: 9, italic: true, color: { argb: 'FF94A3B8' } };
-            s4Right.alignment = { horizontal: 'center', vertical: 'middle' };
 
             // Excel dosyasını yaz ve indir
             const buffer = await workbook.xlsx.writeBuffer();
@@ -2868,16 +2791,16 @@ async function exportOnMaliKontrol() {
             const a = document.createElement('a');
             a.href = url;
             const dateStr = new Date().toLocaleDateString('tr-TR').replace(/\./g, '-');
-            a.download = `on_mali_kontrol_listesi_${data.length}_personel_${dateStr}.xlsx`;
+            a.download = `sozlesmeli_personel_listesi_${data.length}_kisi_${dateStr}.xlsx`;
             a.click();
             window.URL.revokeObjectURL(url);
 
-            showToast({ category: 'success', title: 'Başarılı', description: 'Ön Mali Kontrol Listesi başarıyla indirildi.' });
+            showToast({ category: 'success', title: 'Başarılı', description: 'Sözleşmeli Personel Listesi başarıyla indirildi.' });
 
             logExportActivity('on_mali_kontrol', data.length);
         },
         error: function() {
-            showToast({ category: 'error', title: 'Hata', description: 'Ön mali kontrol listesi oluşturulurken veriler alınamadı.' });
+            showToast({ category: 'error', title: 'Hata', description: 'Liste oluşturulurken veriler alınamadı.' });
         }
     });
 }
@@ -2974,8 +2897,6 @@ function contextAction(action) {
     if (!selectedContextRow) return;
     
     const row = selectedContextRow;
-    const rowData = JSON.stringify(row).replace(/'/g, "&#39;");
-    
     if (action === 'edit') {
         editPersonnel(row.id);
     } else if (action === 'printContract') {
@@ -2991,6 +2912,8 @@ function contextAction(action) {
 
 // Ücretsiz İzin Modal Açma
 function openUcretsizIzinModal(p) {
+    p = resolvePersonnelRow(p);
+    if (!p) return;
     closeAllDropdowns();
     cancelUcretsizIzinEdit();
     $('#ucretsiz_izin_personel_id').val(p.id);

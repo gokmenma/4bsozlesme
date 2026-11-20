@@ -10,3 +10,6 @@ host_veritabani.sql
 
 # Kullanıcı yüklemeleri ve şifreli depolama
 /storage/uploads/
+
+# Mobil SPA bağımlılıkları
+/mobile-spa/node_modules/

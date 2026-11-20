@@ -52,7 +52,7 @@ foreach ($feedbacks as $fb) {
 }
 ?>
 
-<div class="p-2 md:p-4">
+<div class="p-0">
   <div class="flex items-center justify-between gap-3 mb-6">
     <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">Geri Bildirimler</h1>
   </div>

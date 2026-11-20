@@ -3,7 +3,7 @@ $pageTitle = 'Ücret Tanımları';
 $pageSubtitle = 'Sistemdeki tüm unvan ve ücret kriterlerinin listesi';
 ?>
 
-<div class="p-6">
+<div class="p-0">
     <!-- Actions Bar -->
     <div class="flex items-center justify-between gap-3 mb-6 !overflow-visible">
         <div class="flex items-center gap-4 !overflow-visible">
@@ -85,7 +85,7 @@ $pageSubtitle = 'Sistemdeki tüm unvan ve ücret kriterlerinin listesi';
         </div>
     </div>
 
-    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden relative flex flex-col h-[calc(100vh-230px)]">
+    <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-sm overflow-hidden relative flex flex-col h-[calc(100vh-175px)] min-h-[450px]">
         <?php echo renderTablePreloader(); ?>
 
         <div id="table-container" class="flex-1 flex flex-col overflow-hidden" style="display: none;">

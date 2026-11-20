@@ -25,7 +25,7 @@ $pageContent = ob_get_clean();
   <div class="app-view">
     <?php require_once 'layouts/topbar.php'; ?>
     
-    <main class="app-main p-4 md:p-6">
+    <main class="app-main p-2 md:px-3 md:pt-4 md:pb-2">
       <?php echo $pageContent; ?>
     </main>
   </div>
