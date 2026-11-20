@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sozlesme-4b-mobile-shell-v7'
+const CACHE_NAME = 'sozlesme-4b-mobile-shell-v8'
 const SHELL = ['/', '/manifest.webmanifest', '/images/logo-3d-splash.png', '/pwa-icons/icon-192.png', '/pwa-icons/icon-512.png']
 
 self.addEventListener('install', event => {

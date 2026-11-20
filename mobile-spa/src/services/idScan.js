@@ -17,9 +17,9 @@ function getWorker(onProgress) {
   return workerPromise
 }
 
-async function prepareImage(file) {
+async function prepareImage(file, maxSide) {
   const bitmap = await createImageBitmap(file)
-  const scale = Math.min(1, 1800 / Math.max(bitmap.width, bitmap.height))
+  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height))
   const canvas = document.createElement('canvas')
   canvas.width = Math.round(bitmap.width * scale)
   canvas.height = Math.round(bitmap.height * scale)
@@ -57,27 +57,55 @@ export function parseIdText(text) {
     if (tc) break
   }
 
-  const upper = lines.map((l) => l.toLocaleUpperCase('tr-TR'))
-  const valueAfter = (index) => {
-    for (let i = index + 1; i < Math.min(lines.length, index + 3); i++) {
-      const v = cleanName(lines[i])
-      if (v.length >= 2 && !/SURNAME|GIVEN|SOYAD|NAME|T\.?C|SERI|DOĞUM|CİNSİYET/.test(v)) return v
-    }
-    return ''
+    const nameLine = (line) => {
+    if (/[a-zçğıöşü]/.test(line.replace(/[iİ]/g, 'I'))) return ''
+    const tokens = line.split(/[^A-ZÇĞİÖŞÜ]+/).filter(Boolean)
+    if (!tokens.length || tokens.some((t) => t.length < 2)) return ''
+    const value = tokens.join(' ')
+    return /SURNAME|GIVEN|SOYAD|NAME|IDENTITY|KART|CARD|CUMHUR|T\.?C|TÜRK|REPUBLIC|TUR/.test(value) ? '' : value
   }
-  const surnameIdx = upper.findIndex((l) => /SOYAD|SURNAME/.test(l))
-  const givenIdx = upper.findIndex((l, i) => i !== surnameIdx && /(^|[\s/])ADI(\s|\/|$)|GIVEN\s*NAME/.test(l) && !/SOYAD/.test(l))
-  const surname = surnameIdx >= 0 ? valueAfter(surnameIdx) : ''
-  const given = givenIdx >= 0 ? valueAfter(givenIdx) : ''
+
+  const tcLine = tc ? lines.findIndex((l) => l.replace(/[Oo]/g, '0').replace(/\s/g, '').includes(tc)) : -1
+  const dateLine = lines.findIndex((l, i) => i > tcLine && /\d{2}[.\-/]\d{2}[.\-/]\d{4}/.test(l))
+  const slice = lines.slice(tcLine + 1, dateLine > tcLine ? dateLine : tcLine + 8)
+  const candidates = slice.map(nameLine).filter(Boolean)
+
+  let surname = ''
+  let given = ''
+  if (candidates.length >= 2) {
+    surname = candidates[candidates.length - 2]
+    given = candidates[candidates.length - 1]
+  } else {
+    const upper = lines.map((l) => l.toLocaleUpperCase('tr-TR'))
+    const valueAfter = (index) => {
+      for (let i = index + 1; i < Math.min(lines.length, index + 3); i++) {
+        const v = nameLine(lines[i])
+        if (v) return v
+      }
+      return ''
+    }
+    const surnameIdx = upper.findIndex((l) => /SOYAD|SURNAME/.test(l))
+    const givenIdx = upper.findIndex((l, i) => i !== surnameIdx && /(^|[\s/])ADI(\s|\/|$)|GIVEN\s*NAME/.test(l) && !/SOYAD/.test(l))
+    surname = surnameIdx >= 0 ? valueAfter(surnameIdx) : ''
+    given = givenIdx >= 0 ? valueAfter(givenIdx) : candidates[0] || ''
+  }
   const name = [given, surname].filter(Boolean).join(' ')
 
   return { tc, ad_soyad: name }
 }
 
 export async function scanIdCard(file, onProgress) {
-  const [canvas, worker] = await Promise.all([prepareImage(file), getWorker(onProgress)])
-  const { data } = await worker.recognize(canvas)
-  return parseIdText(data.text)
+  const worker = await getWorker(onProgress)
+  let best = { tc: '', ad_soyad: '' }
+  for (const maxSide of [1100, 1800]) {
+    const canvas = await prepareImage(file, maxSide)
+    const { data } = await worker.recognize(canvas)
+    const result = parseIdText(data.text)
+    if (result.tc && result.ad_soyad) return result
+    if (!best.tc && result.tc) best.tc = result.tc
+    if (!best.ad_soyad && result.ad_soyad) best.ad_soyad = result.ad_soyad
+  }
+  return best
 }
 
 export async function releaseScanner() {

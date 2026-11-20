@@ -876,7 +876,8 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .page { min-height: 100svh; }
-.wages { display: grid; gap: 14px; padding: 14px 16px calc(112px + var(--ds-safe-bottom)); max-width: 520px; margin: 0 auto; }
+.wages { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 14px 16px calc(112px + var(--ds-safe-bottom)); max-width: 520px; margin: 0 auto; width: 100%; box-sizing: border-box; overflow-x: clip; }
+.wages > * { min-width: 0; }
 
 .card { background: var(--ds-surface); border-radius: var(--ds-radius-card); padding: 18px; box-shadow: var(--ds-shadow-bento); }
 .card--dark { background: var(--ds-surface-dark); color: var(--ds-ink-light); box-shadow: var(--ds-shadow-bento-dark); }
