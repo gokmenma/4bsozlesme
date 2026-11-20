@@ -279,3 +279,13 @@ dialog::backdrop {
 }
 
 
+
+table.dataTable thead th:not(:last-child),
+table.dataTable tbody td:not(:last-child) {
+    border-right: 1px solid #e5e7eb !important;
+}
+
+.dark table.dataTable thead th:not(:last-child),
+.dark table.dataTable tbody td:not(:last-child) {
+    border-right: 1px solid #27272a !important;
+}

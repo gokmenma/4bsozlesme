@@ -272,7 +272,7 @@ h2 { margin: 2px 0 0; font-size: 21px; font-weight: 800; }
 
 .period-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
 .period-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px 6px 14px; border-radius: var(--ds-radius-tile); background: var(--ds-surface-subtle); border: 1.5px solid transparent; }
-.period-row.is-active { background: var(--ds-primary-soft); border-color: rgba(29, 78, 216, .25); }
+.period-row.is-active { background: var(--ds-primary-soft); border-color: rgba(30, 58, 138, .25); }
 .period-select { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 52px; padding: 4px 0; border: 0; background: transparent; text-align: left; cursor: pointer; color: var(--ds-ink); }
 .period-select__info { display: grid; gap: 2px; min-width: 0; }
 .period-select__info strong { font-size: 15px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

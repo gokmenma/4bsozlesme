@@ -6,7 +6,7 @@ class MobileUserModel extends Model {
     protected $table = 'users';
 
     public function list(?int $tenantId, string $search): array {
-        $sql = "SELECT u.id, u.name, u.username, u.email, u.role, u.role_id, u.tenant_id,
+        $sql = "SELECT u.id, u.name, u.username, u.email, u.role, u.role_id, u.tenant_id, u.is_active,
                        r.name AS role_name, t.name AS tenant_name, u.created_at
                 FROM users u
                 LEFT JOIN roles r ON r.id = u.role_id
@@ -29,7 +29,7 @@ class MobileUserModel extends Model {
     }
 
     public function get(int $id): ?array {
-        $stmt = $this->db->prepare("SELECT id, name, username, email, role, role_id, tenant_id FROM users WHERE id = ?");
+        $stmt = $this->db->prepare("SELECT id, name, username, email, role, role_id, tenant_id, is_active FROM users WHERE id = ?");
         $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
@@ -66,6 +66,11 @@ class MobileUserModel extends Model {
         $sql .= " WHERE id = ?";
         $params[] = $id;
         $this->db->prepare($sql)->execute($params);
+    }
+
+    public function setActive(int $id, bool $active): void {
+        $this->db->prepare("UPDATE users SET is_active = ?, updated_at = NOW() WHERE id = ?")
+            ->execute([$active ? 1 : 0, $id]);
     }
 
     public function deleteUser(int $id): bool {

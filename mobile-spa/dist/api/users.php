@@ -103,6 +103,24 @@ try {
         mobileJson(['success' => true, 'id' => $id]);
     }
 
+    if ($method === 'POST' && $action === 'set_active') {
+        $id = (int)($body['id'] ?? 0);
+        $target = $id > 0 ? $model->get($id) : null;
+        if (!$manageable($target)) {
+            mobileJson(['success' => false, 'message' => 'Kullanıcı bulunamadı.'], 404);
+        }
+        if ($id === 1) {
+            mobileJson(['success' => false, 'message' => 'Ana kurucu kullanıcı pasif yapılamaz.'], 403);
+        }
+        if ($id === $userId) {
+            mobileJson(['success' => false, 'message' => 'Kendi hesabınızı pasif yapamazsınız.'], 422);
+        }
+        $active = !empty($body['active']);
+        $model->setActive($id, $active);
+        $log->log('mobile_user_set_active', 'Mobil SPA ile kullanıcı ' . ($active ? 'aktif' : 'pasif') . ' yapıldı (ID: ' . $id . ').', $userId, $tenantId);
+        mobileJson(['success' => true, 'active' => $active]);
+    }
+
     if ($method === 'POST' && $action === 'delete') {
         $id = (int)($body['id'] ?? 0);
         $target = $id > 0 ? $model->get($id) : null;

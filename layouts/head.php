@@ -249,12 +249,12 @@
 
     <!-- DataTables -->
     <link rel="stylesheet" href="<?php echo routeUrl('assets/vendor/jquery.dataTables-1.13.7.min.css'); ?>">
-    <link rel="stylesheet" href="<?php echo routeUrl('assets/css/datatable.custom.css'); ?>">
+    <link rel="stylesheet" href="<?php echo routeUrl('assets/css/datatable.custom.css'); ?>?v=<?php echo @filemtime(__DIR__ . '/../assets/css/datatable.custom.css'); ?>">
     <script src="<?php echo routeUrl('assets/vendor/jquery-3.7.1.min.js'); ?>"></script>
     <!-- CSRF Token Interceptor (jQuery'den hemen sonra yüklenmeli) -->
     <script src="<?php echo routeUrl('assets/js/csrf.js'); ?>"></script>
     <script src="<?php echo routeUrl('assets/vendor/jquery.dataTables-1.13.7.min.js'); ?>"></script>
-    <script src="<?php echo routeUrl('assets/js/datatable.init.js'); ?>"></script>
+    <script src="<?php echo routeUrl('assets/js/datatable.init.js'); ?>?v=<?php echo @filemtime(__DIR__ . '/../assets/js/datatable.init.js'); ?>"></script>
     <script src="<?php echo routeUrl('assets/js/utils.js'); ?>"></script>
     
     <!-- Flatpickr -->

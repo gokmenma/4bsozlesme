@@ -54,7 +54,7 @@ function openForm(user = null) {
   formError.value = ''
   confirmDelete.value = false
   form.value = user
-    ? { id: user.id, name: user.name, email: user.email, username: user.username || '', password: '', role_id: user.role_id || 0 }
+    ? { id: user.id, is_active: user.is_active !== 0 && user.is_active !== '0', name: user.name, email: user.email, username: user.username || '', password: '', role_id: user.role_id || 0 }
     : { ...blank(), role_id: defaultRole.value }
   open.value = true
 }
@@ -70,6 +70,20 @@ async function submit() {
   showToast(editing ? 'Kullanıcı güncellendi.' : 'Kullanıcı eklendi.')
   load()
 }
+
+async function toggleActive() {
+  busy.value = true
+  formError.value = ''
+  const next = !form.value.is_active
+  const result = await guard(() => usersApi.setActive(form.value.id, next), (m) => { formError.value = m })
+  busy.value = false
+  if (!result) return
+  open.value = false
+  showToast(next ? 'Kullanıcı aktif yapıldı.' : 'Kullanıcı pasif yapıldı.')
+  load()
+}
+
+const isInactive = (u) => u.is_active === 0 || u.is_active === '0'
 
 async function remove() {
   busy.value = true
@@ -100,10 +114,11 @@ onMounted(load)
       <template v-else>
         <ul v-if="users.length" class="m-list">
           <li v-for="u in users" :key="u.id">
-            <button type="button" class="m-row" @click="openForm(u)">
+            <button type="button" class="m-row" :style="isInactive(u) ? 'opacity:.6' : ''" @click="openForm(u)">
               <span class="m-avatar">{{ initialsOf(u.name) }}</span>
               <span class="m-row__text"><strong>{{ u.name }}</strong><small>{{ u.email }}<template v-if="scope === 'all' && u.tenant_name"> · {{ u.tenant_name }}</template></small></span>
-              <span class="m-badge" :class="`m-tone-${roleTone(u)}`">{{ roleLabel(u) }}</span>
+              <span v-if="isInactive(u)" class="m-badge m-tone-red">Pasif</span>
+              <span v-else class="m-badge" :class="`m-tone-${roleTone(u)}`">{{ roleLabel(u) }}</span>
             </button>
           </li>
         </ul>
@@ -126,6 +141,7 @@ onMounted(load)
         <div class="m-actions">
           <template v-if="!confirmDelete">
             <button type="submit" class="m-btn m-btn--dark" :disabled="busy">{{ busy ? 'Kaydediliyor…' : 'Kaydet' }}</button>
+            <button v-if="form.id && form.id !== me && form.id !== 1" type="button" class="m-btn m-btn--light" :disabled="busy" @click="toggleActive">{{ form.is_active ? 'Pasif yap' : 'Aktif yap' }}</button>
             <button v-if="form.id && form.id !== me && form.id !== 1" type="button" class="m-btn m-btn--danger" @click="confirmDelete = true"><Trash2 :size="16" /> Sil</button>
           </template>
           <template v-else>

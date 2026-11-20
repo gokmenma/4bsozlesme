@@ -202,6 +202,14 @@ try {
             ], 401);
         }
 
+        if (isset($user['is_active']) && (int)$user['is_active'] === 0) {
+            $activityLog->log('mobile_login_inactive', 'Mobil SPA pasif kullanıcı giriş denemesi.', (int)$user['id'], $user['tenant_id'] ?? null);
+            jsonResponse([
+                'success' => false,
+                'message' => 'Hesabınız pasif durumdadır. Lütfen yöneticinizle iletişime geçin.',
+            ], 403);
+        }
+
         // Session fixation önlemi
         session_regenerate_id(true);
         $_SESSION['mobile_csrf_token'] = bin2hex(random_bytes(32));

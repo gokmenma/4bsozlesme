@@ -362,15 +362,24 @@ function initDataTable(selector, customOptions = {}) {
             const text = $th.text().trim();
             if (text) {
                 $th.html(`
-                    <div class="flex items-center justify-between gap-2 group/th">
-                        <span>${$th.html()}</span>
+                    <div class="flex items-center justify-start gap-2 group/th">
                         <button type="button" class="column-filter-btn p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 transition-all">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
                         </button>
+                        <span>${$th.html()}</span>
                     </div>
                 `);
             }
         }
+    });
+
+    $table.find('thead th .column-filter-btn').each(function() {
+        const $btn = $(this);
+        const $wrap = $btn.parent();
+        if ($wrap.children().first()[0] !== $btn[0]) {
+            $wrap.prepend($btn);
+        }
+        $wrap.removeClass('justify-between').addClass('justify-start');
     });
 
     // Varsayılan olarak preloader aktif

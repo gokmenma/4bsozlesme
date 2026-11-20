@@ -11,7 +11,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $userModel = new User();
         $user = $userModel->findByUsername($usernameInput);
 
-        if ($user && password_verify($password, $user['password'])) {
+        if ($user && password_verify($password, $user['password']) && isset($user['is_active']) && (int)$user['is_active'] === 0) {
+            $error = "Hesabınız pasif durumdadır. Lütfen yöneticinizle iletişime geçin.";
+        } elseif ($user && password_verify($password, $user['password'])) {
             session_regenerate_id(true);
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_name'] = $user['name'];

@@ -36,6 +36,7 @@ export const profileApi = {
 export const usersApi = {
   list: (scope = 'mine', q = '') => users('list', { params: { scope, q } }),
   save: (user) => users(user.id ? 'update' : 'create', { body: user }),
+  setActive: (id, active) => users('set_active', { body: { id, active } }),
   remove: (id) => users('delete', { body: { id } }),
 }
 
