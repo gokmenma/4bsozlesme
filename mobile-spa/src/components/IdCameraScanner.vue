@@ -1,15 +1,14 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { X, Image as ImageIcon } from '@lucide/vue'
-import { recognizeFrame, warmUpScanner } from '../services/idScan.js'
+import { extractTc, parseNameText, recognizeRegion, warmUpScanner } from '../services/idScan.js'
 
 const emit = defineEmits(['result', 'close', 'fallback'])
 
 const CARD_RATIO = 1.586
 const GUIDE_WIDTH = 0.92
-const OCR_WIDTH = 1000
 const CONFIRM_COUNT = 2
-const PARTIAL_AFTER = 8
+const PARTIAL_AFTER = 5
 const TIMEOUT_MS = 40000
 
 const video = ref(null)
@@ -19,7 +18,8 @@ const guideStyle = ref({})
 
 let stream = null
 let running = false
-let canvas = null
+const tcCanvas = document.createElement('canvas')
+const nameCanvas = document.createElement('canvas')
 const votes = new Map()
 
 function updateGuide() {
@@ -29,7 +29,10 @@ function updateGuide() {
   guideStyle.value = { width: `${gw}px`, height: `${gw / CARD_RATIO}px` }
 }
 
-function cropFrame() {
+const TC_REGION = { x0: 0, y0: 0.14, x1: 0.5, y1: 0.38, width: 560 }
+const NAME_REGION = { x0: 0.26, y0: 0.3, x1: 0.78, y1: 0.63, width: 680 }
+
+function cropRegion(region, target) {
   const el = video.value
   const vw = el.videoWidth
   const vh = el.videoHeight
@@ -41,22 +44,20 @@ function cropFrame() {
   const oy = (vh * scale - ch) / 2
   const gw = cw * GUIDE_WIDTH
   const gh = gw / CARD_RATIO
-  const gx = (cw - gw) / 2
-  const gy = (ch - gh) / 2
-  const margin = 0.04
-  const sx = Math.max(0, (gx + ox) / scale - gw * margin / scale)
-  const sy = Math.max(0, (gy + oy) / scale - gh * margin / scale)
-  const sw = Math.min(vw - sx, gw * (1 + margin * 2) / scale)
-  const sh = Math.min(vh - sy, gh * (1 + margin * 2) / scale)
-  const outW = Math.min(OCR_WIDTH, Math.round(sw))
-  const outH = Math.round(outW * sh / sw)
-  canvas = canvas || document.createElement('canvas')
-  canvas.width = outW
-  canvas.height = outH
-  const ctx = canvas.getContext('2d', { willReadFrequently: true })
-  ctx.filter = 'grayscale(1) contrast(1.4)'
+  const gx = (cw - gw) / 2 + ox
+  const gy = (ch - gh) / 2 + oy
+  const sx = (gx + gw * region.x0) / scale
+  const sy = (gy + gh * region.y0) / scale
+  const sw = gw * (region.x1 - region.x0) / scale
+  const sh = gh * (region.y1 - region.y0) / scale
+  const outW = Math.min(region.width, Math.round(sw))
+  const outH = Math.max(1, Math.round(outW * sh / sw))
+  target.width = outW
+  target.height = outH
+  const ctx = target.getContext('2d', { willReadFrequently: true })
+  ctx.filter = 'grayscale(1) contrast(1.3)'
   ctx.drawImage(el, sx, sy, sw, sh, 0, 0, outW, outH)
-  return canvas
+  return target
 }
 
 function pause(ms) {
@@ -65,34 +66,35 @@ function pause(ms) {
 
 async function loop() {
   const startedAt = Date.now()
-  let frames = 0
+  let tcFrames = 0
   while (running) {
-    const frame = cropFrame()
-    if (!frame) { await pause(200); continue }
-    status.value = 'Okunuyor…'
-    let result
     try {
-      result = await recognizeFrame(frame)
+      const tcShot = cropRegion(TC_REGION, tcCanvas)
+      if (!tcShot) { await pause(200); continue }
+      const tc = extractTc(await recognizeRegion(tcShot))
+      if (!running) return
+      if (tc) {
+        status.value = 'Okunuyor…'
+        tcFrames += 1
+        const nameShot = cropRegion(NAME_REGION, nameCanvas)
+        const name = parseNameText(await recognizeRegion(nameShot))
+        if (!running) return
+        const key = `${tc}|${name}`
+        const count = (votes.get(key) || 0) + 1
+        votes.set(key, count)
+        if ((name && count >= CONFIRM_COUNT) || (!name && tcFrames >= PARTIAL_AFTER)) {
+          running = false
+          emit('result', { tc, ad_soyad: name })
+          return
+        }
+      } else {
+        status.value = 'Kimliği kırmızı çerçeveye sığdırın'
+      }
     } catch {
       if (running) { running = false; emit('fallback') }
       return
     }
-    if (!running) return
-    frames += 1
-    if (result.tc) {
-      const key = `${result.tc}|${result.ad_soyad}`
-      const count = (votes.get(key) || 0) + 1
-      votes.set(key, count)
-      const complete = Boolean(result.ad_soyad)
-      if ((complete && count >= CONFIRM_COUNT) || (!complete && frames >= PARTIAL_AFTER)) {
-        running = false
-        emit('result', result)
-        return
-      }
-    }
-    status.value = 'Kimliği çerçeveye yerleştirin'
     if (Date.now() - startedAt > TIMEOUT_MS) hint.value = 'Okunmuyor mu? Fotoğraf çekerek deneyin.'
-    await pause(120)
   }
 }
 
@@ -113,7 +115,7 @@ async function start() {
   el.srcObject = stream
   try { await el.play() } catch { /* yoksay */ }
   updateGuide()
-  status.value = 'Kimliği çerçeveye yerleştirin'
+  status.value = 'Kimliği kırmızı çerçeveye sığdırın'
   running = true
   loop()
 }
@@ -153,7 +155,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .cam-layer { position: fixed; inset: 0; z-index: 200; background: #000; display: grid; place-items: center; }
 .cam-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.cam-guide { position: relative; border: 3px solid #fff; border-radius: 16px; box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .55); pointer-events: none; }
+.cam-guide { position: relative; border: 3px solid #e5251d; border-radius: 16px; box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .55), inset 0 0 0 1px rgba(255, 255, 255, .35); pointer-events: none; }
 .cam-top { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: flex-end; padding: calc(12px + env(safe-area-inset-top)) 16px 12px; }
 .cam-btn { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: rgba(0, 0, 0, .55); color: #fff; cursor: pointer; }
 .cam-bottom { position: absolute; left: 0; right: 0; bottom: 0; display: grid; justify-items: center; gap: 8px; padding: 16px 16px calc(20px + env(safe-area-inset-bottom)); color: #fff; text-align: center; }

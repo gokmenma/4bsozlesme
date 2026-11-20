@@ -39,63 +39,66 @@ export function isValidTc(tc) {
   return d.slice(0, 10).reduce((a, b) => a + b, 0) % 10 === d[10]
 }
 
-const LETTERS = /[^A-ZÇĞİÖŞÜ ]/g
-
-function cleanName(value) {
-  return String(value || '').toLocaleUpperCase('tr-TR').replace(LETTERS, ' ').replace(/\s+/g, ' ').trim()
+function nameLine(line) {
+  if (/[a-zçğıöşü]/.test(line.replace(/[iİ]/g, 'I'))) return ''
+  const tokens = line.split(/[^A-ZÇĞİÖŞÜ]+/).filter(Boolean)
+  if (!tokens.length || tokens.some((t) => t.length < 2)) return ''
+  const value = tokens.join(' ')
+  return /SURNAME|GIVEN|SOYAD|NAME|IDENTITY|KART|CARD|CUMHUR|T\.?C|TÜRK|REPUBLIC|TUR/.test(value) ? '' : value
 }
 
-export function parseIdText(text) {
-  const lines = String(text).split(/\r?\n/).map((l) => l.trim()).filter(Boolean)
-  let tc = ''
+export function extractTc(text) {
   const digitRuns = String(text).replace(/[Oo]/g, '0').match(/\d[\d\s]{9,14}\d/g) || []
   for (const run of digitRuns) {
     const compact = run.replace(/\s/g, '')
     for (let i = 0; i + 11 <= compact.length; i++) {
-      if (isValidTc(compact.slice(i, i + 11))) { tc = compact.slice(i, i + 11); break }
+      if (isValidTc(compact.slice(i, i + 11))) return compact.slice(i, i + 11)
     }
-    if (tc) break
   }
+  return ''
+}
 
-    const nameLine = (line) => {
-    if (/[a-zçğıöşü]/.test(line.replace(/[iİ]/g, 'I'))) return ''
-    const tokens = line.split(/[^A-ZÇĞİÖŞÜ]+/).filter(Boolean)
-    if (!tokens.length || tokens.some((t) => t.length < 2)) return ''
-    const value = tokens.join(' ')
-    return /SURNAME|GIVEN|SOYAD|NAME|IDENTITY|KART|CARD|CUMHUR|T\.?C|TÜRK|REPUBLIC|TUR/.test(value) ? '' : value
+export function parseNameBlock(lines) {
+  const upper = lines.map((l) => l.toLocaleUpperCase('tr-TR'))
+  const valueAfter = (index) => {
+    for (let i = index + 1; i < Math.min(lines.length, index + 3); i++) {
+      const v = nameLine(lines[i])
+      if (v) return v
+    }
+    return ''
   }
+  const surnameIdx = upper.findIndex((l) => /SOYAD|SURNAME/.test(l))
+  const givenIdx = upper.findIndex((l, i) => i !== surnameIdx && /(^|[\s/])ADI(\s|\/|$)|GIVEN\s*NAME/.test(l) && !/SOYAD/.test(l))
+  let surname = surnameIdx >= 0 ? valueAfter(surnameIdx) : ''
+  let given = givenIdx >= 0 ? valueAfter(givenIdx) : ''
+  const rest = lines.map(nameLine).filter((v) => v && v !== surname && v !== given)
+  if (!surname && !given && rest.length >= 2) {
+    surname = rest[rest.length - 2]
+    given = rest[rest.length - 1]
+  } else if (!surname && given) {
+    surname = rest[0] || ''
+  } else if (surname && !given) {
+    given = rest[rest.length - 1] || ''
+  }
+  return [given, surname].filter(Boolean).join(' ')
+}
 
+export function parseNameText(text) {
+  return parseNameBlock(String(text).split(/\r?\n/).map((l) => l.trim()).filter(Boolean))
+}
+
+export function parseIdText(text) {
+  const lines = String(text).split(/\r?\n/).map((l) => l.trim()).filter(Boolean)
+  const tc = extractTc(text)
   const tcLine = tc ? lines.findIndex((l) => l.replace(/[Oo]/g, '0').replace(/\s/g, '').includes(tc)) : -1
   const dateLine = lines.findIndex((l, i) => i > tcLine && /\d{2}[.\-/]\d{2}[.\-/]\d{4}/.test(l))
   const slice = lines.slice(tcLine + 1, dateLine > tcLine ? dateLine : tcLine + 8)
-  const candidates = slice.map(nameLine).filter(Boolean)
-
-  let surname = ''
-  let given = ''
-  if (candidates.length >= 2) {
-    surname = candidates[candidates.length - 2]
-    given = candidates[candidates.length - 1]
-  } else {
-    const upper = lines.map((l) => l.toLocaleUpperCase('tr-TR'))
-    const valueAfter = (index) => {
-      for (let i = index + 1; i < Math.min(lines.length, index + 3); i++) {
-        const v = nameLine(lines[i])
-        if (v) return v
-      }
-      return ''
-    }
-    const surnameIdx = upper.findIndex((l) => /SOYAD|SURNAME/.test(l))
-    const givenIdx = upper.findIndex((l, i) => i !== surnameIdx && /(^|[\s/])ADI(\s|\/|$)|GIVEN\s*NAME/.test(l) && !/SOYAD/.test(l))
-    surname = surnameIdx >= 0 ? valueAfter(surnameIdx) : ''
-    given = givenIdx >= 0 ? valueAfter(givenIdx) : candidates[0] || ''
-  }
-  const name = [given, surname].filter(Boolean).join(' ')
-
-  return { tc, ad_soyad: name }
+  return { tc, ad_soyad: parseNameBlock(slice) }
 }
 
 export async function scanIdCard(file, onProgress) {
   const worker = await getWorker(onProgress)
+  await worker.setParameters({ tessedit_pageseg_mode: '3' })
   let best = { tc: '', ad_soyad: '' }
   for (const maxSide of [1100, 1800]) {
     const canvas = await prepareImage(file, maxSide)
@@ -115,10 +118,11 @@ export async function releaseScanner() {
   try { await (await pending).terminate() } catch { /* yoksay */ }
 }
 
-export async function recognizeFrame(canvas) {
+export async function recognizeRegion(canvas, pageSegMode = '6') {
   const worker = await getWorker()
+  await worker.setParameters({ tessedit_pageseg_mode: pageSegMode })
   const { data } = await worker.recognize(canvas)
-  return parseIdText(data.text)
+  return data.text
 }
 
 export function warmUpScanner() {
