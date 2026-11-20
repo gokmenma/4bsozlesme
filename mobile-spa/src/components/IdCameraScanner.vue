@@ -1,26 +1,19 @@
 <script setup>
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { X, Image as ImageIcon } from '@lucide/vue'
-import { extractTc, parseNameText, recognizeRegion, warmUpScanner } from '../services/idScan.js'
+import { warmUpScanner } from '../services/idScan.js'
 
-const emit = defineEmits(['result', 'close', 'fallback'])
+const emit = defineEmits(['capture', 'close', 'fallback'])
 
 const CARD_RATIO = 1.586
 const GUIDE_WIDTH = 0.92
-const CONFIRM_COUNT = 2
-const PARTIAL_AFTER = 5
-const TIMEOUT_MS = 40000
+const CAPTURE_WIDTH = 1400
 
 const video = ref(null)
-const status = ref('Kamera açılıyor…')
-const hint = ref('')
+const ready = ref(false)
 const guideStyle = ref({})
 
 let stream = null
-let running = false
-const tcCanvas = document.createElement('canvas')
-const nameCanvas = document.createElement('canvas')
-const votes = new Map()
 
 function updateGuide() {
   const el = video.value
@@ -29,73 +22,27 @@ function updateGuide() {
   guideStyle.value = { width: `${gw}px`, height: `${gw / CARD_RATIO}px` }
 }
 
-const TC_REGION = { x0: 0, y0: 0.14, x1: 0.5, y1: 0.38, width: 560 }
-const NAME_REGION = { x0: 0.26, y0: 0.3, x1: 0.78, y1: 0.63, width: 680 }
-
-function cropRegion(region, target) {
+function capture() {
   const el = video.value
-  const vw = el.videoWidth
-  const vh = el.videoHeight
-  const cw = el.clientWidth
-  const ch = el.clientHeight
-  if (!vw || !vh || !cw || !ch) return null
+  const vw = el?.videoWidth
+  const vh = el?.videoHeight
+  const cw = el?.clientWidth
+  const ch = el?.clientHeight
+  if (!vw || !vh || !cw || !ch) return
   const scale = Math.max(cw / vw, ch / vh)
-  const ox = (vw * scale - cw) / 2
-  const oy = (vh * scale - ch) / 2
   const gw = cw * GUIDE_WIDTH
   const gh = gw / CARD_RATIO
-  const gx = (cw - gw) / 2 + ox
-  const gy = (ch - gh) / 2 + oy
-  const sx = (gx + gw * region.x0) / scale
-  const sy = (gy + gh * region.y0) / scale
-  const sw = gw * (region.x1 - region.x0) / scale
-  const sh = gh * (region.y1 - region.y0) / scale
-  const outW = Math.min(region.width, Math.round(sw))
-  const outH = Math.max(1, Math.round(outW * sh / sw))
-  target.width = outW
-  target.height = outH
-  const ctx = target.getContext('2d', { willReadFrequently: true })
-  ctx.filter = 'grayscale(1) contrast(1.3)'
-  ctx.drawImage(el, sx, sy, sw, sh, 0, 0, outW, outH)
-  return target
-}
-
-function pause(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-async function loop() {
-  const startedAt = Date.now()
-  let tcFrames = 0
-  while (running) {
-    try {
-      const tcShot = cropRegion(TC_REGION, tcCanvas)
-      if (!tcShot) { await pause(200); continue }
-      const tc = extractTc(await recognizeRegion(tcShot))
-      if (!running) return
-      if (tc) {
-        status.value = 'Okunuyor…'
-        tcFrames += 1
-        const nameShot = cropRegion(NAME_REGION, nameCanvas)
-        const name = parseNameText(await recognizeRegion(nameShot))
-        if (!running) return
-        const key = `${tc}|${name}`
-        const count = (votes.get(key) || 0) + 1
-        votes.set(key, count)
-        if ((name && count >= CONFIRM_COUNT) || (!name && tcFrames >= PARTIAL_AFTER)) {
-          running = false
-          emit('result', { tc, ad_soyad: name })
-          return
-        }
-      } else {
-        status.value = 'Kimliği kırmızı çerçeveye sığdırın'
-      }
-    } catch {
-      if (running) { running = false; emit('fallback') }
-      return
-    }
-    if (Date.now() - startedAt > TIMEOUT_MS) hint.value = 'Okunmuyor mu? Fotoğraf çekerek deneyin.'
-  }
+  const sx = ((cw - gw) / 2 + (vw * scale - cw) / 2) / scale
+  const sy = ((ch - gh) / 2 + (vh * scale - ch) / 2) / scale
+  const sw = gw / scale
+  const sh = gh / scale
+  const outW = Math.min(CAPTURE_WIDTH, Math.round(sw))
+  const canvas = document.createElement('canvas')
+  canvas.width = outW
+  canvas.height = Math.round(outW * sh / sw)
+  canvas.getContext('2d').drawImage(el, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height)
+  stop()
+  emit('capture', canvas)
 }
 
 async function start() {
@@ -115,13 +62,10 @@ async function start() {
   el.srcObject = stream
   try { await el.play() } catch { /* yoksay */ }
   updateGuide()
-  status.value = 'Kimliği kırmızı çerçeveye sığdırın'
-  running = true
-  loop()
+  ready.value = true
 }
 
 function stop() {
-  running = false
   stream?.getTracks().forEach((t) => t.stop())
   stream = null
 }
@@ -144,10 +88,10 @@ onBeforeUnmount(() => {
     <header class="cam-top">
       <button type="button" class="cam-btn" aria-label="Kapat" @click="emit('close')"><X :size="22" /></button>
     </header>
-    <footer class="cam-bottom" role="status" aria-live="polite">
-      <strong>{{ status }}</strong>
-      <small>{{ hint || 'Görüntü cihazınızda işlenir, dışarı gönderilmez.' }}</small>
-      <button type="button" class="cam-photo" @click="emit('fallback')"><ImageIcon :size="18" /> Fotoğraf çekerek tara</button>
+    <footer class="cam-bottom">
+      <strong>{{ ready ? 'Kimliği kırmızı çerçeveye sığdırıp çekin' : 'Kamera açılıyor…' }}</strong>
+      <button type="button" class="cam-shutter" aria-label="Fotoğraf çek" :disabled="!ready" @click="capture"><span></span></button>
+      <button type="button" class="cam-photo" @click="emit('fallback')"><ImageIcon :size="18" /> Galeriden / sistem kamerasından</button>
     </footer>
   </div>
 </template>
@@ -158,7 +102,10 @@ onBeforeUnmount(() => {
 .cam-guide { position: relative; border: 3px solid #e5251d; border-radius: 16px; box-shadow: 0 0 0 100vmax rgba(0, 0, 0, .55), inset 0 0 0 1px rgba(255, 255, 255, .35); pointer-events: none; }
 .cam-top { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: flex-end; padding: calc(12px + env(safe-area-inset-top)) 16px 12px; }
 .cam-btn { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: rgba(0, 0, 0, .55); color: #fff; cursor: pointer; }
-.cam-bottom { position: absolute; left: 0; right: 0; bottom: 0; display: grid; justify-items: center; gap: 8px; padding: 16px 16px calc(20px + env(safe-area-inset-bottom)); color: #fff; text-align: center; }
-.cam-bottom small { color: rgba(255, 255, 255, .8); font-size: 12px; }
-.cam-photo { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 18px; border: 1px solid rgba(255, 255, 255, .6); border-radius: 999px; background: rgba(0, 0, 0, .4); color: #fff; font-weight: 700; font-size: 14px; cursor: pointer; }
+.cam-bottom { position: absolute; left: 0; right: 0; bottom: 0; display: grid; justify-items: center; gap: 12px; padding: 16px 16px calc(20px + env(safe-area-inset-bottom)); color: #fff; text-align: center; }
+.cam-shutter { display: grid; place-items: center; width: 72px; height: 72px; border: 4px solid #fff; border-radius: 50%; background: transparent; cursor: pointer; }
+.cam-shutter span { width: 54px; height: 54px; border-radius: 50%; background: #fff; }
+.cam-shutter:active span { transform: scale(.9); }
+.cam-shutter:disabled { opacity: .4; }
+.cam-photo { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 16px; border: 1px solid rgba(255, 255, 255, .5); border-radius: 999px; background: rgba(0, 0, 0, .4); color: #fff; font-weight: 600; font-size: 13px; cursor: pointer; }
 </style>

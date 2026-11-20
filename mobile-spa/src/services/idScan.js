@@ -125,6 +125,40 @@ export async function recognizeRegion(canvas, pageSegMode = '6') {
   return data.text
 }
 
+const TC_REGION = { x0: 0, y0: 0.14, x1: 0.5, y1: 0.38, width: 560 }
+const NAME_REGION = { x0: 0.26, y0: 0.3, x1: 0.78, y1: 0.63, width: 680 }
+
+function cropCanvas(source, region) {
+  const sx = source.width * region.x0
+  const sy = source.height * region.y0
+  const sw = source.width * (region.x1 - region.x0)
+  const sh = source.height * (region.y1 - region.y0)
+  const outW = Math.min(region.width, Math.round(sw))
+  const outH = Math.max(1, Math.round(outW * sh / sw))
+  const target = document.createElement('canvas')
+  target.width = outW
+  target.height = outH
+  const ctx = target.getContext('2d')
+  ctx.filter = 'grayscale(1) contrast(1.3)'
+  ctx.drawImage(source, sx, sy, sw, sh, 0, 0, outW, outH)
+  return target
+}
+
+export async function scanCardCanvas(card, onStep) {
+  const report = (label, percent) => onStep?.({ label, percent })
+  report('Okuyucu hazırlanıyor…', 8)
+  await getWorker()
+  report('TC kimlik no okunuyor…', 30)
+  const tc = extractTc(await recognizeRegion(cropCanvas(card, TC_REGION)))
+  report('Ad soyad okunuyor…', 65)
+  const name = parseNameText(await recognizeRegion(cropCanvas(card, NAME_REGION)))
+  if (tc && name) { report('Tamamlandı', 100); return { tc, ad_soyad: name } }
+  report('Kimlik tamamı okunuyor…', 85)
+  const full = parseIdText(await recognizeRegion(cropCanvas(card, { x0: 0, y0: 0, x1: 1, y1: 1, width: 900 })))
+  report('Tamamlandı', 100)
+  return { tc: tc || full.tc, ad_soyad: name || full.ad_soyad }
+}
+
 export function warmUpScanner() {
   return getWorker().catch(() => null)
 }

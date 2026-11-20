@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { AlertCircle, ArrowUp, CalendarOff, ScanLine, CircleCheck, Pencil, Phone, Plus, RefreshCw, Search, Trash2, UsersRound, X } from '@lucide/vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
 import PersonnelForm from '../components/PersonnelForm.vue'
-import { releaseScanner, scanIdCard } from '../services/idScan.js'
+import { releaseScanner, scanCardCanvas, scanIdCard } from '../services/idScan.js'
 import IdCameraScanner from '../components/IdCameraScanner.vue'
 import TopBar from '../components/TopBar.vue'
 import { auth } from '../services/auth.js'
@@ -41,6 +41,7 @@ const scanInput = ref(null)
 const scanning = ref(false)
 const cameraOpen = ref(false)
 const scanStep = ref('')
+const scanPercent = ref(null)
 const formPrefill = ref(null)
 let toastTimer = null
 let previousOverflow = ''
@@ -179,9 +180,23 @@ function handleCameraFallback() {
   scanInput.value?.click()
 }
 
-function handleCameraResult(result) {
+async function handleCameraCapture(canvas) {
   cameraOpen.value = false
-  applyScanResult(result)
+  scanning.value = true
+  scanPercent.value = 5
+  scanStep.value = 'Fotoğraf işleniyor…'
+  try {
+    const result = await scanCardCanvas(canvas, ({ label, percent }) => {
+      scanStep.value = label
+      scanPercent.value = percent
+    })
+    applyScanResult(result)
+  } catch {
+    showToast('Kimlik taraması başarısız oldu.')
+  } finally {
+    scanning.value = false
+    scanPercent.value = null
+  }
 }
 
 function applyScanResult(result) {
@@ -200,6 +215,7 @@ async function handleScanFile(event) {
   if (!file) return
   scanning.value = true
   scanStep.value = 'Hazırlanıyor…'
+  scanPercent.value = null
   try {
     const result = await scanIdCard(file, (m) => {
       if (m.status === 'recognizing text') scanStep.value = `Okunuyor… %${Math.round((m.progress || 0) * 100)}`
@@ -372,10 +388,10 @@ onBeforeUnmount(() => {
         </div>
       </Transition>
     </Teleport>
-    <IdCameraScanner v-if="cameraOpen" @result="handleCameraResult" @close="cameraOpen = false" @fallback="handleCameraFallback" />
+    <IdCameraScanner v-if="cameraOpen" @capture="handleCameraCapture" @close="cameraOpen = false" @fallback="handleCameraFallback" />
     <input ref="scanInput" type="file" accept="image/*" capture="environment" class="sr-file" tabindex="-1" aria-hidden="true" @change="handleScanFile" />
     <Teleport to="body">
-      <div v-if="scanning" class="scan-layer" role="status" aria-live="polite"><div class="scan-card"><span class="spinner"></span><strong>{{ scanStep }}</strong><small>Görüntü cihazınızda işlenir, dışarı gönderilmez.</small></div></div>
+      <div v-if="scanning" class="scan-layer" role="status" aria-live="polite"><div class="scan-card"><span class="spinner"></span><strong>{{ scanStep }}</strong><div v-if="scanPercent !== null" class="scan-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" :aria-valuenow="scanPercent"><span :style="{ width: scanPercent + '%' }"></span></div><small>Görüntü cihazınızda işlenir, dışarı gönderilmez.</small></div></div>
     </Teleport>
     <PersonnelForm v-if="formOpen" :person="formPerson" :prefill="formPrefill" @close="formOpen = false" @saved="handleSaved" @expired="handleExpired" />
 
@@ -492,6 +508,8 @@ dd { margin: 0; text-align: right; font-weight: 600; overflow-wrap: anywhere; }
 .sr-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .scan-layer { position: fixed; inset: 0; z-index: 150; display: grid; place-items: center; background: rgba(15, 18, 24, .55); }
 .scan-card { display: grid; justify-items: center; gap: 10px; padding: 24px 28px; border-radius: 24px; background: var(--ds-surface); text-align: center; max-width: 280px; }
+.scan-bar { width: 200px; height: 8px; border-radius: 999px; background: var(--ds-surface-subtle); overflow: hidden; }
+.scan-bar span { display: block; height: 100%; background: var(--ds-primary); border-radius: 999px; transition: width .3s ease; }
 .scan-card small { color: var(--ds-muted); font-size: 12px; }
 .spinner { width: 30px; height: 30px; border: 3px solid var(--ds-surface-subtle); border-top-color: var(--ds-primary); border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
