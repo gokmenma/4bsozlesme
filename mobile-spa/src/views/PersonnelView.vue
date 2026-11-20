@@ -1,8 +1,8 @@
 <script setup>
-import Swal from 'sweetalert2'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { AlertCircle, ArrowUp, CalendarOff, ScanLine, CircleCheck, Pencil, Phone, Plus, RefreshCw, Search, Trash2, UsersRound, X } from '@lucide/vue'
+import ConfirmDialog from '../components/ConfirmDialog.vue'
 import PersonnelForm from '../components/PersonnelForm.vue'
 import { releaseScanner, scanIdCard } from '../services/idScan.js'
 import IdCameraScanner from '../components/IdCameraScanner.vue'
@@ -31,6 +31,7 @@ const sheet = ref(null)
 const leaves = ref([])
 const formOpen = ref(false)
 const formPerson = ref(null)
+const confirmDelete = ref(false)
 const actionBusy = ref(false)
 const actionError = ref('')
 const leaveForm = ref({ baslangic_tarihi: '', bitis_tarihi: '', aciklama: '' })
@@ -255,18 +256,7 @@ async function runAction(fn) {
 }
 
 async function removePerson() {
-  const confirmation = await Swal.fire({
-    title: 'Personel silinsin mi?',
-    text: 'Bu işlem geri alınamaz.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Evet, sil',
-    cancelButtonText: 'Vazgeç',
-    confirmButtonColor: '#dc2626',
-    reverseButtons: true,
-    heightAuto: false
-  })
-  if (!confirmation.isConfirmed) return
+  confirmDelete.value = false
   const id = detail.value.id
   const result = await runAction(() => deletePersonnel(id))
   if (!result) return
@@ -429,8 +419,10 @@ onBeforeUnmount(() => {
 
           <div class="actions">
             <button type="button" class="btn btn--dark" @click="openForm(detail)"><Pencil :size="16" /> Düzenle</button>
-            <button type="button" class="btn btn--danger" :disabled="actionBusy" @click="removePerson"><Trash2 :size="16" /> Sil</button>
+            <button type="button" class="btn btn--danger" :disabled="actionBusy" @click="confirmDelete = true"><Trash2 :size="16" /> Sil</button>
           </div>
+
+          <ConfirmDialog v-if="confirmDelete" message="Bu personeli silmek istediğinize emin misiniz? Bu işlem geri alınamaz." confirm-text="Evet, sil" :busy="actionBusy" @confirm="removePerson" @cancel="confirmDelete = false" />
 
           <a v-if="detail.telefon" class="call" :href="`tel:${detail.telefon}`"><Phone :size="17" /> {{ detail.telefon }}</a>
         </section>
