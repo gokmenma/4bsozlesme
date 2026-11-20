@@ -1,5 +1,6 @@
 <script setup>
 import { computed, nextTick, onMounted, reactive, ref } from 'vue'
+import WageSelect from './WageSelect.vue'
 import { Mic, Square, X } from '@lucide/vue'
 import { STATUS_META, getWageOptions, savePersonnel } from '../services/personnel.js'
 import { parsePersonnelSpeech, useVoiceInput } from '../composables/useVoiceInput.js'
@@ -40,8 +41,6 @@ function toggleVoice() {
   if (voice.listening.value) voice.stop()
   else voice.start()
 }
-
-const wageLabel =(w) => `${w.unvan} · ${w.ogrenim} · ${w.kidem_yili}`
 
 async function submit() {
   error.value = ''
@@ -99,12 +98,10 @@ onMounted(async () => {
         <label>TC Kimlik No
           <input v-model="form.tc_kimlik" type="text" inputmode="numeric" pattern="\d{11}" maxlength="11" required autocomplete="off" />
         </label>
-        <label>Unvan / Ücret
-          <select v-model="form.ucret_id" required>
-            <option value="" disabled>{{ wages.length ? 'Seçin' : 'Yükleniyor…' }}</option>
-            <option v-for="w in wages" :key="w.id" :value="String(w.id)">{{ wageLabel(w) }}</option>
-          </select>
-        </label>
+        <div class="field">
+          <span class="field__label">Unvan / Ücret</span>
+          <WageSelect v-model="form.ucret_id" :wages="wages" required />
+        </div>
         <div class="two">
           <label>Durum
             <select v-model="form.durum">
@@ -156,6 +153,8 @@ h2 { margin: 2px 0 0; font-size: 21px; font-weight: 800; }
 .voice__hint { margin: 0; color: var(--ds-muted); font-size: 12px; line-height: 1.4; }
 .fields { display: grid; gap: 12px; }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field__label { color: var(--ds-muted); font-size: 12px; font-weight: 700; }
 label { display: grid; gap: 6px; color: var(--ds-muted); font-size: 12px; font-weight: 700; min-width: 0; }
 input, select { width: 100%; min-height: 48px; padding: 0 14px; border: 1px solid var(--ds-border-subtle); border-radius: var(--ds-radius-sm); background: var(--ds-surface-subtle); color: var(--ds-ink); font: 600 16px var(--ds-font-main); }
 input:focus-visible, select:focus-visible { outline: 2px solid var(--ds-focus); outline-offset: 1px; }
