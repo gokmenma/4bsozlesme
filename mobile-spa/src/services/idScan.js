@@ -114,3 +114,13 @@ export async function releaseScanner() {
   workerPromise = null
   try { await (await pending).terminate() } catch { /* yoksay */ }
 }
+
+export async function recognizeFrame(canvas) {
+  const worker = await getWorker()
+  const { data } = await worker.recognize(canvas)
+  return parseIdText(data.text)
+}
+
+export function warmUpScanner() {
+  return getWorker().catch(() => null)
+}

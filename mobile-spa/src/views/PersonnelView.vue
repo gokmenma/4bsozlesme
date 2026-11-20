@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { AlertCircle, ArrowUp, CalendarOff, ScanLine, CircleCheck, Pencil, Phone, Plus, RefreshCw, Search, Trash2, UsersRound, X } from '@lucide/vue'
 import PersonnelForm from '../components/PersonnelForm.vue'
 import { releaseScanner, scanIdCard } from '../services/idScan.js'
+import IdCameraScanner from '../components/IdCameraScanner.vue'
 import TopBar from '../components/TopBar.vue'
 import { auth } from '../services/auth.js'
 import { STATUS_META, addLeave, deleteLeave, deletePersonnel, getPersonnel, listPersonnel } from '../services/personnel.js'
@@ -37,6 +38,7 @@ const toast = ref('')
 const showTop = ref(false)
 const scanInput = ref(null)
 const scanning = ref(false)
+const cameraOpen = ref(false)
 const scanStep = ref('')
 const formPrefill = ref(null)
 let toastTimer = null
@@ -168,7 +170,28 @@ function scrollTop() {
 
 function startScan() {
   if (scanning.value) return
+  if (navigator.mediaDevices?.getUserMedia) { cameraOpen.value = true; return }
   scanInput.value?.click()
+}
+
+function handleCameraFallback() {
+  cameraOpen.value = false
+  scanInput.value?.click()
+}
+
+function handleCameraResult(result) {
+  cameraOpen.value = false
+  applyScanResult(result)
+}
+
+function applyScanResult(result) {
+  if (!result.tc && !result.ad_soyad) {
+    showToast('Kimlik okunamadı, daha net çekin.')
+    return
+  }
+  formPrefill.value = { tc_kimlik: result.tc, ad_soyad: result.ad_soyad }
+  openForm(null, true)
+  showToast(result.tc && result.ad_soyad ? 'Kimlik okundu, kontrol edin.' : 'Kısmen okundu, eksikleri tamamlayın.')
 }
 
 async function handleScanFile(event) {
@@ -182,13 +205,7 @@ async function handleScanFile(event) {
       if (m.status === 'recognizing text') scanStep.value = `Okunuyor… %${Math.round((m.progress || 0) * 100)}`
       else if (m.status) scanStep.value = 'Okuyucu yükleniyor…'
     })
-    if (!result.tc && !result.ad_soyad) {
-      showToast('Kimlik okunamadı, daha net çekin.')
-      return
-    }
-    formPrefill.value = { tc_kimlik: result.tc, ad_soyad: result.ad_soyad }
-    openForm(null, true)
-    showToast(result.tc && result.ad_soyad ? 'Kimlik okundu, kontrol edin.' : 'Kısmen okundu, eksikleri tamamlayın.')
+    applyScanResult(result)
   } catch {
     showToast('Kimlik taraması başarısız oldu.')
   } finally {
@@ -354,6 +371,7 @@ onBeforeUnmount(() => {
         </div>
       </Transition>
     </Teleport>
+    <IdCameraScanner v-if="cameraOpen" @result="handleCameraResult" @close="cameraOpen = false" @fallback="handleCameraFallback" />
     <input ref="scanInput" type="file" accept="image/*" capture="environment" class="sr-file" tabindex="-1" aria-hidden="true" @change="handleScanFile" />
     <Teleport to="body">
       <div v-if="scanning" class="scan-layer" role="status" aria-live="polite"><div class="scan-card"><span class="spinner"></span><strong>{{ scanStep }}</strong><small>Görüntü cihazınızda işlenir, dışarı gönderilmez.</small></div></div>
