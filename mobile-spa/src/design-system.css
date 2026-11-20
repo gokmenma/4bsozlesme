@@ -182,6 +182,7 @@
   background: #ffffff;
   box-shadow: 0 22px 44px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.18);
   overflow: hidden;
+  opacity: 1;
   animation: splash-logo-3d-motion 3.4s ease-in-out infinite alternate;
 }
 

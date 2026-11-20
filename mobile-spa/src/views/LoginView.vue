@@ -68,7 +68,7 @@ async function submit() {
           <div class="splash-orbit"></div>
           <div class="splash-orbit splash-orbit--inner"></div>
           <div class="splash-logo-card-3d">
-            <img src="/images/logo-3d-splash.png?v=2" alt="Sözleşme 4B" width="104" height="104" />
+            <img src="/images/logo-3d-splash.png?v=3" alt="Sözleşme 4B" width="104" height="104" />
           </div>
         </div>
 
