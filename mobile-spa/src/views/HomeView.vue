@@ -1,10 +1,10 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { AlertCircle, ArrowUpRight, CalendarClock, CheckCircle2, Coins, ListTodo, RefreshCw, UserPlus, UsersRound } from '@lucide/vue'
+import { AlertCircle, ArrowUpRight, CalendarClock, CheckCircle2, Coins, ListTodo, MessageCircle, RefreshCw, UserPlus, UsersRound } from '@lucide/vue'
 import TopBar from '../components/TopBar.vue'
 import { auth } from '../services/auth.js'
-import { getDashboard } from '../services/dashboard.js'
+import { getDashboard, logKadroMessage, whatsappUrl } from '../services/dashboard.js'
 import { MODULES } from '../services/modules.js'
 
 const router = useRouter()
@@ -18,6 +18,12 @@ const personnel = computed(() => data.value?.personnel || null)
 const tasks = computed(() => data.value?.tasks || null)
 const recent = computed(() => data.value?.recent_personnel || [])
 const upcoming = computed(() => data.value?.upcoming_tasks || [])
+const kadro = computed(() => data.value?.kadro || null)
+const kadroTab = ref('due')
+const kadroExpanded = ref(false)
+const kadroToast = ref('')
+const kadroList = computed(() => (kadro.value ? kadro.value[kadroTab.value] : []) || [])
+const kadroVisible = computed(() => (kadroExpanded.value ? kadroList.value : kadroList.value.slice(0, 5)))
 const unread = computed(() => data.value?.unread_notifications || 0)
 
 const STATUS_META = [
@@ -39,7 +45,7 @@ const statusRows = computed(() => {
 
 const activePct = computed(() => (personnel.value?.total ? Math.round((personnel.value.active / personnel.value.total) * 100) : 0))
 
-const shortcuts = computed(() => MODULES.filter((m) => ['personnel', 'wages', 'tasks', 'templates', 'doner', 'definitions'].includes(m.key) && auth.can(m.route)))
+const shortcuts = computed(() => MODULES.filter((m) => ['personnel', 'wages', 'tasks', 'doner', 'definitions'].includes(m.key) && auth.can(m.route)))
 
 const PRIORITY = { high: 'Yüksek', medium: 'Orta', low: 'Düşük' }
 const STATUS_LABEL = { todo: 'Yapılacak', in_progress: 'Devam ediyor', done: 'Tamamlandı' }
@@ -52,6 +58,37 @@ function formatDate(value) {
 
 function isOverdue(task) {
   return task.due_date && task.status !== 'done' && new Date(`${task.due_date.slice(0, 10)}T23:59:59`) < new Date()
+}
+
+function formatLongDate(value) {
+  const d = new Date(`${String(value).slice(0, 10)}T00:00:00`)
+  return Number.isNaN(d.getTime()) ? '' : new Intl.DateTimeFormat('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(d)
+}
+
+function kadroNote(person) {
+  const days = person.days_left
+  if (days < 0) return `${Math.abs(days)} gün önce doldu`
+  if (days === 0) return 'Bugün'
+  return `${days} gün kaldı`
+}
+
+function kadroMessage(person) {
+  const date = formatLongDate(person.kadro_tarihi)
+  const lead = person.days_left <= 0
+    ? `kadroya geçiş süreniz ${date} tarihi itibarıyla dolmuştur.`
+    : `kadroya geçiş tarihiniz ${date} olarak görünmektedir.`
+  return `Sayın ${person.ad_soyad},\n\n${lead} Kadroya geçiş işlemleriniz için gerekli dilekçe ve evrak sürecini başlatmak üzere tarafımızla iletişime geçmenizi rica ederiz.\n\nİyi çalışmalar dileriz.`
+}
+
+function sendKadroMessage(person) {
+  const url = whatsappUrl(person.telefon, kadroMessage(person))
+  if (!url) {
+    kadroToast.value = `${person.ad_soyad} için geçerli telefon numarası yok.`
+    setTimeout(() => { kadroToast.value = '' }, 3500)
+    return
+  }
+  window.open(url, '_blank', 'noopener')
+  logKadroMessage(person.id).catch(() => {})
 }
 
 function initialsOf(name) {
@@ -112,6 +149,29 @@ onMounted(load)
           <ul class="hero__legend">
             <li v-for="row in statusRows" :key="row.key"><i :style="{ background: row.color }"></i>{{ row.label }} <strong>{{ row.count }}</strong></li>
           </ul>
+        </section>
+
+        <section v-if="kadro && (kadro.due_count || kadro.upcoming_count)" class="card kadro" aria-label="Kadroya geçiş">
+          <header class="card__head">
+            <h2>Kadroya geçiş</h2>
+          </header>
+          <div class="kadro__tabs" role="tablist">
+            <button type="button" role="tab" :aria-selected="kadroTab === 'due'" :class="{ on: kadroTab === 'due' }" @click="kadroTab = 'due'; kadroExpanded = false">Tarihi gelen <strong>{{ kadro.due_count }}</strong></button>
+            <button type="button" role="tab" :aria-selected="kadroTab === 'upcoming'" :class="{ on: kadroTab === 'upcoming' }" @click="kadroTab = 'upcoming'; kadroExpanded = false">Yaklaşan <strong>{{ kadro.upcoming_count }}</strong></button>
+          </div>
+          <p v-if="kadroToast" class="kadro__toast" role="status">{{ kadroToast }}</p>
+          <ul v-if="kadroVisible.length" class="list">
+            <li v-for="person in kadroVisible" :key="person.id" class="row">
+              <span class="avatar">{{ initialsOf(person.ad_soyad) }}</span>
+              <div class="row__text">
+                <strong>{{ person.ad_soyad }}</strong>
+                <small>{{ formatLongDate(person.kadro_tarihi) }} · {{ kadroNote(person) }}</small>
+              </div>
+              <button type="button" class="wa" :aria-label="`${person.ad_soyad} kişisine WhatsApp mesajı gönder`" @click="sendKadroMessage(person)"><MessageCircle :size="19" /></button>
+            </li>
+          </ul>
+          <p v-else class="empty"><CheckCircle2 :size="18" /> Bu listede personel yok.</p>
+          <button v-if="kadroList.length > 5" type="button" class="link kadro__more" @click="kadroExpanded = !kadroExpanded">{{ kadroExpanded ? 'Daha az göster' : `Tümünü göster (${kadroList.length})` }}</button>
         </section>
 
         <section class="stat-grid" aria-label="Sayaçlar">
@@ -218,6 +278,15 @@ onMounted(load)
 .stat__icon--amber { background: #fef3c7; color: #b45309; }
 .stat__icon--blue { background: #e0f2fe; color: #0369a1; }
 .stat__icon--purple { background: #ede9fe; color: #6d28d9; }
+.kadro__tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 999px; background: var(--ds-surface-subtle); }
+.kadro__tabs button { min-height: 40px; border: 0; border-radius: 999px; background: transparent; color: var(--ds-muted); font-size: 13px; font-weight: 700; cursor: pointer; }
+.kadro__tabs button.on { background: var(--ds-surface); color: var(--ds-ink); box-shadow: var(--ds-shadow-tile); }
+.kadro__tabs strong { margin-left: 4px; font-family: var(--ds-font-mono); }
+.kadro__toast { margin: 8px 0 0; color: var(--ds-danger-ink); font-size: 12px; font-weight: 600; }
+.kadro .list { margin-top: 6px; }
+.kadro__more { width: 100%; text-align: center; }
+.wa { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; border: 0; border-radius: 50%; background: #d1fae5; color: #047857; cursor: pointer; }
+.wa:active { transform: scale(.92); }
 .section-title { margin: 0 0 10px 4px; font-size: 16px; font-weight: 800; }
 .shortcuts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .shortcut { display: grid; justify-items: center; gap: 8px; min-height: 88px; padding: 14px 6px 10px; border: 0; border-radius: var(--ds-radius-tile); background: var(--ds-surface); box-shadow: var(--ds-shadow-tile); cursor: pointer; font-size: 12px; font-weight: 700; color: var(--ds-ink); transition: transform .15s ease; }

@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router.js'
 import './design-system.css'
 import './styles.css'
+import './manage.css'
 
 const nativeFetch = window.fetch.bind(window)
 window.fetch = (input, init = {}) => {

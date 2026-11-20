@@ -37,7 +37,7 @@ class MobilePersonnelModel extends Model {
              FROM personeller p
              LEFT JOIN ucretler u ON p.ucret_id = u.id
              WHERE {$whereSql}
-             ORDER BY p.id DESC
+             ORDER BY COALESCE(STR_TO_DATE(CAST(p.goreve_baslama_tarihi AS CHAR), '%d.%m.%Y'), STR_TO_DATE(CAST(p.goreve_baslama_tarihi AS CHAR), '%Y-%m-%d')) DESC, p.id DESC
              LIMIT :limit OFFSET :offset"
         );
         foreach ($params as $key => $value) {

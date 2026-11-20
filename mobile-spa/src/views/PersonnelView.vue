@@ -49,8 +49,10 @@ const filters = computed(() => [
   ...Object.entries(STATUS_META).map(([key, meta]) => ({ key, label: meta.label, count: counts.value[key] || 0 })),
 ])
 
-function maskTc(tc) {
-  return tc && tc.length === 11 ? `${tc.slice(0, 3)}••••••${tc.slice(-2)}` : tc || '—'
+function shortDate(value) {
+  const v = String(value || '').slice(0, 10)
+  if (/^\d{4}-\d{2}-\d{2}$/.test(v)) return `${v.slice(8, 10)}.${v.slice(5, 7)}.${v.slice(0, 4)}`
+  return v || '—'
 }
 
 function initialsOf(name) {
@@ -327,7 +329,7 @@ onBeforeUnmount(() => {
               <span class="avatar">{{ initialsOf(person.ad_soyad) }}</span>
               <span class="person__text">
                 <strong>{{ person.ad_soyad }}</strong>
-                <small>{{ person.unvan || 'Unvan tanımsız' }} · {{ maskTc(person.tc_kimlik) }}</small>
+                <small>{{ person.unvan || 'Unvan tanımsız' }} · {{ shortDate(person.goreve_baslama_tarihi) }}</small>
               </span>
               <span class="badge" :class="`tone-${STATUS_META[person.durum]?.tone || 'gray'}`">{{ STATUS_META[person.durum]?.label || person.durum }}</span>
             </button>
@@ -418,7 +420,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .page { min-height: 100svh; }
 .people { display: grid; gap: 14px; padding: 14px 16px calc(112px + var(--ds-safe-bottom)); max-width: 520px; margin: 0 auto; }
-.search { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px; border-radius: var(--ds-radius-pill); background: var(--ds-surface); box-shadow: var(--ds-shadow-pill); color: var(--ds-muted); }
+.search { position: sticky; top: calc(10px + var(--ds-safe-top, 0px)); z-index: 40; box-shadow: 0 0 0 10px var(--ds-canvas), var(--ds-shadow-pill); display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 16px; border-radius: var(--ds-radius-pill); background: var(--ds-surface); color: var(--ds-muted); }
 .search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: 16px; color: var(--ds-ink); }
 .search:focus-within { outline: 2px solid var(--ds-focus); }
 .chips { display: flex; gap: 8px; overflow-x: auto; margin: 0 -16px; padding: 2px 16px; scrollbar-width: none; }
@@ -479,7 +481,7 @@ dd { margin: 0; text-align: right; font-weight: 600; overflow-wrap: anywhere; }
 .scan-card small { color: var(--ds-muted); font-size: 12px; }
 .spinner { width: 30px; height: 30px; border: 3px solid var(--ds-surface-subtle); border-top-color: var(--ds-primary); border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.to-top { position: fixed; z-index: 60; left: max(16px, calc(50% - 244px)); bottom: calc(108px + var(--ds-safe-bottom)); display: grid; place-items: center; width: 52px; height: 52px; border: 0; border-radius: 50%; background: var(--ds-surface-dark); color: #fff; box-shadow: var(--ds-shadow-float); cursor: pointer; }
+.to-top { position: fixed; z-index: 60; right: max(16px, calc(50% - 244px)); bottom: calc(232px + var(--ds-safe-bottom)); display: grid; place-items: center; width: 52px; height: 52px; border: 0; border-radius: 50%; background: var(--ds-surface-dark); color: #fff; box-shadow: var(--ds-shadow-float); cursor: pointer; }
 .to-top:active { transform: scale(.92); }
 .pop-enter-active, .pop-leave-active { transition: opacity .2s ease, transform .25s cubic-bezier(.16, 1, .3, 1); }
 .pop-enter-from, .pop-leave-to { opacity: 0; transform: translateY(14px) scale(.8); }

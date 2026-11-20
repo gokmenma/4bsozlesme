@@ -1,7 +1,7 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ChevronRight, House, LayoutGrid, LogOut, Search, X } from '@lucide/vue'
+import { ChevronRight, House, LayoutGrid, LogOut, Search, UserRound, X } from '@lucide/vue'
 import { auth } from '../services/auth.js'
 import { DOCK_KEYS, MODULES, MODULE_GROUPS } from '../services/modules.js'
 
@@ -15,6 +15,7 @@ let returnFocus = null
 
 const allowed = computed(() => MODULES.filter((m) => auth.can(m.route)))
 const dockItems = computed(() => DOCK_KEYS.map((key) => allowed.value.find((m) => m.key === key)).filter(Boolean))
+const dockKeySet = computed(() => new Set(dockItems.value.map((m) => m.key)))
 const columns = computed(() => dockItems.value.length + 2)
 
 const groups = computed(() => {
@@ -22,7 +23,7 @@ const groups = computed(() => {
   return MODULE_GROUPS
     .map((group) => ({
       ...group,
-      items: allowed.value.filter((m) => m.group === group.id && (!term || `${m.label} ${m.subtitle}`.toLocaleLowerCase('tr-TR').includes(term))),
+      items: allowed.value.filter((m) => m.group === group.id && !dockKeySet.value.has(m.key) && (!term || `${m.label} ${m.subtitle}`.toLocaleLowerCase('tr-TR').includes(term))),
     }))
     .filter((group) => group.items.length)
 })
@@ -78,11 +79,6 @@ async function logout() {
           <button type="button" class="sheet__close" aria-label="Kapat" @click="menuOpen = false"><X :size="19" /></button>
         </header>
 
-        <label class="sheet__search">
-          <Search :size="17" />
-          <input v-model="query" type="search" placeholder="Menüde ara…" aria-label="Menüde ara" />
-        </label>
-
         <div class="sheet__content">
           <section v-for="group in groups" :key="group.id" class="sheet__group">
             <h3>{{ group.label }}</h3>
@@ -99,9 +95,16 @@ async function logout() {
           </section>
 
           <p v-if="!groups.length" class="sheet__empty">Eşleşen menü bulunamadı.</p>
-
-          <button type="button" class="sheet__logout" @click="logout"><LogOut :size="17" /> Çıkış yap</button>
         </div>
+
+        <footer class="sheet__footer">
+          <label class="sheet__search">
+            <Search :size="17" />
+            <input v-model="query" type="search" placeholder="Menüde ara…" aria-label="Menüde ara" />
+          </label>
+          <button type="button" class="sheet__profile" aria-label="Profil" title="Profil" @click="open('/profil')"><UserRound :size="19" /></button>
+          <button type="button" class="sheet__logout" aria-label="Çıkış yap" title="Çıkış yap" @click="logout"><LogOut :size="19" /></button>
+        </footer>
       </section>
     </div>
   </Transition>
@@ -145,9 +148,10 @@ async function logout() {
 .sheet__eyebrow { color: var(--ds-muted); font-size: 10px; font-weight: 800; letter-spacing: .12em; }
 .sheet__title { margin: 2px 0 0; font-size: 22px; font-weight: 800; }
 .sheet__close { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--ds-surface-subtle); cursor: pointer; }
-.sheet__search { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 14px; margin-bottom: 14px; border-radius: var(--ds-radius-pill); background: var(--ds-surface-subtle); color: var(--ds-muted); }
+.sheet__footer { display: flex; align-items: center; gap: 10px; flex-shrink: 0; padding-top: 12px; margin-top: 8px; border-top: 1px solid var(--ds-surface-subtle); background: var(--ds-surface); }
+.sheet__search { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 14px; border-radius: var(--ds-radius-pill); background: var(--ds-surface-subtle); color: var(--ds-muted); }
 .sheet__search input { flex: 1; min-width: 0; border: 0; background: transparent; outline: 0; font-size: 16px; color: var(--ds-ink); }
-.sheet__content { overflow-y: auto; display: grid; gap: 18px; padding-bottom: 4px; }
+.sheet__content { flex: 1; min-height: 0; overflow-y: auto; display: grid; gap: 18px; padding-bottom: 4px; }
 .sheet__group h3 { margin: 0 0 8px 4px; color: var(--ds-muted); font-size: 11px; font-weight: 800; letter-spacing: .1em; }
 .sheet__grid { display: grid; gap: 8px; }
 .sheet-item { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 10px 12px; border: 0; border-radius: var(--ds-radius-tile); background: var(--ds-surface-subtle); text-align: left; cursor: pointer; color: var(--ds-ink); }
@@ -159,7 +163,8 @@ async function logout() {
 .sheet-item__arrow { color: var(--ds-muted-light); flex-shrink: 0; }
 .theme-blue { --tone: #0284c7; } .theme-emerald { --tone: #059669; } .theme-amber { --tone: #d97706; } .theme-purple { --tone: #7c3aed; } .theme-coral { --tone: #e11d48; }
 .sheet__empty { text-align: center; color: var(--ds-muted); font-size: 14px; margin: 12px 0; }
-.sheet__logout { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border: 0; border-radius: var(--ds-radius-pill); background: var(--ds-danger-bg); color: var(--ds-danger-ink); font-weight: 700; font-size: 14px; cursor: pointer; }
+.sheet__profile { display: grid; place-items: center; flex-shrink: 0; width: 48px; height: 48px; border: 0; border-radius: 50%; background: var(--ds-surface-subtle); color: var(--ds-ink); cursor: pointer; }
+.sheet__logout { display: grid; place-items: center; flex-shrink: 0; width: 48px; height: 48px; border: 0; border-radius: 50%; background: var(--ds-danger-bg); color: var(--ds-danger-ink); cursor: pointer; }
 
 .sheet-enter-active, .sheet-leave-active { transition: opacity .2s ease; }
 .sheet-enter-active .sheet, .sheet-leave-active .sheet { transition: transform .28s cubic-bezier(.16, 1, .3, 1); }

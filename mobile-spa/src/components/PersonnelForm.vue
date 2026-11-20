@@ -1,7 +1,8 @@
 <script setup>
 import { computed, nextTick, onMounted, reactive, ref } from 'vue'
-import { X } from '@lucide/vue'
+import { Mic, Square, X } from '@lucide/vue'
 import { STATUS_META, getWageOptions, savePersonnel } from '../services/personnel.js'
+import { parsePersonnelSpeech, useVoiceInput } from '../composables/useVoiceInput.js'
 
 const props = defineProps({ person: { type: Object, default: null }, prefill: { type: Object, default: null } })
 const emit = defineEmits(['close', 'saved', 'expired'])
@@ -25,7 +26,22 @@ const error = ref('')
 const root = ref(null)
 const isEdit = computed(() => Boolean(props.person))
 
-const wageLabel = (w) => `${w.unvan} · ${w.ogrenim} · ${w.kidem_yili}`
+const voice = useVoiceInput((speech) => {
+  const parsed = parsePersonnelSpeech(speech, wages.value)
+  Object.assign(form, parsed)
+  const filled = Object.keys(parsed).length
+  voiceNote.value = filled ? `${filled} alan dolduruldu, kontrol edip kaydedin.` : 'Alan anlaşılamadı, tekrar deneyin.'
+})
+const voiceNote = ref('')
+
+function toggleVoice() {
+  voiceNote.value = ''
+  if (voice.preparing.value) return
+  if (voice.listening.value) voice.stop()
+  else voice.start()
+}
+
+const wageLabel =(w) => `${w.unvan} · ${w.ogrenim} · ${w.kidem_yili}`
 
 async function submit() {
   error.value = ''
@@ -67,6 +83,14 @@ onMounted(async () => {
         </div>
         <button type="button" class="close" aria-label="Kapat" @click="emit('close')"><X :size="19" /></button>
       </header>
+
+      <div v-if="!isEdit && voice.supported" class="voice">
+        <button type="button" class="voice__btn" :class="{ 'is-on': voice.listening.value }" :aria-pressed="voice.listening.value" @click="toggleVoice">
+          <component :is="voice.listening.value ? Square : Mic" :size="18" />
+          {{ voice.preparing.value ? 'Ses paketi indiriliyor…' : voice.listening.value ? 'Dinleniyor… durdur' : 'Sesli doldur' }}
+        </button>
+        <p class="voice__hint" aria-live="polite">{{ voice.problem.value || voice.transcript.value || voiceNote || 'Ses cihazda işlenir. TC kimlik numarasını elle yazın veya kimlik tarayın. Örn: “Ahmet Yılmaz, telefon 05321234567, erkek”' }}</p>
+      </div>
 
       <div class="fields">
         <label>Ad soyad
@@ -126,6 +150,10 @@ onMounted(async () => {
 .eyebrow { color: var(--ds-muted); font-size: 10px; font-weight: 800; letter-spacing: .12em; }
 h2 { margin: 2px 0 0; font-size: 21px; font-weight: 800; }
 .close { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--ds-surface-subtle); cursor: pointer; }
+.voice { display: grid; gap: 8px; margin-bottom: 14px; }
+.voice__btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border: 1px solid var(--ds-border-subtle); border-radius: 999px; background: var(--ds-surface-subtle); color: var(--ds-ink); font: 800 14px var(--ds-font-main); cursor: pointer; }
+.voice__btn.is-on { border-color: var(--ds-danger-border); background: var(--ds-danger-bg); color: var(--ds-danger-ink); }
+.voice__hint { margin: 0; color: var(--ds-muted); font-size: 12px; line-height: 1.4; }
 .fields { display: grid; gap: 12px; }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 label { display: grid; gap: 6px; color: var(--ds-muted); font-size: 12px; font-weight: 700; min-width: 0; }

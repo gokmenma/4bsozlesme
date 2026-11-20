@@ -46,6 +46,62 @@ class MobileDashboardModel extends Model {
         ];
     }
 
+    public function getKadroPersonnel(int $tenantId, int $daysAhead = 60, int $limit = 100): array {
+        $daysAhead = max(1, min(365, $daysAhead));
+        $limit = max(1, min(200, $limit));
+        $stmt = $this->db->prepare(
+            "SELECT * FROM (
+                SELECT p.id, p.ad_soyad, p.telefon, p.durum, p.goreve_baslama_tarihi, u.unvan,
+                       DATE_ADD(DATE_ADD(p.goreve_baslama_tarihi, INTERVAL 3 YEAR),
+                                INTERVAL (SELECT COALESCE(SUM(DATEDIFF(i.bitis_tarihi, i.baslangic_tarihi) + 1), 0)
+                                          FROM ucretsiz_izin i
+                                          WHERE i.personel_id = p.id AND i.deleted_at IS NULL) DAY) AS kadro_tarihi
+                FROM personeller p
+                LEFT JOIN ucretler u ON p.ucret_id = u.id
+                WHERE p.deleted_at IS NULL AND p.tenant_id = ?
+                  AND p.durum IN ('aktif', 'dilekce_alindi')
+                  AND p.goreve_baslama_tarihi IS NOT NULL
+             ) k
+             WHERE k.kadro_tarihi <= DATE_ADD(CURRENT_DATE, INTERVAL {$daysAhead} DAY)
+             ORDER BY k.kadro_tarihi DESC, k.id DESC"
+        );
+        $stmt->execute([$tenantId]);
+        $today = date('Y-m-d');
+        $due = [];
+        $upcoming = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            $row['id'] = (int)$row['id'];
+            $row['days_left'] = (int)round((strtotime((string)$row['kadro_tarihi']) - strtotime($today)) / 86400);
+            if ($row['days_left'] <= 0) {
+                $due[] = $row;
+            } else {
+                $upcoming[] = $row;
+            }
+        }
+        usort($upcoming, static fn($a, $b) => $a['days_left'] <=> $b['days_left']);
+        return [
+            'due_count' => count($due),
+            'upcoming_count' => count($upcoming),
+            'due' => array_slice($due, 0, $limit),
+            'upcoming' => array_slice($upcoming, 0, $limit),
+        ];
+    }
+
+    public function getKadroTarget(int $tenantId, int $personId): ?array {
+        $stmt = $this->db->prepare(
+            "SELECT p.id, p.ad_soyad, p.telefon,
+                    DATE_ADD(DATE_ADD(p.goreve_baslama_tarihi, INTERVAL 3 YEAR),
+                             INTERVAL (SELECT COALESCE(SUM(DATEDIFF(i.bitis_tarihi, i.baslangic_tarihi) + 1), 0)
+                                       FROM ucretsiz_izin i
+                                       WHERE i.personel_id = p.id AND i.deleted_at IS NULL) DAY) AS kadro_tarihi
+             FROM personeller p
+             WHERE p.id = ? AND p.tenant_id = ? AND p.deleted_at IS NULL AND p.goreve_baslama_tarihi IS NOT NULL"
+        );
+        $stmt->execute([$personId, $tenantId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
     public function getRecentPersonnel(int $tenantId, int $limit = 5): array {
         $limit = max(1, min(20, $limit));
         $stmt = $this->db->prepare(

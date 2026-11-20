@@ -58,6 +58,7 @@ try {
         'unread_notifications' => $notificationModel->countUnread($userId),
         'personnel' => null,
         'recent_personnel' => [],
+        'kadro' => null,
         'wage_count' => null,
         'tasks' => null,
         'upcoming_tasks' => [],
@@ -66,6 +67,7 @@ try {
     if ($canPersonnel) {
         $payload['personnel'] = $dashboardModel->getPersonnelSummary($tenantId);
         $payload['recent_personnel'] = $dashboardModel->getRecentPersonnel($tenantId, 5);
+        $payload['kadro'] = $dashboardModel->getKadroPersonnel($tenantId, 60, 100);
     }
     if ($canWages) {
         $payload['wage_count'] = $dashboardModel->getWageCount($tenantId);
