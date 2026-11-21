@@ -79,6 +79,8 @@ function appRoutes(): array
         '/yapilacaklar'          => ['c' => 'KanbanController',        'a' => 'index', 'view' => 'app/pages/kanban.php'],
         '/geri-bildirimler'      => ['c' => 'FeedbackController',      'a' => 'adminIndex', 'view' => 'app/pages/admin/feedbacks.php'],
         '/yetki-gruplari'        => ['c' => 'RoleController',         'a' => 'index', 'view' => 'app/pages/admin/roles.php'],
+        '/evrak-formlari'        => ['c' => 'EvrakController',        'a' => 'formlar', 'view' => 'app/pages/evrak/formlar.php'],
+        '/evrak-takip'           => ['c' => 'EvrakController',        'a' => 'takip',   'view' => 'app/pages/evrak/takip.php'],
 
         // --- Kendi çıktısını üreten sayfa (layout ile sarmalanır, view yok) ---
         '/matrah-yonetimi'       => ['c' => 'MatrahController', 'a' => 'index'],
@@ -177,6 +179,30 @@ function appRoutes(): array
         '/bildirim-okundu'             => ['c' => 'NotificationController', 'a' => 'markRead',    'm' => 'POST', 'api' => true, 'exit' => true],
         '/bildirim-tumu-okundu'        => ['c' => 'NotificationController', 'a' => 'markAllRead', 'm' => 'POST', 'api' => true, 'exit' => true],
 
+        // --- Personel Evrakları API ---
+        '/evrak-form-get'          => ['c' => 'EvrakController', 'a' => 'formGet',          'api' => true, 'exit' => true],
+        '/evrak-form-kaydet'       => ['c' => 'EvrakController', 'a' => 'formKaydet',       'm' => 'POST', 'api' => true, 'exit' => true],
+        '/evrak-form-sil'          => ['c' => 'EvrakController', 'a' => 'formSil',          'm' => 'POST', 'api' => true, 'exit' => true],
+        '/evrak-sablon-yukle'      => ['c' => 'EvrakController', 'a' => 'sablonYukle',      'm' => 'POST', 'api' => true, 'exit' => true],
+        '/evrak-paket-secenekleri' => ['c' => 'EvrakController', 'a' => 'paketSecenekleri', 'api' => true, 'exit' => true],
+        '/evrak-paket-gonder'      => ['c' => 'EvrakController', 'a' => 'paketGonder',      'm' => 'POST', 'api' => true, 'exit' => true],
+        '/evrak-paket-yenile'      => ['c' => 'EvrakController', 'a' => 'paketYenile',      'm' => 'POST', 'api' => true, 'exit' => true],
+        '/evrak-paket-detay'       => ['c' => 'EvrakController', 'a' => 'paketDetay',       'api' => true, 'exit' => true],
+        '/evrak-paket-onayla'      => ['c' => 'EvrakController', 'a' => 'paketOnayla',      'm' => 'POST', 'api' => true, 'exit' => true],
+        '/evrak-paket-iade'        => ['c' => 'EvrakController', 'a' => 'paketIade',        'm' => 'POST', 'api' => true, 'exit' => true],
+        '/evrak-paket-iptal'       => ['c' => 'EvrakController', 'a' => 'paketIptal',       'm' => 'POST', 'api' => true, 'exit' => true],
+        '/evrak-paket-sil'         => ['c' => 'EvrakController', 'a' => 'paketSil',         'm' => 'POST', 'api' => true, 'exit' => true],
+        '/evrak-dosya-indir'       => ['c' => 'EvrakController', 'a' => 'dosyaIndir',       'api' => true, 'exit' => true],
+        '/evrak-imzali-yukle'      => ['c' => 'EvrakController', 'a' => 'imzaliYukle',      'm' => 'POST', 'api' => true, 'exit' => true],
+        '/evrak-yazdir'            => ['c' => 'EvrakController', 'a' => 'yazdir',           'api' => true, 'exit' => true],
+
+        // --- Personel Evrak Doldurma (oturumsuz, token'lı) ---
+        '/evrak'          => ['c' => 'EvrakPublicController', 'a' => 'show',     'api' => true, 'exit' => true, 'public' => true],
+        '/evrak-dogrula'  => ['c' => 'EvrakPublicController', 'a' => 'dogrula',  'm' => 'POST', 'api' => true, 'exit' => true, 'public' => true],
+        '/evrak-kaydet'   => ['c' => 'EvrakPublicController', 'a' => 'kaydet',   'm' => 'POST', 'api' => true, 'exit' => true, 'public' => true],
+        '/evrak-yukle'    => ['c' => 'EvrakPublicController', 'a' => 'yukle',    'm' => 'POST', 'api' => true, 'exit' => true, 'public' => true],
+        '/evrak-tamamla'  => ['c' => 'EvrakPublicController', 'a' => 'tamamla',  'm' => 'POST', 'api' => true, 'exit' => true, 'public' => true],
+
         // --- Yetki Grupları API ---
         '/yetki-grubu-ekle'            => ['c' => 'RoleController', 'a' => 'store',            'm' => 'POST', 'api' => true, 'exit' => true],
         '/yetki-grubu-guncelle'        => ['c' => 'RoleController', 'a' => 'update',           'm' => 'POST', 'api' => true, 'exit' => true],
@@ -186,6 +212,12 @@ function appRoutes(): array
     ];
 
     return $routes;
+}
+
+function isPublicRoute(string $page): bool
+{
+    $routes = appRoutes();
+    return isset($routes[$page]) && !empty($routes[$page]['public']);
 }
 
 function isStandaloneRoute(string $page): bool

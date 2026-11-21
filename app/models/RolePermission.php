@@ -13,6 +13,8 @@ class RolePermission extends Model {
             '/'                      => ['title' => 'Ana Sayfa', 'category' => 'Genel', 'icon' => 'house'],
             '/personel-listesi'      => ['title' => 'Personel Yönetimi', 'category' => 'Yönetim', 'icon' => 'users'],
             '/ucret-tanimlari'       => ['title' => 'Ücret Tanımları', 'category' => 'Yönetim', 'icon' => 'coins'],
+            '/evrak-takip'           => ['title' => 'Personel Evrak Takibi', 'category' => 'Personel Evrakları', 'icon' => 'folder-check'],
+            '/evrak-formlari'        => ['title' => 'Evrak Form Tanımları', 'category' => 'Personel Evrakları', 'icon' => 'clipboard-list'],
             '/sozlesme-taslagi'      => ['title' => 'Sözleşme Taslağı', 'category' => 'Diğer İşlemler', 'icon' => 'file-text'],
             '/tanimlamalar'          => ['title' => 'Tanımlamalar', 'category' => 'Diğer İşlemler', 'icon' => 'file-cog'],
             '/yapilacaklar'          => ['title' => 'Yapılacaklar (Kanban)', 'category' => 'Diğer İşlemler', 'icon' => 'list-todo'],

@@ -103,6 +103,35 @@ function canSeePage($route)
       </div>
       <?php endif; ?>
 
+      <?php if (canSeePage('/evrak-takip') || canSeePage('/evrak-formlari')): ?>
+      <div role="group" class="sidebar-group" aria-labelledby="group-label-evrak">
+        <h3 id="group-label-evrak" class="sidebar-group-title">Personel Evrakları</h3>
+        <ul class="sidebar-menu-list">
+          <?php if (canSeePage('/evrak-takip')): ?>
+          <li class="sidebar-menu-item">
+            <a href="<?php echo routeUrl('/evrak-takip'); ?>"
+               class="nav-link<?php echo isMenuActive('evrak-takip', $currentPage) ? ' active' : ''; ?>"
+               data-title="Evrak Takibi">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/><path d="m9 13 2 2 4-4"/></svg>
+              <span>Evrak Takibi</span>
+            </a>
+          </li>
+          <?php endif; ?>
+
+          <?php if (canSeePage('/evrak-formlari')): ?>
+          <li class="sidebar-menu-item">
+            <a href="<?php echo routeUrl('/evrak-formlari'); ?>"
+               class="nav-link<?php echo isMenuActive('evrak-formlari', $currentPage) ? ' active' : ''; ?>"
+               data-title="Evrak Formları">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>
+              <span>Evrak Formları</span>
+            </a>
+          </li>
+          <?php endif; ?>
+        </ul>
+      </div>
+      <?php endif; ?>
+
       <?php if (canSeePage('/sozlesme-taslagi') || canSeePage('/tanimlamalar') || canSeePage('/yapilacaklar') || canSeePage('/doner-matrahi-olustur')): ?>
       <div role="group" class="sidebar-group" aria-labelledby="group-label-islemler">
         <h3 id="group-label-islemler" class="sidebar-group-title">Diğer İşlemler</h3>

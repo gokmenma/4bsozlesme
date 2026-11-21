@@ -957,6 +957,13 @@ button,
     transition: background 0.15s;
 }
 
+.user-dropdown .dropdown-item svg,
+.user-dropdown .dropdown-item i {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
 .dark .user-dropdown .dropdown-item {
     color: #f4f4f5;
 }

@@ -116,7 +116,7 @@ if (!isset($_SESSION['user_id'])) {
                 '/mobile/sw.js',
                 '/belge-yazdir'
             ];
-            if (!in_array($page, $allowedStandalone, true)) {
+            if (!in_array($page, $allowedStandalone, true) && !isPublicRoute($page)) {
                 http_response_code(401);
                 header('Content-Type: application/json; charset=utf-8');
                 echo json_encode([
