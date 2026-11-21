@@ -4,9 +4,11 @@ import { useRoute, useRouter } from 'vue-router'
 import { ChevronRight, House, LayoutGrid, LogOut, Search, UserRound, X } from '@lucide/vue'
 import { auth } from '../services/auth.js'
 import { DOCK_KEYS, MODULES, MODULE_GROUPS } from '../services/modules.js'
+import { useHaptics } from '../composables/useHaptics.js'
 
 const route = useRoute()
 const router = useRouter()
+const { tap, medium } = useHaptics()
 const menuOpen = ref(false)
 const query = ref('')
 const sheet = ref(null)
@@ -57,10 +59,22 @@ function handleKeydown(event) {
 }
 
 function open(path) {
+  tap()
   router.push(path)
 }
 
+function toggleMenu() {
+  medium()
+  menuOpen.value = !menuOpen.value
+}
+
+function closeMenu() {
+  tap()
+  menuOpen.value = false
+}
+
 async function logout() {
+  medium()
   menuOpen.value = false
   await auth.logout()
   await router.replace('/giris')
@@ -69,14 +83,14 @@ async function logout() {
 
 <template>
   <Transition name="sheet">
-    <div v-if="menuOpen" class="sheet-layer" @keydown="handleKeydown" @click.self="menuOpen = false">
+    <div v-if="menuOpen" class="sheet-layer" @keydown="handleKeydown" @click.self="closeMenu">
       <section ref="sheet" class="sheet" role="dialog" aria-modal="true" aria-label="Tüm menüler">
         <header class="sheet__header">
           <div>
             <span class="sheet__eyebrow">MENÜ</span>
             <h2 class="sheet__title">Daha Fazla</h2>
           </div>
-          <button type="button" class="sheet__close" aria-label="Kapat" @click="menuOpen = false"><X :size="19" /></button>
+          <button type="button" class="sheet__close" aria-label="Kapat" @click="closeMenu"><X :size="19" /></button>
         </header>
 
         <div class="sheet__content">
@@ -110,7 +124,7 @@ async function logout() {
   </Transition>
 
   <nav class="bottom-nav" aria-label="Ana gezinme" :style="{ '--cols': columns }">
-    <router-link to="/" class="nav-link" :class="{ 'is-active': route.path === '/' }" :aria-current="route.path === '/' ? 'page' : undefined">
+    <router-link to="/" class="nav-link" :class="{ 'is-active': route.path === '/' }" :aria-current="route.path === '/' ? 'page' : undefined" @click="tap">
       <House :size="22" />
       <span>Ana Sayfa</span>
     </router-link>
@@ -122,12 +136,13 @@ async function logout() {
       class="nav-link"
       :class="{ 'is-active': route.path === item.to }"
       :aria-current="route.path === item.to ? 'page' : undefined"
+      @click="tap"
     >
       <component :is="item.icon" :size="22" />
       <span>{{ item.navLabel }}</span>
     </router-link>
 
-    <button type="button" class="nav-link" :class="{ 'is-active': moreActive }" :aria-expanded="menuOpen" @click="menuOpen = !menuOpen">
+    <button type="button" class="nav-link" :class="{ 'is-active': moreActive }" :aria-expanded="menuOpen" @click="toggleMenu">
       <LayoutGrid :size="22" />
       <span>Diğer</span>
     </button>
@@ -136,7 +151,7 @@ async function logout() {
 
 <style scoped>
 .bottom-nav { position: fixed; z-index: 50; left: 50%; bottom: calc(12px + var(--ds-safe-bottom)); transform: translateX(-50%); width: min(calc(100% - 32px), 440px); min-height: 72px; padding: 8px; display: grid; grid-template-columns: repeat(var(--cols, 5), minmax(0, 1fr)); align-items: center; border: 1px solid var(--ds-border-dark); border-radius: var(--ds-radius-pill); background: var(--ds-surface-dark); box-shadow: var(--ds-shadow-float); }
-.nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 54px; padding: 5px 2px; border: 0; border-radius: var(--ds-radius-pill); background: transparent; color: var(--ds-muted-light); text-decoration: none; cursor: pointer; transition: background .18s ease, color .18s ease, transform .12s ease; }
+.nav-link { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 54px; padding: 5px 2px; border: 0; border-radius: var(--ds-radius-pill); background: transparent; color: var(--ds-muted-light); text-decoration: none; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; user-select: none; transition: background .18s ease, color .18s ease, transform .12s ease; }
 .nav-link span { font: 600 10px/1.2 var(--ds-font-main); white-space: nowrap; }
 .nav-link:active { transform: scale(.92); }
 .nav-link.is-active { background: var(--ds-surface); color: var(--ds-ink); }
