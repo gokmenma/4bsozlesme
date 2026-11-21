@@ -41,7 +41,7 @@ if ($currentUserTrialEnds) {
 <div class="flex items-center justify-between mb-5">
   <div>
     <h1 class="text-lg font-semibold tracking-tight text-foreground">Dashboard</h1>
-    <p class="text-[13px] text-muted-foreground mt-0.5">Sistem genelindeki performans ve istatistiklerin özeti.</p>
+    <p class="text-sm text-muted-foreground mt-0.5">Sistem genelindeki performans ve istatistiklerin özeti.</p>
   </div>
   <div class="flex items-center gap-2">
     <button class="inline-flex h-8 items-center justify-center rounded-lg border border-border bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
@@ -52,7 +52,7 @@ if ($currentUserTrialEnds) {
 </div>
 
 <!-- Stat Cards -->
-<div class="grid gap-3.5 md:grid-cols-2 lg:grid-cols-4 mb-5">
+<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
   <!-- Card 1: Toplam Personel -->
   <div class="rounded-xl border border-border bg-white dark:bg-zinc-900 p-4 flex flex-col justify-between">
     <div class="flex items-center justify-between gap-2">
@@ -61,13 +61,13 @@ if ($currentUserTrialEnds) {
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       </span>
     </div>
-    <div class="mt-2.5">
+    <div class="mt-3">
       <div class="flex items-baseline gap-1">
         <span class="text-xl font-semibold tracking-tight text-foreground"><?= $stats['total_personnel'] ?></span>
         <span class="text-xs text-muted-foreground">Kayıt</span>
       </div>
-      <div class="mt-2.5 h-1 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
-        <div class="h-full rounded-full bg-blue-500/80" style="width: 100%"></div>
+      <div class="mt-3 h-1 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+        <div class="h-full rounded-full bg-blue-500" style="width: 100%"></div>
       </div>
       <div class="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
         <span>Tüm zamanların toplamı</span>
@@ -84,22 +84,22 @@ if ($currentUserTrialEnds) {
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
       </span>
     </div>
-    <div class="mt-2.5">
+    <div class="mt-3">
       <div class="flex items-baseline gap-1">
         <span class="text-xl font-semibold tracking-tight text-foreground"><?= $stats['active_personnel'] ?></span>
         <span class="text-xs text-muted-foreground">Personel</span>
       </div>
-      <div class="mt-2.5 pt-2 border-t border-border/60 grid grid-cols-1 gap-1">
+      <div class="mt-3 pt-2 border-t border-border/60 grid grid-cols-1 gap-1">
         <a href="<?= routeUrl('personel-listesi') ?>?filter=aktif_calisan" class="flex items-center justify-between text-[11px] text-muted-foreground hover:text-foreground transition-colors">
-          <span class="flex items-center gap-1.5"><span class="size-1.5 rounded-full bg-emerald-500"></span>Aktif Çalışan</span>
+          <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Aktif Çalışan</span>
           <span class="font-medium text-foreground"><?= $stats['active_only'] ?></span>
         </a>
         <a href="<?= routeUrl('personel-listesi') ?>?filter=dilekce_alindi" class="flex items-center justify-between text-[11px] text-muted-foreground hover:text-foreground transition-colors">
-          <span class="flex items-center gap-1.5"><span class="size-1.5 rounded-full bg-blue-500"></span>Dilekçe Alınan</span>
+          <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>Dilekçe Alınan</span>
           <span class="font-medium text-foreground"><?= $stats['dilekce_alindi'] ?></span>
         </a>
         <a href="<?= routeUrl('personel-listesi') ?>?filter=kadroya_gecmeyecek" class="flex items-center justify-between text-[11px] text-muted-foreground hover:text-foreground transition-colors">
-          <span class="flex items-center gap-1.5"><span class="size-1.5 rounded-full bg-orange-500"></span>Kadroya Geçmeyecek</span>
+          <span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>Kadroya Geçmeyecek</span>
           <span class="font-medium text-foreground"><?= $stats['kadroya_gecmeyecek'] ?></span>
         </a>
       </div>
@@ -110,17 +110,17 @@ if ($currentUserTrialEnds) {
   <div class="rounded-xl border border-border bg-white dark:bg-zinc-900 p-4 flex flex-col justify-between">
     <div class="flex items-center justify-between gap-2">
       <span class="text-xs font-medium text-muted-foreground">Bu Ay Eklenen</span>
-      <span class="inline-flex size-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+      <span class="inline-flex size-7 items-center justify-center rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
       </span>
     </div>
-    <div class="mt-2.5">
+    <div class="mt-3">
       <div class="flex items-baseline gap-1">
         <span class="text-xl font-semibold tracking-tight text-foreground"><?= $stats['new_personnel_this_month'] ?></span>
         <span class="text-xs text-muted-foreground">Yeni Kayıt</span>
       </div>
-      <div class="mt-2.5 h-1 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
-        <div class="h-full rounded-full bg-amber-500/80" style="width: <?= $stats['new_personnel_this_month'] > 0 ? '60%' : '0%' ?>"></div>
+      <div class="mt-3 h-1 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+        <div class="h-full rounded-full bg-orange-500" style="width: <?= $stats['new_personnel_this_month'] > 0 ? '60%' : '0%' ?>"></div>
       </div>
       <div class="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
         <span>İçinde bulunduğumuz ay</span>
@@ -133,17 +133,17 @@ if ($currentUserTrialEnds) {
   <div class="rounded-xl border border-border bg-white dark:bg-zinc-900 p-4 flex flex-col justify-between">
     <div class="flex items-center justify-between gap-2">
       <span class="text-xs font-medium text-muted-foreground">Ücret Tanımları</span>
-      <span class="inline-flex size-7 items-center justify-center rounded-lg bg-violet-500/10 text-violet-600 dark:text-violet-400">
+      <span class="inline-flex size-7 items-center justify-center rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
       </span>
     </div>
-    <div class="mt-2.5">
+    <div class="mt-3">
       <div class="flex items-baseline gap-1">
         <span class="text-xl font-semibold tracking-tight text-foreground"><?= $stats['total_wages'] ?></span>
         <span class="text-xs text-muted-foreground">Pozisyon</span>
       </div>
-      <div class="mt-2.5 h-1 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
-        <div class="h-full rounded-full bg-violet-500/80" style="width: 100%"></div>
+      <div class="mt-3 h-1 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+        <div class="h-full rounded-full bg-purple-500" style="width: 100%"></div>
       </div>
       <div class="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
         <span>Farklı ünvan / kadro</span>
