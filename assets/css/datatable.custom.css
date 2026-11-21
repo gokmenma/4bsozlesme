@@ -34,17 +34,15 @@
 /* Sayfalama ve bilgi kısmını (footer) en alta sabitle */
 .dataTables_wrapper > div:last-child {
     margin-top: auto !important;
-    border-top: 1px solid #f1f5f9 !important;
-    background-color: #fafafa !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
+    border-top: 1px solid #e4e4e7 !important;
+    background-color: #ffffff !important;
+    padding: 0.5rem 1rem !important;
 }
 
 .dark .dataTables_wrapper > div:last-child {
     border-color: #27272a !important;
     background-color: #18181b !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
+    padding: 0.5rem 1rem !important;
 }
 
 .dataTables_wrapper .dataTables_filter input {
@@ -72,15 +70,16 @@ table.dataTable thead th {
     position: sticky !important;
     top: 0 !important;
     z-index: 10 !important;
-    background-color: #f9fafb !important;
-    border-bottom: 1px solid #e5e7eb !important;
-    padding: 0.6rem 0.5rem !important;
-    font-weight: 600 !important;
+    background-color: #fafafa !important;
+    border-bottom: 1px solid #e4e4e7 !important;
+    padding: 0.625rem 0.75rem !important;
+    font-weight: 500 !important;
     text-align: left !important;
     font-size: 0.75rem !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
-    color: #374151 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    color: #71717a !important;
+    white-space: nowrap !important;
 }
 
 .dark table.dataTable thead th {
@@ -90,9 +89,9 @@ table.dataTable thead th {
 }
 
 table.dataTable tbody td {
-    padding: 0.6rem 0.5rem !important;
-    border-bottom: 1px solid #f3f4f6 !important;
-    font-size: 0.875rem !important;
+    padding: 0.625rem 0.75rem !important;
+    border-bottom: 1px solid #f4f4f5 !important;
+    font-size: 0.8125rem !important;
     background-color: inherit !important;
 }
 
@@ -140,13 +139,23 @@ table.dataTable.no-footer {
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button {
-    border-radius: 0.5rem !important;
-    border: 1px solid #e5e7eb !important;
+    border-radius: 6px !important;
+    border: 1px solid #e4e4e7 !important;
     margin-left: 0.25rem !important;
+    min-width: 2rem !important;
+    height: 2rem !important;
+    padding: 0 0.5rem !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.8125rem !important;
+    background: #ffffff !important;
+    color: #18181b !important;
 }
 
 .dark .dataTables_wrapper .dataTables_paginate .paginate_button {
     border-color: #27272a !important;
+    background: #18181b !important;
     color: #f4f4f5 !important;
 }
 
@@ -282,12 +291,12 @@ dialog::backdrop {
 
 table.dataTable thead th:not(:last-child),
 table.dataTable tbody td:not(:last-child) {
-    border-right: 1px solid #f3f4f6 !important;
+    border-right: none !important;
 }
 
 .dark table.dataTable thead th:not(:last-child),
 .dark table.dataTable tbody td:not(:last-child) {
-    border-right: 1px solid #27272a !important;
+    border-right: none !important;
 }
 
 table.dataTable tbody tr {
@@ -295,7 +304,7 @@ table.dataTable tbody tr {
 }
 
 table.dataTable tbody tr:hover td {
-    background-color: #f4f4f5 !important;
+    background-color: #fafafa !important;
 }
 
 .dark table.dataTable tbody tr:hover td {

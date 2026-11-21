@@ -247,6 +247,9 @@
     <link rel="stylesheet" href="<?php echo routeUrl('assets/vendor/basecoat-0.3.11.min.css'); ?>">
     <script src="<?php echo routeUrl('assets/vendor/basecoat-0.3.11-all.min.js'); ?>" defer></script>
 
+    <!-- App Custom Theme (izintakip / shadcn) -->
+    <link rel="stylesheet" href="<?php echo routeUrl('assets/css/app.css'); ?>?v=<?php echo @filemtime(__DIR__ . '/../assets/css/app.css'); ?>">
+
     <!-- DataTables -->
     <link rel="stylesheet" href="<?php echo routeUrl('assets/vendor/jquery.dataTables-1.13.7.min.css'); ?>">
     <link rel="stylesheet" href="<?php echo routeUrl('assets/css/datatable.custom.css'); ?>?v=<?php echo @filemtime(__DIR__ . '/../assets/css/datatable.custom.css'); ?>">
@@ -268,7 +271,7 @@
     <style>
         @media (min-width: 48rem) {
             :root {
-                --sidebar-width: 230px;
+                --sidebar-width: 240px;
             }
             body {
                 overflow: hidden !important;
@@ -284,22 +287,21 @@
                 height: 100vh !important;
                 flex-shrink: 0 !important;
                 z-index: 40 !important;
-                display: block !important;
+                display: flex !important;
             }
             .sidebar[aria-hidden="true"] {
-                width: 0 !important;
+                width: 72px !important;
                 height: 100vh !important;
                 flex-shrink: 0 !important;
-                overflow: hidden !important;
-                display: none !important;
+                overflow: visible !important;
+                display: flex !important;
             }
 
             .sidebar nav {
                 position: relative !important;
-                width: var(--sidebar-width) !important;
+                width: 100% !important;
                 height: 100% !important;
-                overflow-y: auto !important;
-                overflow-x: hidden !important;
+                overflow: hidden !important;
             }
             .app-view {
                 flex: 1 !important;
@@ -320,13 +322,6 @@
                 top: 0 !important;
                 z-index: 40 !important;
                 flex-shrink: 0 !important;
-            }
-            /* Sidebar header height synchronization */
-            .sidebar > nav > div:first-child {
-                height: 65px !important;
-                min-height: 65px !important;
-                display: flex !important;
-                align-items: center !important;
             }
         }
     </style>
