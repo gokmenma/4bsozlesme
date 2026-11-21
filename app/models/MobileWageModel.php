@@ -251,17 +251,19 @@ class MobileWageModel extends Model {
                            COALESCE(pc.cnt, 0) AS personel_count
                     FROM ucretler u
                     LEFT JOIN (
-                        SELECT ucret_id, COUNT(*) AS cnt
-                        FROM personeller
-                        WHERE deleted_at IS NULL AND tenant_id = :pc_tenant_id
-                        GROUP BY ucret_id
-                    ) pc ON pc.ucret_id = u.id
+                        SELECT pu.unvan, pu.ogrenim, pu.kidem_yili, COUNT(*) AS cnt
+                        FROM personeller p
+                        INNER JOIN ucretler pu ON pu.id = p.ucret_id AND pu.tenant_id = :pc_tenant_id2
+                        WHERE p.deleted_at IS NULL AND p.tenant_id = :pc_tenant_id
+                        GROUP BY pu.unvan, pu.ogrenim, pu.kidem_yili
+                    ) pc ON pc.unvan = u.unvan AND pc.ogrenim = u.ogrenim AND pc.kidem_yili = u.kidem_yili
                     WHERE {$whereSql}
                     ORDER BY {$orderBy}
                     LIMIT :limit OFFSET :offset";
 
         $stmt = $this->db->prepare($listSql);
         $stmt->bindValue(':pc_tenant_id', $tenantId, PDO::PARAM_INT);
+        $stmt->bindValue(':pc_tenant_id2', $tenantId, PDO::PARAM_INT);
         foreach ($params as $key => $value) {
             $type = is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR;
             $stmt->bindValue($key, $value, $type);
@@ -283,12 +285,17 @@ class MobileWageModel extends Model {
             "SELECT u.id, u.donem, u.unvan, u.ogrenim, u.kidem_yili, u.ucret, u.is_active, u.created_at, u.updated_at,
                     (SELECT COUNT(*)
                      FROM personeller p
-                     WHERE p.ucret_id = u.id AND p.tenant_id = ? AND p.deleted_at IS NULL) AS personel_count
+                     INNER JOIN ucretler pu ON pu.id = p.ucret_id AND pu.tenant_id = ?
+                     WHERE p.tenant_id = ? AND p.deleted_at IS NULL
+                       AND pu.unvan = u.unvan AND pu.ogrenim = u.ogrenim AND pu.kidem_yili = u.kidem_yili) AS personel_count,
+                    (SELECT COUNT(*)
+                     FROM personeller p2
+                     WHERE p2.ucret_id = u.id AND p2.tenant_id = ? AND p2.deleted_at IS NULL) AS kullanim_count
              FROM ucretler u
              WHERE u.id = ? AND u.tenant_id = ? AND u.deleted_at IS NULL
              LIMIT 1"
         );
-        $stmt->execute([$tenantId, $id, $tenantId]);
+        $stmt->execute([$tenantId, $tenantId, $tenantId, $id, $tenantId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
         return $row ?: null;
     }

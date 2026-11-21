@@ -53,6 +53,7 @@ function wageSerialize(array $row): array
         'ucret' => (float)($row['ucret'] ?? 0),
         'is_active' => (int)($row['is_active'] ?? 1),
         'personel_count' => (int)($row['personel_count'] ?? 0),
+        'kullanim_count' => (int)($row['kullanim_count'] ?? $row['personel_count'] ?? 0),
         'created_at' => $row['created_at'] ?? null,
         'updated_at' => $row['updated_at'] ?? null,
     ];

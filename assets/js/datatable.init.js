@@ -265,6 +265,65 @@ function initDataTable(selector, customOptions = {}) {
                 .dot-bounce {
                     animation: mini-bounce 0.8s infinite ease-in-out;
                 }
+                /* Merkezi Kolon Sürükle-Bırak ve Gizleme Stilleri */
+                table.dataTable thead th.dt-col-draggable {
+                    cursor: grab;
+                    user-select: none;
+                }
+                table.dataTable thead th.dt-col-draggable:active {
+                    cursor: grabbing;
+                }
+                table.dataTable thead th.sortable-ghost {
+                    opacity: 0.35 !important;
+                    background-color: #e4e4e7 !important;
+                }
+                .dark table.dataTable thead th.sortable-ghost {
+                    background-color: #27272a !important;
+                }
+                table.dataTable thead th.sortable-chosen {
+                    background-color: #f4f4f5 !important;
+                }
+                .dark table.dataTable thead th.sortable-chosen {
+                    background-color: #27272a !important;
+                }
+                .dt-drag-hide-hint {
+                    position: fixed;
+                    z-index: 100000;
+                    pointer-events: none;
+                    padding: 6px 12px;
+                    border-radius: 8px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    background: rgba(24, 24, 27, 0.9);
+                    color: #ffffff;
+                    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
+                    transition: background-color 0.15s ease, transform 0.15s ease;
+                    display: none;
+                    align-items: center;
+                    gap: 6px;
+                }
+                .dt-drag-hide-hint.is-hide-zone {
+                    background: rgba(220, 38, 38, 0.95);
+                    transform: scale(1.03);
+                }
+                .dt-cols-menu-popover {
+                    position: absolute;
+                    right: 0;
+                    top: calc(100% + 6px);
+                    z-index: 60;
+                    width: 240px;
+                    background: #ffffff;
+                    border: 1px solid #e4e4e7;
+                    border-radius: 10px;
+                    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+                    padding: 8px;
+                    display: none;
+                }
+                .dark .dt-cols-menu-popover {
+                    background: #18181b;
+                    border-color: #27272a;
+                    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+                }
             </style>
         `);
     }
@@ -587,8 +646,16 @@ function initDataTable(selector, customOptions = {}) {
         search: { search: initialSearch }
     }, customOptions);
 
+    if (window.DTColumnManager) {
+        window.DTColumnManager.prepareHeaders($table[0]);
+    }
+
     const table = $table.DataTable(options);
     window.activeFilterTable = $table;
+
+    if (window.DTColumnManager) {
+        window.DTColumnManager.init($table[0], table);
+    }
 
     // Save initial / changed order or length
     table.on('order', function() {
@@ -1106,3 +1173,627 @@ $(document).on('keypress', '#columnFilterPopover .rule-value', function(e) {
         if (typeof applyColumnFilter === 'function') applyColumnFilter();
     }
 });
+
+/**
+ * Merkezi DataTables Kolon Sürükle-Bırak Sıralama ve Tablo Üzerine Bırakınca Gizleme Yöneticisi
+ */
+window.DTColumnManager = {
+    getTableId: function(table) {
+        return table.id || 'defaultTable';
+    },
+
+    getColumnTitle: function(th, fallbackIdx) {
+        if (!th) return 'Sütun ' + (fallbackIdx + 1);
+        const span = th.querySelector('span');
+        const raw = span ? span.textContent : th.textContent;
+        const cleaned = (raw || '').replace(/\s+/g, ' ').trim();
+        return cleaned || ('Sütun ' + (fallbackIdx + 1));
+    },
+
+    isFixedColumn: function(th) {
+        if (!th) return true;
+        if (th.classList.contains('no-sort') || th.classList.contains('no-reorder') || th.classList.contains('no-hide')) {
+            return true;
+        }
+        if (th.querySelector('input[type="checkbox"]')) {
+            return true;
+        }
+        const title = this.getColumnTitle(th, 0).toLowerCase();
+        if (!title || title === 'işlemler' || title === 'islemler') {
+            return true;
+        }
+        return false;
+    },
+
+    prepareHeaders: function(table) {
+        if (!table) return;
+        const headers = Array.from(table.querySelectorAll('thead tr th'));
+        const initialOrder = [];
+
+        headers.forEach((th, idx) => {
+            const key = th.dataset.colKey || ('col_' + idx);
+            th.dataset.origIndex = String(idx);
+            th.dataset.colKey = key;
+            th.classList.add('col-' + key);
+            initialOrder.push(key);
+
+            if (this.isFixedColumn(th)) {
+                th.dataset.colFixed = 'true';
+            } else {
+                th.classList.add('dt-col-draggable');
+            }
+        });
+
+        table.dataset.initialColOrder = initialOrder.join(',');
+    },
+
+    getHiddenKeys: function(tableId) {
+        try {
+            const parsed = JSON.parse(localStorage.getItem('dtColHidden_' + tableId) || '[]');
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+            return [];
+        }
+    },
+
+    saveHiddenKeys: function(tableId, keys) {
+        try {
+            localStorage.setItem('dtColHidden_' + tableId, JSON.stringify(keys));
+        } catch (e) {
+            console.error('Error saving hidden columns:', e);
+        }
+    },
+
+    getSavedOrder: function(tableId) {
+        try {
+            const parsed = JSON.parse(localStorage.getItem('dtColOrder_' + tableId) || 'null');
+            return Array.isArray(parsed) ? parsed : null;
+        } catch (e) {
+            return null;
+        }
+    },
+
+    saveOrderFromDom: function(table) {
+        const tableId = this.getTableId(table);
+        const headers = Array.from(table.querySelectorAll('thead tr th'));
+        const order = headers
+            .filter(th => th.dataset.colFixed !== 'true' && th.dataset.colKey)
+            .map(th => th.dataset.colKey);
+        try {
+            localStorage.setItem('dtColOrder_' + tableId, JSON.stringify(order));
+        } catch (e) {
+            console.error('Error saving column order:', e);
+        }
+    },
+
+    getAllManagedColumns: function(table, dtApi) {
+        const cols = [];
+        dtApi.columns().every((idx) => {
+            const th = dtApi.column(idx).header();
+            if (!th || th.dataset.colFixed === 'true') return;
+            cols.push({
+                origIndex: idx,
+                key: th.dataset.colKey || ('col_' + idx),
+                title: this.getColumnTitle(th, idx),
+                visible: dtApi.column(idx).visible()
+            });
+        });
+        return cols;
+    },
+
+    applySavedHiddenColumns: function(table, dtApi) {
+        const tableId = this.getTableId(table);
+        const hiddenKeys = this.getHiddenKeys(tableId);
+        if (hiddenKeys.length === 0) return;
+
+        dtApi.columns().every((idx) => {
+            const th = dtApi.column(idx).header();
+            if (!th || th.dataset.colFixed === 'true') return;
+            const key = th.dataset.colKey || ('col_' + idx);
+            if (hiddenKeys.includes(key) && dtApi.column(idx).visible()) {
+                dtApi.column(idx).visible(false, false);
+            }
+        });
+    },
+
+    applySavedColumnOrder: function(table, dtApi) {
+        const tableId = this.getTableId(table);
+        const savedOrder = this.getSavedOrder(tableId);
+        if (!savedOrder || savedOrder.length === 0) return;
+
+        const theadRow = table.querySelector('thead tr');
+        if (!theadRow) return;
+
+        const visibleHeaders = Array.from(theadRow.children);
+        const leadingFixed = [];
+        const trailingFixed = [];
+        const draggableMap = new Map();
+
+        let seenDraggable = false;
+        visibleHeaders.forEach(th => {
+            if (th.dataset.colFixed === 'true') {
+                if (!seenDraggable) {
+                    leadingFixed.push(th);
+                } else {
+                    trailingFixed.push(th);
+                }
+            } else {
+                seenDraggable = true;
+                draggableMap.set(th.dataset.colKey, th);
+            }
+        });
+
+        const frag = document.createDocumentFragment();
+        leadingFixed.forEach(th => frag.appendChild(th));
+
+        savedOrder.forEach(key => {
+            const th = draggableMap.get(key);
+            if (th) {
+                frag.appendChild(th);
+                draggableMap.delete(key);
+            }
+        });
+
+        draggableMap.forEach(th => frag.appendChild(th));
+        trailingFixed.forEach(th => frag.appendChild(th));
+
+        theadRow.appendChild(frag);
+        this.syncRowsToHeaderOrder(table, dtApi);
+    },
+
+    syncRowsToHeaderOrder: function(table, dtApi) {
+        if (!table || !dtApi) return;
+        const theadRow = table.querySelector('thead tr');
+        if (!theadRow) return;
+
+        const visibleHeaderOrigIndices = Array.from(theadRow.children)
+            .filter(th => !th.classList.contains('sortable-drag'))
+            .map(th => th.dataset.origIndex)
+            .filter(v => v !== undefined);
+
+        if (visibleHeaderOrigIndices.length === 0) return;
+
+        // DataTables'ın mevcut görünür sütunlarını orijinal indeks sırasıyla al
+        const dtVisibleOrigIndices = [];
+        dtApi.columns().every(function(idx) {
+            if (this.visible()) {
+                dtVisibleOrigIndices.push(String(idx));
+            }
+        });
+
+        table.querySelectorAll('tbody tr, tfoot tr').forEach(row => {
+            const cells = Array.from(row.cells);
+            if (cells.length === 0) return;
+            if (cells.length === 1 && cells[0].colSpan > 1) return;
+
+            const cellMap = new Map();
+            const usedCells = new Set();
+
+            cells.forEach((cell, idx) => {
+                let origIdx = cell.dataset.origIndex;
+                if (origIdx === undefined && dtVisibleOrigIndices[idx] !== undefined) {
+                    origIdx = dtVisibleOrigIndices[idx];
+                    cell.dataset.origIndex = origIdx;
+                }
+                if (origIdx !== undefined) {
+                    cellMap.set(origIdx, cell);
+                }
+            });
+
+            const frag = document.createDocumentFragment();
+            visibleHeaderOrigIndices.forEach(origIdx => {
+                const cell = cellMap.get(origIdx);
+                if (cell) {
+                    frag.appendChild(cell);
+                    usedCells.add(cell);
+                }
+            });
+
+            cells.forEach(cell => {
+                if (!usedCells.has(cell)) {
+                    frag.appendChild(cell);
+                }
+            });
+
+            row.appendChild(frag);
+        });
+    },
+
+    hideColumnByHeader: function(table, dtApi, th) {
+        const tableId = this.getTableId(table);
+        const origIdx = parseInt(th.dataset.origIndex, 10);
+        const colKey = th.dataset.colKey;
+        if (isNaN(origIdx) || !colKey || th.dataset.colFixed === 'true') return;
+
+        // En az 1 sürüklenebilir/veri kolonu görünür kalmalı
+        const visibleDraggableCount = Array.from(table.querySelectorAll('thead tr th.dt-col-draggable')).length;
+        if (visibleDraggableCount <= 1) {
+            if (typeof showToast === 'function') {
+                showToast({ category: 'warning', title: 'Uyarı', description: 'En az bir veri sütunu görünür kalmalıdır.' });
+            }
+            return;
+        }
+
+        const hiddenKeys = this.getHiddenKeys(tableId);
+        if (!hiddenKeys.includes(colKey)) {
+            hiddenKeys.push(colKey);
+            this.saveHiddenKeys(tableId, hiddenKeys);
+        }
+
+        dtApi.column(origIdx).visible(false, false);
+
+        if (typeof showToast === 'function') {
+            const title = this.getColumnTitle(th, origIdx);
+            showToast({
+                category: 'info',
+                title: 'Sütun Gizlendi',
+                description: `"${title}" sütunu gizlendi. "Sütunlar" menüsünden tekrar açabilirsiniz.`
+            });
+        }
+    },
+
+    syncVisibilitySideEffects: function(table, dtApi, colIdx, state) {
+        const tableId = this.getTableId(table);
+        const th = dtApi.column(colIdx).header();
+        if (!th || th.dataset.colFixed === 'true') return;
+        const colKey = th.dataset.colKey || ('col_' + colIdx);
+
+        // dtColHidden_ senkronize et
+        let hiddenKeys = this.getHiddenKeys(tableId);
+        if (state) {
+            hiddenKeys = hiddenKeys.filter(k => k !== colKey);
+        } else if (!hiddenKeys.includes(colKey)) {
+            hiddenKeys.push(colKey);
+        }
+        this.saveHiddenKeys(tableId, hiddenKeys);
+
+        // Sayfaya özel .column-toggle varsa (örn. personel/list.php) senkronize et
+        const $pageToggle = $(`.column-toggle[data-column-index="${colIdx}"]`);
+        if ($pageToggle.length) {
+            $pageToggle.prop('checked', state);
+            if (typeof saveColumnPreferences === 'function') {
+                saveColumnPreferences();
+            }
+        }
+
+        // Merkezi sütun menüsü varsa güncelle
+        this.refreshColumnsToolbar(table, dtApi);
+
+        if (state && !table.dataset.isResettingCols) {
+            this.applySavedColumnOrder(table, dtApi);
+        } else {
+            this.syncRowsToHeaderOrder(table, dtApi);
+        }
+    },
+
+    setupColumnsToolbar: function(table, dtApi) {
+        const tableId = this.getTableId(table);
+        // Eğer sayfada zaten özel sütun toggle menüsü varsa ekstra buton ekleme
+        if (document.querySelector('.column-toggle')) return;
+
+        const wrapper = table.closest('.dataTables_wrapper');
+        if (!wrapper || wrapper.querySelector('.dt-cols-toolbar-btn')) return;
+
+        const managedCols = this.getAllManagedColumns(table, dtApi);
+        if (managedCols.length === 0) return;
+
+        // DataTables üst barını bul veya oluştur
+        let topBar = wrapper.querySelector('.dataTables_filter')?.parentElement;
+        if (!topBar) return;
+
+        topBar.classList.add('dt-topbar-with-cols');
+
+        const container = document.createElement('div');
+        container.className = 'relative ml-auto flex items-center gap-2 dt-cols-toolbar';
+        container.innerHTML = `
+            <button type="button" class="dt-cols-toolbar-btn inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors shadow-2xs cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
+                <span>Sütunlar</span>
+                <span class="dt-cols-hidden-badge hidden px-1.5 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">0</span>
+            </button>
+            <div class="dt-cols-menu-popover">
+                <div class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 px-2 py-1.5 border-b border-zinc-100 dark:border-zinc-800 mb-1">
+                    Sütunları Göster / Gizle
+                </div>
+                <div class="dt-cols-menu-list max-h-60 overflow-y-auto flex flex-col gap-0.5"></div>
+                <div class="pt-1.5 mt-1.5 border-t border-zinc-100 dark:border-zinc-800">
+                    <button type="button" class="dt-cols-reset-btn w-full text-left px-2 py-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 rounded-md transition-colors cursor-pointer">
+                        Varsayılan Sıra ve Görünüme Dön
+                    </button>
+                </div>
+            </div>
+        `;
+
+        topBar.appendChild(container);
+
+        const btn = container.querySelector('.dt-cols-toolbar-btn');
+        const popover = container.querySelector('.dt-cols-menu-popover');
+        const resetBtn = container.querySelector('.dt-cols-reset-btn');
+
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = popover.style.display === 'block';
+            document.querySelectorAll('.dt-cols-menu-popover').forEach(p => { p.style.display = 'none'; });
+            popover.style.display = isOpen ? 'none' : 'block';
+        });
+
+        popover.addEventListener('click', (e) => e.stopPropagation());
+
+        document.addEventListener('click', () => {
+            popover.style.display = 'none';
+        });
+
+        resetBtn.addEventListener('click', () => {
+            this.resetTableColumns(table, dtApi);
+            popover.style.display = 'none';
+        });
+
+        this.refreshColumnsToolbar(table, dtApi);
+    },
+
+    refreshColumnsToolbar: function(table, dtApi) {
+        const wrapper = table.closest('.dataTables_wrapper');
+        if (!wrapper) return;
+        const container = wrapper.querySelector('.dt-cols-toolbar');
+        if (!container) return;
+
+        const list = container.querySelector('.dt-cols-menu-list');
+        const badge = container.querySelector('.dt-cols-hidden-badge');
+        if (!list) return;
+
+        const cols = this.getAllManagedColumns(table, dtApi);
+        const hiddenCount = cols.filter(c => !c.visible).length;
+
+        if (badge) {
+            if (hiddenCount > 0) {
+                badge.textContent = String(hiddenCount);
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        list.innerHTML = '';
+        cols.forEach(col => {
+            const label = document.createElement('label');
+            label.className = 'flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-zinc-50 dark:hover:bg-zinc-800/60 cursor-pointer text-xs text-zinc-700 dark:text-zinc-300 select-none';
+
+            const input = document.createElement('input');
+            input.type = 'checkbox';
+            input.className = 'input cursor-pointer';
+            input.checked = col.visible;
+
+            input.addEventListener('change', () => {
+                if (!input.checked) {
+                    const visibleCount = this.getAllManagedColumns(table, dtApi).filter(c => c.visible).length;
+                    if (visibleCount <= 1) {
+                        input.checked = true;
+                        if (typeof showToast === 'function') {
+                            showToast({ category: 'warning', title: 'Uyarı', description: 'En az bir veri sütunu görünür kalmalıdır.' });
+                        }
+                        return;
+                    }
+                }
+                dtApi.column(col.origIndex).visible(input.checked, false);
+            });
+
+            const span = document.createElement('span');
+            span.className = 'truncate';
+            span.textContent = col.title;
+
+            label.appendChild(input);
+            label.appendChild(span);
+            list.appendChild(label);
+        });
+    },
+
+    resetTableColumns: function(table, dtApi) {
+        const tableId = this.getTableId(table);
+        table.dataset.isResettingCols = 'true';
+        try {
+            localStorage.removeItem('dtColHidden_' + tableId);
+            localStorage.removeItem('dtColOrder_' + tableId);
+
+            dtApi.columns().every((idx) => {
+                if (!dtApi.column(idx).visible()) {
+                    dtApi.column(idx).visible(true, false);
+                }
+            });
+
+            const theadRow = table.querySelector('thead tr');
+            if (theadRow) {
+                const headers = Array.from(theadRow.children);
+                headers.sort((a, b) => parseInt(a.dataset.origIndex || '0', 10) - parseInt(b.dataset.origIndex || '0', 10));
+                const frag = document.createDocumentFragment();
+                headers.forEach(th => frag.appendChild(th));
+                theadRow.appendChild(frag);
+            }
+
+            this.syncRowsToHeaderOrder(table, dtApi);
+            this.refreshColumnsToolbar(table, dtApi);
+        } finally {
+            delete table.dataset.isResettingCols;
+        }
+    },
+
+    initSortable: function(table, dtApi) {
+        if (typeof Sortable === 'undefined') return;
+        const theadRow = table.querySelector('thead tr');
+        if (!theadRow || theadRow.dataset.dtSortableInit === 'true') return;
+        theadRow.dataset.dtSortableInit = 'true';
+
+        // Sürükleme biterken DataTables'ın istem dışı click-to-sort yapmasını engelle
+        theadRow.addEventListener('click', function(e) {
+            if (table.dataset.isDraggingCol === 'true') {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+        }, true);
+
+        let hintEl = document.getElementById('dt-drag-hide-hint');
+        if (!hintEl) {
+            hintEl = document.createElement('div');
+            hintEl.id = 'dt-drag-hide-hint';
+            hintEl.className = 'dt-drag-hide-hint';
+            document.body.appendChild(hintEl);
+        }
+
+        let dragSyncFrame = null;
+        let currentDragTable = null;
+        let dragOverHandler = null;
+
+        const startDragSync = () => {
+            const loop = () => {
+                const headers = Array.from(theadRow.children).filter(th => !th.classList.contains('sortable-drag'));
+                headers.forEach((th, colIndex) => {
+                    const transform = th.style.transform;
+                    const transition = th.style.transition;
+                    table.querySelectorAll('tbody tr, tfoot tr').forEach(row => {
+                        const cell = row.cells[colIndex];
+                        if (cell && !(row.cells.length === 1 && cell.colSpan > 1)) {
+                            cell.style.transform = transform;
+                            cell.style.transition = transition;
+                        }
+                    });
+                });
+                dragSyncFrame = requestAnimationFrame(loop);
+            };
+            dragSyncFrame = requestAnimationFrame(loop);
+        };
+
+        const stopDragSync = () => {
+            if (dragSyncFrame) {
+                cancelAnimationFrame(dragSyncFrame);
+                dragSyncFrame = null;
+            }
+            table.querySelectorAll('tbody td, tfoot td').forEach(cell => {
+                cell.style.transform = '';
+                cell.style.transition = '';
+            });
+        };
+
+        const self = this;
+
+        Sortable.create(theadRow, {
+            animation: 150,
+            draggable: 'th.dt-col-draggable',
+            filter: '.column-filter-btn, .column-filter-btn *',
+            preventOnFilter: false,
+            onStart: function(evt) {
+                table.dataset.isDraggingCol = 'true';
+
+                const colIndex = Array.from(theadRow.children).indexOf(evt.item);
+                const tempTable = document.createElement('table');
+                tempTable.className = table.className;
+                tempTable.style.cssText = `position:fixed; top:-9999px; left:-9999px; width:${evt.item.offsetWidth}px; border-collapse:collapse; z-index:99999; background:var(--card, #ffffff); box-shadow:0 8px 30px rgba(0,0,0,0.14); opacity:0.88; pointer-events:none;`;
+
+                const thead = document.createElement('thead');
+                const trHead = document.createElement('tr');
+                trHead.appendChild(evt.item.cloneNode(true));
+                thead.appendChild(trHead);
+                tempTable.appendChild(thead);
+
+                const tbody = document.createElement('tbody');
+                const rows = Array.from(table.querySelectorAll('tbody tr')).slice(0, 12);
+                rows.forEach(row => {
+                    const cell = row.cells[colIndex];
+                    if (cell && !(row.cells.length === 1 && cell.colSpan > 1)) {
+                        const tr = document.createElement('tr');
+                        tr.appendChild(cell.cloneNode(true));
+                        tbody.appendChild(tr);
+                    }
+                });
+                tempTable.appendChild(tbody);
+                document.body.appendChild(tempTable);
+                currentDragTable = tempTable;
+
+                if (evt.originalEvent && evt.originalEvent.dataTransfer && typeof evt.originalEvent.dataTransfer.setDragImage === 'function') {
+                    evt.originalEvent.dataTransfer.setDragImage(tempTable, evt.item.offsetWidth / 2, 20);
+                }
+
+                hintEl.textContent = 'Sıralamak için sürükleyin • Gizlemek için tablo üzerine bırakın';
+                hintEl.classList.remove('is-hide-zone');
+                hintEl.style.display = 'inline-flex';
+
+                dragOverHandler = (e) => {
+                    const rect = theadRow.getBoundingClientRect();
+                    const x = e.clientX || 0;
+                    const y = e.clientY || 0;
+                    hintEl.style.left = (x + 14) + 'px';
+                    hintEl.style.top = (y + 18) + 'px';
+                    const isOutside = (y > rect.bottom + 15 || y < rect.top - 15 || x < rect.left - 15 || x > rect.right + 15);
+                    if (isOutside) {
+                        hintEl.textContent = 'Gizlemek için bırakın';
+                        hintEl.classList.add('is-hide-zone');
+                    } else {
+                        hintEl.textContent = 'Sıralamak için sürükleyin';
+                        hintEl.classList.remove('is-hide-zone');
+                    }
+                };
+                document.addEventListener('dragover', dragOverHandler);
+
+                startDragSync();
+            },
+            onChange: function() {
+                self.syncRowsToHeaderOrder(table, dtApi);
+            },
+            onEnd: function(evt) {
+                stopDragSync();
+                if (currentDragTable) {
+                    currentDragTable.remove();
+                    currentDragTable = null;
+                }
+                if (dragOverHandler) {
+                    document.removeEventListener('dragover', dragOverHandler);
+                    dragOverHandler = null;
+                }
+                hintEl.style.display = 'none';
+                hintEl.classList.remove('is-hide-zone');
+
+                setTimeout(() => {
+                    delete table.dataset.isDraggingCol;
+                }, 150);
+
+                const rect = theadRow.getBoundingClientRect();
+                const originalEvt = evt.originalEvent;
+                let x = 0, y = 0;
+                if (originalEvt) {
+                    if (originalEvt.clientX !== undefined) {
+                        x = originalEvt.clientX;
+                        y = originalEvt.clientY;
+                    } else if (originalEvt.changedTouches && originalEvt.changedTouches[0]) {
+                        x = originalEvt.changedTouches[0].clientX;
+                        y = originalEvt.changedTouches[0].clientY;
+                    }
+                }
+
+                const isOutside = (y > rect.bottom + 15 || y < rect.top - 15 || x < rect.left - 15 || x > rect.right + 15);
+                if (isOutside) {
+                    self.hideColumnByHeader(table, dtApi, evt.item);
+                }
+
+                self.saveOrderFromDom(table);
+                self.syncRowsToHeaderOrder(table, dtApi);
+            }
+        });
+    },
+
+    init: function(table, dtApi) {
+        if (!table || !dtApi || table.dataset.dtColManagerInit === 'true') return;
+        table.dataset.dtColManagerInit = 'true';
+
+        this.applySavedHiddenColumns(table, dtApi);
+        this.applySavedColumnOrder(table, dtApi);
+        this.syncRowsToHeaderOrder(table, dtApi);
+        this.setupColumnsToolbar(table, dtApi);
+        this.initSortable(table, dtApi);
+
+        $(table).on('draw.dt', () => {
+            this.syncRowsToHeaderOrder(table, dtApi);
+        });
+
+        $(table).on('column-visibility.dt', (e, settings, colIdx, state) => {
+            this.syncVisibilitySideEffects(table, dtApi, colIdx, state);
+        });
+    }
+};

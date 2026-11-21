@@ -456,8 +456,8 @@ async function handleFormSaved({ period, isEdit, isCopy }) {
 
 function requestDeleteInDetail() {
   actionError.value = ''
-  if (detail.value?.personel_count > 0) {
-    actionError.value = `Bu ücret tanımı şu anda ${detail.value.personel_count} personel tarafından kullanıldığı için silinemez.`
+  if (detail.value?.kullanim_count > 0) {
+    actionError.value = `Bu ücret tanımı şu anda ${detail.value.kullanim_count} personel tarafından kullanıldığı için silinemez.`
     return
   }
   confirmDelete.value = true

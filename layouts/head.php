@@ -259,6 +259,7 @@
     <!-- CSRF Token Interceptor (jQuery'den hemen sonra yüklenmeli) -->
     <script src="<?php echo routeUrl('assets/js/csrf.js'); ?>"></script>
     <script src="<?php echo routeUrl('assets/vendor/jquery.dataTables-1.13.7.min.js'); ?>"></script>
+    <script src="<?php echo routeUrl('assets/vendor/Sortable.min.js'); ?>"></script>
     <script src="<?php echo routeUrl('assets/js/datatable.init.js'); ?>?v=<?php echo @filemtime(__DIR__ . '/../assets/js/datatable.init.js'); ?>"></script>
     <script src="<?php echo routeUrl('assets/js/utils.js'); ?>"></script>
     

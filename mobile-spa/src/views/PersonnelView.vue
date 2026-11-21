@@ -1,7 +1,7 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { AlertCircle, ArrowUp, CalendarOff, ScanLine, CircleCheck, Pencil, Phone, Plus, RefreshCw, Search, Trash2, UsersRound, X } from '@lucide/vue'
+import { AlertCircle, ArrowUp, CalendarOff, ChevronDown, ScanLine, CircleCheck, Pencil, Phone, Plus, RefreshCw, Search, Trash2, UsersRound, X } from '@lucide/vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
 import PersonnelForm from '../components/PersonnelForm.vue'
 import { releaseScanner, scanCardCanvas, scanIdCard } from '../services/idScan.js'
@@ -29,6 +29,7 @@ const detailLoading = ref(false)
 const detailError = ref('')
 const sheet = ref(null)
 const leaves = ref([])
+const leavesOpen = ref(false)
 const formOpen = ref(false)
 const formPerson = ref(null)
 const confirmDelete = ref(false)
@@ -124,6 +125,7 @@ async function openDetail(person) {
   document.body.style.overflow = 'hidden'
   detail.value = { ...person }
   leaves.value = []
+  leavesOpen.value = false
   actionError.value = ''
   leaveForm.value = { baslangic_tarihi: '', bitis_tarihi: '', aciklama: '' }
   detailLoading.value = true
@@ -232,6 +234,7 @@ async function handleScanFile(event) {
 function openForm(person = null, keepPrefill = false) {
   if (!keepPrefill) formPrefill.value = null
   formPerson.value = person
+  closeDetail()
   formOpen.value = true
 }
 
@@ -398,49 +401,61 @@ onBeforeUnmount(() => {
     <Transition name="sheet">
       <div v-if="detail" class="layer" @keydown="handleKeydown" @click.self="closeDetail">
         <section ref="sheet" class="sheet" role="dialog" aria-modal="true" aria-label="Personel detayı">
-          <header class="sheet__head">
-            <span class="avatar avatar--lg">{{ initialsOf(detail.ad_soyad) }}</span>
-            <div class="sheet__title">
-              <h2>{{ detail.ad_soyad }}</h2>
-              <span class="badge" :class="`tone-${STATUS_META[detail.durum]?.tone || 'gray'}`">{{ STATUS_META[detail.durum]?.label || detail.durum }}</span>
-            </div>
-            <button type="button" class="close" aria-label="Kapat" @click="closeDetail"><X :size="19" /></button>
-          </header>
-
-          <p v-if="detailError" class="notice notice--inline" role="alert">{{ detailError }}</p>
-          <dl v-else class="facts" :aria-busy="detailLoading">
-            <div v-for="row in detailRows" :key="row.label"><dt>{{ row.label }}</dt><dd>{{ row.value }}</dd></div>
-          </dl>
-
-          <section class="leaves" aria-label="Ücretsiz izinler">
-            <h3><CalendarOff :size="16" /> Ücretsiz izinler</h3>
-            <ul v-if="leaves.length">
-              <li v-for="leave in leaves" :key="leave.id">
-                <span><strong>{{ formatDate(leave.baslangic_tarihi) }} – {{ formatDate(leave.bitis_tarihi) }}</strong><small>{{ leave.gun_sayisi }} gün<template v-if="leave.aciklama"> · {{ leave.aciklama }}</template></small></span>
-                <button type="button" class="icon-btn" :aria-label="`${leave.gun_sayisi} günlük izni sil`" :disabled="actionBusy" @click="removeLeave(leave.id)"><Trash2 :size="16" /></button>
-              </li>
-            </ul>
-            <p v-else class="muted">Kayıtlı ücretsiz izin yok.</p>
-            <form class="leave-form" @submit.prevent="submitLeave">
-              <div class="two">
-                <label>Başlangıç<input v-model="leaveForm.baslangic_tarihi" type="date" required /></label>
-                <label>Bitiş<input v-model="leaveForm.bitis_tarihi" type="date" required /></label>
+          <div class="sheet__body">
+            <header class="sheet__head">
+              <span class="avatar avatar--lg">{{ initialsOf(detail.ad_soyad) }}</span>
+              <div class="sheet__title">
+                <h2>{{ detail.ad_soyad }}</h2>
+                <span class="badge" :class="`tone-${STATUS_META[detail.durum]?.tone || 'gray'}`">{{ STATUS_META[detail.durum]?.label || detail.durum }}</span>
               </div>
-              <label>Açıklama<input v-model="leaveForm.aciklama" type="text" maxlength="255" placeholder="İsteğe bağlı" /></label>
-              <button type="submit" class="secondary" :disabled="actionBusy">İzin ekle</button>
-            </form>
-          </section>
+              <button type="button" class="close" aria-label="Kapat" @click="closeDetail"><X :size="19" /></button>
+            </header>
 
-          <p v-if="actionError" class="notice notice--inline" role="alert">{{ actionError }}</p>
+            <p v-if="detailError" class="notice notice--inline" role="alert">{{ detailError }}</p>
+            <dl v-else class="facts" :aria-busy="detailLoading">
+              <div v-for="row in detailRows" :key="row.label"><dt>{{ row.label }}</dt><dd>{{ row.value }}</dd></div>
+            </dl>
 
-          <div class="actions">
-            <button type="button" class="btn btn--dark" @click="openForm(detail)"><Pencil :size="16" /> Düzenle</button>
-            <button type="button" class="btn btn--danger" :disabled="actionBusy" @click="confirmDelete = true"><Trash2 :size="16" /> Sil</button>
+            <section class="leaves" aria-label="Ücretsiz izinler">
+              <button type="button" class="leaves__toggle" :aria-expanded="leavesOpen" @click="leavesOpen = !leavesOpen">
+                <span class="leaves__label">
+                  <CalendarOff :size="16" />
+                  <span>Ücretsiz izinler</span>
+                  <span v-if="leaves.length" class="leaves__count">{{ leaves.length }}</span>
+                </span>
+                <ChevronDown :size="18" class="leaves__chev" :class="{ 'is-open': leavesOpen }" />
+              </button>
+              <div v-show="leavesOpen" class="leaves__body">
+                <ul v-if="leaves.length">
+                  <li v-for="leave in leaves" :key="leave.id">
+                    <span><strong>{{ formatDate(leave.baslangic_tarihi) }} – {{ formatDate(leave.bitis_tarihi) }}</strong><small>{{ leave.gun_sayisi }} gün<template v-if="leave.aciklama"> · {{ leave.aciklama }}</template></small></span>
+                    <button type="button" class="icon-btn" :aria-label="`${leave.gun_sayisi} günlük izni sil`" :disabled="actionBusy" @click="removeLeave(leave.id)"><Trash2 :size="16" /></button>
+                  </li>
+                </ul>
+                <p v-else class="muted">Kayıtlı ücretsiz izin yok.</p>
+                <form class="leave-form" @submit.prevent="submitLeave">
+                  <div class="two">
+                    <label>Başlangıç<input v-model="leaveForm.baslangic_tarihi" type="date" required /></label>
+                    <label>Bitiş<input v-model="leaveForm.bitis_tarihi" type="date" required /></label>
+                  </div>
+                  <label>Açıklama<input v-model="leaveForm.aciklama" type="text" maxlength="255" placeholder="İsteğe bağlı" /></label>
+                  <button type="submit" class="secondary" :disabled="actionBusy">İzin ekle</button>
+                </form>
+              </div>
+            </section>
+
+            <p v-if="actionError" class="notice notice--inline" role="alert">{{ actionError }}</p>
           </div>
 
-          <ConfirmDialog v-if="confirmDelete" message="Bu personeli silmek istediğinize emin misiniz? Bu işlem geri alınamaz." confirm-text="Evet, sil" :busy="actionBusy" @confirm="removePerson" @cancel="confirmDelete = false" />
+          <footer class="sheet__footer">
+            <div class="actions">
+              <button type="button" class="btn btn--dark" @click="openForm(detail)"><Pencil :size="16" /> Düzenle</button>
+              <button type="button" class="btn btn--danger" :disabled="actionBusy" @click="confirmDelete = true"><Trash2 :size="16" /> Sil</button>
+            </div>
+            <a v-if="detail.telefon" class="call" :href="`tel:${detail.telefon}`"><Phone :size="17" /> {{ detail.telefon }}</a>
+          </footer>
 
-          <a v-if="detail.telefon" class="call" :href="`tel:${detail.telefon}`"><Phone :size="17" /> {{ detail.telefon }}</a>
+          <ConfirmDialog v-if="confirmDelete" message="Bu personeli silmek istediğinize emin misiniz? Bu işlem geri alınamaz." confirm-text="Evet, sil" :busy="actionBusy" @confirm="removePerson" @cancel="confirmDelete = false" />
         </section>
       </div>
     </Transition>
@@ -483,7 +498,9 @@ onBeforeUnmount(() => {
 @keyframes shimmer { to { background-position: -200% 0; } }
 
 .layer { position: fixed; inset: 0; z-index: 80; display: flex; align-items: flex-end; justify-content: center; background: rgba(15, 18, 24, .5); }
-.sheet { width: min(100%, 520px); max-height: 88svh; overflow-y: auto; padding: 18px 16px calc(18px + var(--ds-safe-bottom)); border-radius: 28px 28px 0 0; background: var(--ds-surface); box-shadow: 0 -16px 40px rgba(0, 0, 0, .25); }
+.sheet { width: min(100%, 520px); max-height: 88svh; display: flex; flex-direction: column; overflow: hidden; border-radius: 28px 28px 0 0; background: var(--ds-surface); box-shadow: 0 -16px 40px rgba(0, 0, 0, .25); }
+.sheet__body { flex: 1; min-height: 0; overflow-y: auto; padding: 18px 16px 12px; }
+.sheet__footer { flex-shrink: 0; padding: 12px 16px calc(18px + var(--ds-safe-bottom)); border-top: 1px solid var(--ds-border-subtle); background: var(--ds-surface); }
 .sheet__head { display: flex; align-items: center; gap: 12px; }
 .sheet__title { flex: 1; min-width: 0; display: grid; gap: 6px; justify-items: start; }
 .sheet__title h2 { margin: 0; font-size: 19px; line-height: 1.2; overflow-wrap: anywhere; }
@@ -530,8 +547,13 @@ dd { margin: 0; text-align: right; font-weight: 600; overflow-wrap: anywhere; }
 .info-btn { display: grid; place-items: center; flex-shrink: 0; width: 40px; height: 40px; border: 0; border-radius: 50%; background: var(--ds-surface-subtle); color: var(--ds-ink); cursor: pointer; }
 .info-btn:active { transform: scale(.92); }
 
-.leaves { margin: 4px 0 14px; display: grid; gap: 8px; }
-.leaves h3 { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 14px; }
+.leaves { margin: 4px 0 8px; border-radius: var(--ds-radius-sm); border: 1px solid var(--ds-border-subtle); background: var(--ds-surface-subtle); overflow: hidden; }
+.leaves__toggle { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 48px; padding: 0 14px; border: 0; background: transparent; color: var(--ds-ink); font: 700 14px var(--ds-font-main); cursor: pointer; text-align: left; }
+.leaves__label { display: inline-flex; align-items: center; gap: 8px; }
+.leaves__count { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--ds-surface-dark); color: #fff; font-size: 11px; font-weight: 800; }
+.leaves__chev { color: var(--ds-muted); transition: transform .2s ease; }
+.leaves__chev.is-open { transform: rotate(180deg); }
+.leaves__body { display: grid; gap: 8px; padding: 12px 14px 14px; border-top: 1px solid var(--ds-border-subtle); background: var(--ds-surface); }
 .leaves ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
 .leaves li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 12px; border-radius: var(--ds-radius-sm); background: var(--ds-surface-subtle); }
 .leaves li span { display: grid; gap: 2px; min-width: 0; font-size: 13px; }
@@ -543,6 +565,7 @@ dd { margin: 0; text-align: right; font-weight: 600; overflow-wrap: anywhere; }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .secondary { min-height: 44px; border: 0; border-radius: 999px; background: var(--ds-surface-subtle); font-weight: 700; font-size: 13px; cursor: pointer; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.actions:last-child { margin-bottom: 0; }
 .btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; border: 0; border-radius: 999px; font-weight: 700; font-size: 14px; cursor: pointer; }
 .btn--dark { background: var(--ds-surface-dark); color: #fff; }
 .btn--danger { background: var(--ds-danger-bg); color: var(--ds-danger-ink); }
