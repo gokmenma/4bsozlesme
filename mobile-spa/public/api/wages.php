@@ -251,6 +251,7 @@ try {
         $id = wageDecryptId($_GET['id'] ?? '');
         $row = $id > 0 ? $model->getDetail($tenantId, $id) : null;
         if ($row === null) {
+            error_log('Mobile Wages detail 404: ' . ($id > 0 ? 'kayıt bulunamadı (id=' . $id . ', tenant=' . $tenantId . ')' : 'id çözülemedi (token uzunluğu=' . strlen((string)($_GET['id'] ?? '')) . ')'));
             wageResponse(['success' => false, 'message' => 'Ücret tanımı bulunamadı.'], 404);
         }
 

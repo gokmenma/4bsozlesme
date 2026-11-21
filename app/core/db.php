@@ -1,17 +1,16 @@
 <?php
 
-/**
- * Veritabanı Bağlantı Yapılandırması
- * PDO (PHP Data Objects) kullanılarak güvenli bağlantı sağlanır.
- */
-
-$host = getenv('DB_HOST') ?: 'localhost';
-$dbname = getenv('DB_NAME') ?: 'sozlesme';
-$username = getenv('DB_USER') ?: 'root';
-$password = getenv('DB_PASS') !== false ? getenv('DB_PASS') : '';
+$host = getenv('DB_HOST');
+$dbname = getenv('DB_NAME');
+$username = getenv('DB_USER');
+$password = getenv('DB_PASS');
 $charset = getenv('DB_CHARSET') ?: 'utf8mb4';
 
-
+if ($host === false || $host === '' || $dbname === false || $dbname === '' || $username === false || $username === '' || $password === false) {
+    error_log('Veritabanı yapılandırması eksik: .env içinde DB_HOST, DB_NAME, DB_USER, DB_PASS tanımlı olmalı.');
+    http_response_code(500);
+    die('Sistem yapılandırma hatası oluştu.');
+}
 
 $dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
 
@@ -22,9 +21,9 @@ $options = [
 ];
 
 try {
-    // Global olarak erişilebilecek bağlantı değişkeni
     $db = new PDO($dsn, $username, $password, $options);
 } catch (\PDOException $e) {
-    // Hata durumunda mesaj göster ve durdur
-    die("Veritabanı bağlantı hatası: " . $e->getMessage());
+    error_log('Veritabanı bağlantı hatası: ' . $e->getMessage());
+    http_response_code(500);
+    die('Veritabanı bağlantısı kurulamadı.');
 }

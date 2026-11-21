@@ -284,20 +284,48 @@ if (!document.getElementById('toaster')) {
         <p class="text-xs text-zinc-500 mt-1">Bu işlem birkaç saniye sürebilir.</p>
       </div>
 
-      <form action="<?php echo routeUrl('personel-ekle'); ?>" method="POST" id="form-add-personnel" class="form grid gap-4">
-        <div class="grid grid-cols-2 gap-4">
-            <div class="grid gap-2">
-                <label for="tc_kimlik">TC Kimlik No</label>
-                <input type="text" name="tc_kimlik" id="tc_kimlik" maxlength="11" required placeholder="11 haneli TC no" />
+      <style>
+        #form-add-personnel{gap:.75rem}
+        #form-add-personnel .pf-section-title{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#71717a;display:flex;align-items:center;gap:.5rem;margin-top:.25rem}
+        #form-add-personnel .pf-section-title::after{content:"";flex:1;height:1px;background:rgba(113,113,122,.25)}
+        #form-add-personnel .pf-req{color:#dc2626;margin-left:2px}
+        #form-add-personnel .pf-row{display:grid;gap:.75rem;align-items:start}
+        #form-add-personnel .pf-row.c2{grid-template-columns:1fr 1fr}
+        #form-add-personnel .pf-row.c3{grid-template-columns:1fr 1fr 1fr}
+        #form-add-personnel .pf-row.uc{grid-template-columns:1fr 170px}
+        #form-add-personnel .pf-row>div{min-width:0;display:grid;gap:.25rem}
+        #form-add-personnel label{font-size:.8125rem}
+        #form-add-personnel input[type=text]{height:2.5rem;padding-top:0;padding-bottom:0;font-size:.875rem}
+        #form-add-personnel .btn-outline,#form-add-personnel .app-select button,#form-add-personnel [id^=select-add-durum] button{height:2.5rem;font-size:.875rem}
+        #form-add-personnel .pf-hint{font-size:11px;color:#a1a1aa;line-height:1;min-height:11px}
+        #form-add-personnel .pf-hint:empty{display:none}
+        #form-add-personnel .pf-hint.ok{color:#16a34a}
+        #form-add-personnel .pf-hint.err{color:#dc2626}
+        #form-add-personnel .pf-seg{display:flex;gap:1rem;height:2.5rem;align-items:center}
+        #form-add-personnel .pf-seg label{display:inline-flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.8125rem;user-select:none}
+        #form-add-personnel .pf-seg input{width:1rem;height:1rem;margin:0;accent-color:#18181b;cursor:pointer}
+        .dark #form-add-personnel .pf-seg input{accent-color:#f4f4f5}
+        @media (max-width:560px){#form-add-personnel .pf-row.c2,#form-add-personnel .pf-row.c3,#form-add-personnel .pf-row.uc{grid-template-columns:1fr}}
+      </style>
+      <form action="<?php echo routeUrl('personel-ekle'); ?>" method="POST" id="form-add-personnel" class="form grid" novalidate>
+        <div class="pf-section-title">Zorunlu Bilgiler</div>
+
+        <div class="pf-row c2">
+            <div class="grid gap-1.5">
+                <label for="tc_kimlik">TC Kimlik No<span class="pf-req">*</span></label>
+                <input type="text" name="tc_kimlik" id="tc_kimlik" maxlength="11" inputmode="numeric" autocomplete="off" required placeholder="11 haneli TC no" />
+                <div class="pf-hint" id="tc_kimlik_hint">0 / 11</div>
             </div>
-            <div class="grid gap-2">
-                <label for="ad_soyad">Ad Soyad</label>
-                <input type="text" name="ad_soyad" id="ad_soyad" required placeholder="Adı ve Soyadı" />
+            <div class="grid gap-1.5">
+                <label for="ad_soyad">Ad Soyad<span class="pf-req">*</span></label>
+                <input type="text" name="ad_soyad" id="ad_soyad" autocomplete="off" required placeholder="Adı ve Soyadı" />
+                <div class="pf-hint" id="ad_soyad_hint"></div>
             </div>
         </div>
 
-        <div class="grid gap-2">
-            <label>Unvan / Ücret Tanımı</label>
+        <div class="pf-row uc">
+        <div class="grid gap-1.5">
+            <label>Unvan / Ücret Tanımı<span class="pf-req">*</span></label>
             <div id="select-add-ucret" class="app-select-rich">
               <button type="button" class="btn-outline w-full justify-between" id="select-add-ucret-trigger" aria-expanded="false" onclick="toggleSelectRich(this)">
                 <span class="truncate">Ücret tanımı seçin...</span>
@@ -334,14 +362,28 @@ if (!document.getElementById('toaster')) {
               </div>
               <input type="hidden" name="ucret_id" id="add_ucret_id" required />
             </div>
+            <div class="pf-hint" id="add_ucret_hint"></div>
         </div>
 
-        <div class="grid grid-cols-3 gap-4">
-            <div class="grid gap-2">
-                <label for="goreve_baslama_tarihi">Göreve Başlama</label>
+        <div class="grid gap-1.5">
+            <label>Cinsiyet<span class="pf-req">*</span></label>
+            <div class="pf-seg" role="radiogroup" aria-label="Cinsiyet">
+                <label><input type="radio" name="cinsiyet" value="erkek" required checked />Erkek</label>
+                <label><input type="radio" name="cinsiyet" value="kadin" />Kadın</label>
+            </div>
+            <div class="pf-hint" id="add_cinsiyet_hint"></div>
+        </div>
+
+        </div>
+
+        <div class="pf-section-title">Görev Bilgileri</div>
+
+        <div class="pf-row c2">
+            <div class="grid gap-1.5">
+                <label for="goreve_baslama_tarihi">Göreve Başlama<span class="pf-req">*</span></label>
                 <input type="text" name="goreve_baslama_tarihi" id="goreve_baslama_tarihi" class="datepicker" required />
             </div>
-            <div class="grid gap-2">
+            <div class="grid gap-1.5">
                 <label>Durum</label>
                 <?php echo renderCustomSelect('add-durum', 'durum', [
                     ['value' => 'aktif', 'label' => 'Aktif'],
@@ -351,27 +393,23 @@ if (!document.getElementById('toaster')) {
                     ['value' => 'kadroya_gecmeyecek', 'label' => 'Kadroya Geçmeyecek']
                 ], 'aktif', 'w-full'); ?>
             </div>
-            <div class="grid gap-2">
-                <label>Cinsiyet</label>
-                <?php echo renderCustomSelect('add-cinsiyet', 'cinsiyet', [
-                    ['value' => 'erkek', 'label' => 'Erkek'],
-                    ['value' => 'kadin', 'label' => 'Kadın']
-                ], 'erkek', 'w-full'); ?>
-            </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-4">
-            <div class="grid gap-2">
-                <label for="telefon">Telefon</label>
-                <input type="text" name="telefon" id="telefon" placeholder="05XX XXX XX XX" />
-            </div>
-            <div class="grid gap-2">
-                <label for="meslek_kodu">Meslek Kodu</label>
-                <input type="text" name="meslek_kodu" id="meslek_kodu" placeholder="SGK Meslek Kodu" />
-            </div>
-            <div class="grid gap-2">
-                <label for="ayrilma_tarihi">Ayrılış / Kadroya Geçiş Tarihi</label>
-                <input type="text" name="ayrilma_tarihi" id="ayrilma_tarihi" class="datepicker" placeholder="Seçiniz..." />
+        <div class="pf-section-title">Ek Bilgiler (İsteğe Bağlı)</div>
+        <div class="pf-more">
+            <div class="pf-row c3">
+                <div class="grid gap-1.5">
+                    <label for="telefon">Telefon</label>
+                    <input type="text" name="telefon" id="telefon" inputmode="tel" placeholder="05XX XXX XX XX" />
+                </div>
+                <div class="grid gap-1.5">
+                    <label for="meslek_kodu">Meslek Kodu</label>
+                    <input type="text" name="meslek_kodu" id="meslek_kodu" placeholder="SGK Meslek Kodu" />
+                </div>
+                <div class="grid gap-1.5">
+                    <label for="ayrilma_tarihi">Ayrılış / Kadroya Geçiş</label>
+                    <input type="text" name="ayrilma_tarihi" id="ayrilma_tarihi" class="datepicker" placeholder="Seçiniz..." />
+                </div>
             </div>
         </div>
       </form>
@@ -432,21 +470,48 @@ if (!document.getElementById('toaster')) {
     </header>
  
     <section>
-      <form id="form-edit-personnel" class="form grid gap-4">
+      <style>
+        #form-edit-personnel{gap:.75rem}
+        #form-edit-personnel .pf-section-title{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#71717a;display:flex;align-items:center;gap:.5rem;margin-top:.25rem}
+        #form-edit-personnel .pf-section-title::after{content:"";flex:1;height:1px;background:rgba(113,113,122,.25)}
+        #form-edit-personnel .pf-req{color:#dc2626;margin-left:2px}
+        #form-edit-personnel .pf-row{display:grid;gap:.75rem;align-items:start}
+        #form-edit-personnel .pf-row.c2{grid-template-columns:1fr 1fr}
+        #form-edit-personnel .pf-row.c3{grid-template-columns:1fr 1fr 1fr}
+        #form-edit-personnel .pf-row.uc{grid-template-columns:1fr 170px}
+        #form-edit-personnel .pf-row>div{min-width:0;display:grid;gap:.25rem}
+        #form-edit-personnel label{font-size:.8125rem}
+        #form-edit-personnel input[type=text]{height:2.5rem;padding-top:0;padding-bottom:0;font-size:.875rem}
+        #form-edit-personnel .btn-outline,#form-edit-personnel .app-select button,#form-edit-personnel [id^=select-add-durum] button{height:2.5rem;font-size:.875rem}
+        #form-edit-personnel .pf-hint{font-size:11px;color:#a1a1aa;line-height:1;min-height:11px}
+        #form-edit-personnel .pf-hint:empty{display:none}
+        #form-edit-personnel .pf-hint.ok{color:#16a34a}
+        #form-edit-personnel .pf-hint.err{color:#dc2626}
+        #form-edit-personnel .pf-seg{display:flex;gap:1rem;height:2.5rem;align-items:center}
+        #form-edit-personnel .pf-seg label{display:inline-flex;align-items:center;gap:.4rem;cursor:pointer;font-size:.8125rem;user-select:none}
+        #form-edit-personnel .pf-seg input{width:1rem;height:1rem;margin:0;accent-color:#18181b;cursor:pointer}
+        .dark #form-edit-personnel .pf-seg input{accent-color:#f4f4f5}
+        @media (max-width:560px){#form-edit-personnel .pf-row.c2,#form-edit-personnel .pf-row.c3,#form-edit-personnel .pf-row.uc{grid-template-columns:1fr}}
+      </style>
+      <form id="form-edit-personnel" class="form grid">
         <input type="hidden" name="id" id="edit_id" />
-        <div class="grid grid-cols-2 gap-4">
-            <div class="grid gap-2">
-                <label for="edit_tc_kimlik">TC Kimlik No</label>
-                <input type="text" name="tc_kimlik" id="edit_tc_kimlik" maxlength="11" required />
+        <div class="pf-section-title">Zorunlu Bilgiler</div>
+
+        <div class="pf-row c2">
+            <div class="grid gap-1.5">
+                <label for="edit_tc_kimlik">TC Kimlik No<span class="pf-req">*</span></label>
+                <input type="text" name="tc_kimlik" id="edit_tc_kimlik" maxlength="11" inputmode="numeric" autocomplete="off" required placeholder="11 haneli TC no" />
+                <div class="pf-hint" id="tc_kimlik_hint">0 / 11</div>
             </div>
-            <div class="grid gap-2">
-                <label for="edit_ad_soyad">Ad Soyad</label>
-                <input type="text" name="ad_soyad" id="edit_ad_soyad" required />
+            <div class="grid gap-1.5">
+                <label for="edit_ad_soyad">Ad Soyad<span class="pf-req">*</span></label>
+                <input type="text" name="ad_soyad" id="edit_ad_soyad" autocomplete="off" required placeholder="Adı ve Soyadı" />
             </div>
         </div>
- 
-        <div class="grid gap-2">
-            <label>Unvan / Ücret Tanımı</label>
+
+        <div class="pf-row uc">
+        <div class="grid gap-1.5">
+            <label>Unvan / Ücret Tanımı<span class="pf-req">*</span></label>
             <div id="select-edit-ucret" class="app-select-rich">
               <button type="button" class="btn-outline w-full justify-between" id="select-edit-ucret-trigger" aria-expanded="false" onclick="toggleSelectRich(this)">
                 <span class="truncate">Ücret tanımı seçin...</span>
@@ -484,13 +549,25 @@ if (!document.getElementById('toaster')) {
               <input type="hidden" name="ucret_id" id="edit_ucret_id" required />
             </div>
         </div>
- 
-        <div class="grid grid-cols-3 gap-4">
-            <div class="grid gap-2">
-                <label for="edit_goreve_baslama_tarihi">Göreve Başlama</label>
+
+        <div class="grid gap-1.5">
+            <label>Cinsiyet<span class="pf-req">*</span></label>
+            <div class="pf-seg" role="radiogroup" aria-label="Cinsiyet">
+                <label><input type="radio" name="cinsiyet" value="erkek" />Erkek</label>
+                <label><input type="radio" name="cinsiyet" value="kadin" />Kadın</label>
+            </div>
+        </div>
+
+        </div>
+
+        <div class="pf-section-title">Görev Bilgileri</div>
+
+        <div class="pf-row c2">
+            <div class="grid gap-1.5">
+                <label for="edit_goreve_baslama_tarihi">Göreve Başlama<span class="pf-req">*</span></label>
                 <input type="text" name="goreve_baslama_tarihi" id="edit_goreve_baslama_tarihi" class="datepicker" required />
             </div>
-            <div class="grid gap-2">
+            <div class="grid gap-1.5">
                 <label>Durum</label>
                 <?php echo renderCustomSelect('edit-durum', 'durum', [
                     ['value' => 'aktif', 'label' => 'Aktif'],
@@ -500,27 +577,23 @@ if (!document.getElementById('toaster')) {
                     ['value' => 'kadroya_gecmeyecek', 'label' => 'Kadroya Geçmeyecek']
                 ], 'aktif', 'w-full'); ?>
             </div>
-            <div class="grid gap-2">
-                <label>Cinsiyet</label>
-                <?php echo renderCustomSelect('edit-cinsiyet', 'cinsiyet', [
-                    ['value' => 'erkek', 'label' => 'Erkek'],
-                    ['value' => 'kadin', 'label' => 'Kadın']
-                ], 'erkek', 'w-full'); ?>
-            </div>
         </div>
- 
-        <div class="grid grid-cols-3 gap-4">
-            <div class="grid gap-2">
-                <label for="edit_telefon">Telefon</label>
-                <input type="text" name="telefon" id="edit_telefon" />
-            </div>
-            <div class="grid gap-2">
-                <label for="edit_meslek_kodu">Meslek Kodu</label>
-                <input type="text" name="meslek_kodu" id="edit_meslek_kodu" />
-            </div>
-            <div class="grid gap-2">
-                <label for="edit_ayrilma_tarihi">Ayrılış / Kadroya Geçiş Tarihi</label>
-                <input type="text" name="ayrilma_tarihi" id="edit_ayrilma_tarihi" class="datepicker" placeholder="Seçiniz..." />
+
+        <div class="pf-section-title">Ek Bilgiler (İsteğe Bağlı)</div>
+        <div class="pf-more">
+            <div class="pf-row c3">
+                <div class="grid gap-1.5">
+                    <label for="edit_telefon">Telefon</label>
+                    <input type="text" name="telefon" id="edit_telefon" inputmode="tel" placeholder="05XX XXX XX XX" />
+                </div>
+                <div class="grid gap-1.5">
+                    <label for="edit_meslek_kodu">Meslek Kodu</label>
+                    <input type="text" name="meslek_kodu" id="edit_meslek_kodu" placeholder="SGK Meslek Kodu" />
+                </div>
+                <div class="grid gap-1.5">
+                    <label for="edit_ayrilma_tarihi">Ayrılış / Kadroya Geçiş</label>
+                    <input type="text" name="ayrilma_tarihi" id="edit_ayrilma_tarihi" class="datepicker" placeholder="Seçiniz..." />
+                </div>
             </div>
         </div>
       </form>
@@ -1294,7 +1367,11 @@ $(document).ready(function() {
         <?php endif; ?>
 
         $('#form-add-personnel')[0].reset();
+        $('#form-add-personnel .pf-hint').removeClass('ok err').text('');
+        $('#tc_kimlik_hint').text('0 / 11');
+        $('#form-add-personnel input').removeAttr('aria-invalid');
         $('#add_ucret_id').val('');
+        setTimeout(() => $('#tc_kimlik').trigger('focus'), 80);
         $('#select-add-ucret-trigger span').text('Ücret tanımı seçin...');
         $('[data-custom-popover]').attr('aria-hidden', 'true');
         
@@ -1330,15 +1407,7 @@ $(document).ready(function() {
     $('#form-add-personnel').on('submit', function(e) {
         e.preventDefault();
         
-        const ucretId = $('#add_ucret_id').val();
-        if (!ucretId) {
-            showToast({
-                category: 'warning',
-                title: 'Uyarı',
-                description: 'Lütfen bir ücret tanımı seçin.'
-            });
-            return;
-        }
+        if (!validateAddPersonnel(true)) return;
 
         const formData = $(this).serialize();
         
@@ -1373,6 +1442,63 @@ $(document).ready(function() {
                 showToast({ category: 'error', title: 'Hata', description: msg });
             }
         });
+    });
+
+    function setHint(id, msg, type) {
+        $('#' + id).removeClass('ok err').addClass(type || '').text(msg || '');
+    }
+
+    function validateAddPersonnel(focusFirst) {
+        let firstBad = null;
+        const bad = (el) => { if (!firstBad) firstBad = el; };
+
+        const tc = $('#tc_kimlik').val();
+        if (!/^\d{11}$/.test(tc)) {
+            setHint('tc_kimlik_hint', 'TC Kimlik No 11 haneli olmalıdır.', 'err');
+            $('#tc_kimlik').attr('aria-invalid', 'true'); bad('#tc_kimlik');
+        }
+        if ($('#ad_soyad').val().trim().length < 3) {
+            setHint('ad_soyad_hint', 'Ad Soyad giriniz.', 'err');
+            $('#ad_soyad').attr('aria-invalid', 'true'); bad('#ad_soyad');
+        }
+        if (!$('#add_ucret_id').val()) {
+            setHint('add_ucret_hint', 'Lütfen bir unvan / ücret tanımı seçin.', 'err');
+            bad('#select-add-ucret-trigger');
+        }
+        if (!$('#form-add-personnel input[name="cinsiyet"]:checked').length) {
+            setHint('add_cinsiyet_hint', 'Lütfen cinsiyet seçin.', 'err');
+            bad('#form-add-personnel input[name="cinsiyet"]:first');
+        }
+        if (!$('#goreve_baslama_tarihi').val().trim()) {
+            bad('#goreve_baslama_tarihi');
+        }
+
+        if (firstBad && focusFirst) {
+            $(firstBad).trigger('focus');
+            showToast({ category: 'warning', title: 'Eksik Bilgi', description: 'Lütfen zorunlu alanları doldurun.' });
+        }
+        return !firstBad;
+    }
+
+    $('#tc_kimlik').on('input', function() {
+        const v = this.value.replace(/\D/g, '').slice(0, 11);
+        if (this.value !== v) this.value = v;
+        $(this).removeAttr('aria-invalid');
+        if (v.length === 11) setHint('tc_kimlik_hint', '11 / 11 ✓', 'ok');
+        else setHint('tc_kimlik_hint', v.length + ' / 11', '');
+    });
+
+    $('#ad_soyad').on('input', function() {
+        $(this).removeAttr('aria-invalid');
+        setHint('ad_soyad_hint', '');
+    });
+
+    $('#form-add-personnel input[name="cinsiyet"]').on('change', function() {
+        setHint('add_cinsiyet_hint', '');
+    });
+
+    $('#add_ucret_id').on('change', function() {
+        setHint('add_ucret_hint', '');
     });
 
     // Initial check on page load
@@ -2019,8 +2145,8 @@ function processAiScan(input) {
             $('#ai-loading').addClass('hidden');
             if (response.success && response.data) {
                 const data = response.data;
-                $('#tc_kimlik').val(data.tc_kimlik);
-                $('#ad_soyad').val(data.ad_soyad);
+                $('#tc_kimlik').val(data.tc_kimlik).trigger('input');
+                $('#ad_soyad').val(data.ad_soyad).trigger('input');
                 $('#telefon').val(data.telefon);
                 showToast({ category: 'success', title: 'AI Tarama Başarılı', description: 'Bilgiler yerleştirildi.' });
             } else {
@@ -2053,7 +2179,7 @@ function selectRichOption(el) {
     var ucret = $el.find('.text-primary').text().trim();
     var kidem = $el.find('.text-\\[10px\\]').text().trim().replace(/\s*KIDEM$/i, '');
     
-    $select.find('input[type="hidden"]').val(value);
+    $select.find('input[type="hidden"]').val(value).trigger('change');
     $select.find('button span').text(unvan + ' | ' + ogrenim + ' | ' + kidem + ' | ' + ucret);
     
     // Seçili sınıfını yönet
@@ -2120,13 +2246,7 @@ function editPersonnel(id) {
         } else {
             cinsiyet = 'erkek';
         }
-        $('#edit-cinsiyet-value').val(cinsiyet).trigger('change');
-        $('#edit-cinsiyet-trigger span').text(cinsiyet === 'erkek' ? 'Erkek' : 'Kadın');
-        $('#edit-cinsiyet-listbox [role="option"]').removeClass('selected bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold');
-        $('#edit-cinsiyet-listbox .check-icon').addClass('hidden');
-        const $cinsOpt = $(`#edit-cinsiyet-listbox [data-value="${cinsiyet}"]`);
-        $cinsOpt.addClass('selected bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-white font-bold');
-        $cinsOpt.find('.check-icon').removeClass('hidden');
+        $('#form-edit-personnel input[name="cinsiyet"]').prop('checked', false).filter('[value="' + cinsiyet + '"]').prop('checked', true);
 
         $('#edit_telefon').val(data.telefon);
         $('#edit_meslek_kodu').val(data.meslek_kodu);

@@ -282,10 +282,22 @@ dialog::backdrop {
 
 table.dataTable thead th:not(:last-child),
 table.dataTable tbody td:not(:last-child) {
-    border-right: 1px solid #e5e7eb !important;
+    border-right: 1px solid #f3f4f6 !important;
 }
 
 .dark table.dataTable thead th:not(:last-child),
 .dark table.dataTable tbody td:not(:last-child) {
     border-right: 1px solid #27272a !important;
+}
+
+table.dataTable tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+table.dataTable tbody tr:hover td {
+    background-color: #f4f4f5 !important;
+}
+
+.dark table.dataTable tbody tr:hover td {
+    background-color: #27272a !important;
 }
