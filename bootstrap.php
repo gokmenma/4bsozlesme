@@ -24,6 +24,17 @@ if (file_exists(__DIR__ . '/.env')) {
 }
 
 if (session_status() === PHP_SESSION_NONE) {
+    $sessionLifetime = 30 * 86400;
+    ini_set('session.gc_maxlifetime', (string)$sessionLifetime);
+    if (PHP_SAPI !== 'cli') {
+        session_set_cookie_params([
+            'lifetime' => !empty($_COOKIE['remember_token']) ? $sessionLifetime : 0,
+            'path' => '/',
+            'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+    }
     session_start();
 }
 
@@ -79,6 +90,7 @@ if (!isset($_SESSION['user_id']) && !empty($_COOKIE['remember_token'])) {
                 $_SESSION['role'] = $user['role'];
                 $_SESSION['role_id'] = $user['role_id'] ?? null;
                 $_SESSION['tenant_id'] = $user['tenant_id'];
+                $_SESSION['mobile_csrf_token'] = bin2hex(random_bytes(32));
             }
         }
     }

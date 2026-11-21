@@ -276,7 +276,7 @@ onMounted(load)
 .stat__icon { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 12px; margin-bottom: 6px; }
 .stat__icon--emerald { background: #d1fae5; color: #047857; }
 .stat__icon--amber { background: #fef3c7; color: #b45309; }
-.stat__icon--blue { background: #e0f2fe; color: #0369a1; }
+.stat__icon--blue { background: #e5e7ee; color: #1f2a44; }
 .stat__icon--purple { background: #ede9fe; color: #6d28d9; }
 .kadro__tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border-radius: 999px; background: var(--ds-surface-subtle); }
 .kadro__tabs button { min-height: 40px; border: 0; border-radius: 999px; background: transparent; color: var(--ds-muted); font-size: 13px; font-weight: 700; cursor: pointer; }
@@ -292,7 +292,7 @@ onMounted(load)
 .shortcut { display: grid; justify-items: center; gap: 8px; min-height: 88px; padding: 14px 6px 10px; border: 0; border-radius: var(--ds-radius-tile); background: var(--ds-surface); box-shadow: var(--ds-shadow-tile); cursor: pointer; font-size: 12px; font-weight: 700; color: var(--ds-ink); transition: transform .15s ease; }
 .shortcut:active { transform: scale(.95); }
 .shortcut__icon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 14px; background: var(--ds-surface-subtle); color: var(--tone); }
-.theme-blue { --tone: #0284c7; } .theme-emerald { --tone: #059669; } .theme-amber { --tone: #d97706; } .theme-purple { --tone: #7c3aed; } .theme-coral { --tone: #e11d48; }
+.theme-blue { --tone: #1f2a44; } .theme-emerald { --tone: #059669; } .theme-amber { --tone: #d97706; } .theme-purple { --tone: #7c3aed; } .theme-coral { --tone: #e11d48; }
 .card__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .card__head h2 { margin: 0; font-size: 16px; font-weight: 800; }
 .link { min-height: 44px; padding: 0 4px; border: 0; background: transparent; color: var(--ds-muted); font-size: 13px; font-weight: 700; cursor: pointer; }

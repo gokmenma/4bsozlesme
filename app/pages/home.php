@@ -38,156 +38,154 @@ if ($currentUserTrialEnds) {
 <?php endif; ?>
 
 <!-- Dashboard Header -->
-<div class="flex items-center justify-between mb-8">
+<div class="flex items-center justify-between mb-5">
   <div>
-    <h1 class="text-2xl font-bold tracking-tight text-foreground">Dashboard</h1>
-    <p class="text-muted-foreground mt-1">Sistem genelindeki performans ve istatistiklerin özeti.</p>
+    <h1 class="text-lg font-semibold tracking-tight text-foreground">Dashboard</h1>
+    <p class="text-[13px] text-muted-foreground mt-0.5">Sistem genelindeki performans ve istatistiklerin özeti.</p>
   </div>
   <div class="flex items-center gap-2">
-    <button class="inline-flex h-9 items-center justify-center rounded-md border border-border bg-background px-4 py-2 text-sm font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+    <button class="inline-flex h-8 items-center justify-center rounded-lg border border-border bg-white dark:bg-zinc-900 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
       Rapor İndir
     </button>
   </div>
 </div>
 
 <!-- Stat Cards -->
-<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+<div class="grid gap-3.5 md:grid-cols-2 lg:grid-cols-4 mb-5">
   <!-- Card 1: Toplam Personel -->
-  <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
-    <div class="flex items-center justify-between space-y-0 pb-2">
-      <h3 class="text-sm font-medium text-muted-foreground">Toplam Personel</h3>
-      <div class="inline-flex items-center rounded-full border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 text-xs font-semibold text-blue-600 transition-colors dark:text-blue-400">
-        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Sistemde Kayıtlı
-      </div>
+  <div class="rounded-xl border border-border bg-white dark:bg-zinc-900 p-4 flex flex-col justify-between">
+    <div class="flex items-center justify-between gap-2">
+      <span class="text-xs font-medium text-muted-foreground">Toplam Personel</span>
+      <span class="inline-flex size-7 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </span>
     </div>
-    <div class="flex flex-col gap-1">
-      <div class="text-2xl font-bold"><?= $stats['total_personnel'] ?></div>
-      <div class="mt-4 space-y-1">
-        <p class="text-xs font-medium flex items-center justify-between">
-          Tüm zamanların toplamı
-        </p>
-        <p class="text-xs text-muted-foreground">Aktif ve pasif tüm kayıtlar</p>
+    <div class="mt-2.5">
+      <div class="flex items-baseline gap-1">
+        <span class="text-xl font-semibold tracking-tight text-foreground"><?= $stats['total_personnel'] ?></span>
+        <span class="text-xs text-muted-foreground">Kayıt</span>
+      </div>
+      <div class="mt-2.5 h-1 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+        <div class="h-full rounded-full bg-blue-500/80" style="width: 100%"></div>
+      </div>
+      <div class="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
+        <span>Tüm zamanların toplamı</span>
+        <span>Aktif & pasif</span>
       </div>
     </div>
   </div>
 
   <!-- Card 2: Aktif Personel -->
-  <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
-    <div class="flex items-center justify-between space-y-0 pb-2">
-      <h3 class="text-sm font-medium text-muted-foreground">Aktif Personeller</h3>
-      <div class="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600 transition-colors dark:text-emerald-400">
-        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        Çalışan
-      </div>
+  <div class="rounded-xl border border-border bg-white dark:bg-zinc-900 p-4 flex flex-col justify-between">
+    <div class="flex items-center justify-between gap-2">
+      <span class="text-xs font-medium text-muted-foreground">Aktif Personeller</span>
+      <span class="inline-flex size-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </span>
     </div>
-    <div class="flex flex-col gap-1">
-      <div class="text-2xl font-bold"><?= $stats['active_personnel'] ?></div>
-      <div class="mt-2 space-y-1.5">
-        <p class="text-xs font-medium text-muted-foreground">
-          Görevde olan personel
-        </p>
-        
-        <!-- Premium Breakdown Sub-section -->
-        <div class="grid grid-cols-1 gap-1.5 pt-2 mt-2 border-t border-border/60">
-          <a href="<?= routeUrl('personel-listesi') ?>?filter=aktif_calisan" class="flex items-center justify-between text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 p-1 -mx-1 rounded transition-colors">
-            <span class="flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              Aktif Çalışan
-            </span>
-            <span class="font-semibold text-foreground"><?= $stats['active_only'] ?></span>
-          </a>
-          <a href="<?= routeUrl('personel-listesi') ?>?filter=dilekce_alindi" class="flex items-center justify-between text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 p-1 -mx-1 rounded transition-colors">
-            <span class="flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-              Dilekçe Alınan
-            </span>
-            <span class="font-semibold text-foreground"><?= $stats['dilekce_alindi'] ?></span>
-          </a>
-          <a href="<?= routeUrl('personel-listesi') ?>?filter=kadroya_gecmeyecek" class="flex items-center justify-between text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 p-1 -mx-1 rounded transition-colors">
-            <span class="flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span>
-              Kadroya Geçmeyecek
-            </span>
-            <span class="font-semibold text-foreground"><?= $stats['kadroya_gecmeyecek'] ?></span>
-          </a>
-        </div>
+    <div class="mt-2.5">
+      <div class="flex items-baseline gap-1">
+        <span class="text-xl font-semibold tracking-tight text-foreground"><?= $stats['active_personnel'] ?></span>
+        <span class="text-xs text-muted-foreground">Personel</span>
+      </div>
+      <div class="mt-2.5 pt-2 border-t border-border/60 grid grid-cols-1 gap-1">
+        <a href="<?= routeUrl('personel-listesi') ?>?filter=aktif_calisan" class="flex items-center justify-between text-[11px] text-muted-foreground hover:text-foreground transition-colors">
+          <span class="flex items-center gap-1.5"><span class="size-1.5 rounded-full bg-emerald-500"></span>Aktif Çalışan</span>
+          <span class="font-medium text-foreground"><?= $stats['active_only'] ?></span>
+        </a>
+        <a href="<?= routeUrl('personel-listesi') ?>?filter=dilekce_alindi" class="flex items-center justify-between text-[11px] text-muted-foreground hover:text-foreground transition-colors">
+          <span class="flex items-center gap-1.5"><span class="size-1.5 rounded-full bg-blue-500"></span>Dilekçe Alınan</span>
+          <span class="font-medium text-foreground"><?= $stats['dilekce_alindi'] ?></span>
+        </a>
+        <a href="<?= routeUrl('personel-listesi') ?>?filter=kadroya_gecmeyecek" class="flex items-center justify-between text-[11px] text-muted-foreground hover:text-foreground transition-colors">
+          <span class="flex items-center gap-1.5"><span class="size-1.5 rounded-full bg-orange-500"></span>Kadroya Geçmeyecek</span>
+          <span class="font-medium text-foreground"><?= $stats['kadroya_gecmeyecek'] ?></span>
+        </a>
       </div>
     </div>
   </div>
 
   <!-- Card 3: Bu Ay Eklenen -->
-  <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
-    <div class="flex items-center justify-between space-y-0 pb-2">
-      <h3 class="text-sm font-medium text-muted-foreground">Bu Ay Eklenen</h3>
-      <div class="inline-flex items-center rounded-full border border-orange-500/20 bg-orange-500/10 px-2 py-0.5 text-xs font-semibold text-orange-600 transition-colors dark:text-orange-400">
-        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-        Yeni Kayıt
-      </div>
+  <div class="rounded-xl border border-border bg-white dark:bg-zinc-900 p-4 flex flex-col justify-between">
+    <div class="flex items-center justify-between gap-2">
+      <span class="text-xs font-medium text-muted-foreground">Bu Ay Eklenen</span>
+      <span class="inline-flex size-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+      </span>
     </div>
-    <div class="flex flex-col gap-1">
-      <div class="text-2xl font-bold"><?= $stats['new_personnel_this_month'] ?></div>
-      <div class="mt-4 space-y-1">
-        <p class="text-xs font-medium flex items-center justify-between">
-          İçinde bulunduğumuz ay
-        </p>
-        <p class="text-xs text-muted-foreground">Kayıt tarihi baz alınmıştır</p>
+    <div class="mt-2.5">
+      <div class="flex items-baseline gap-1">
+        <span class="text-xl font-semibold tracking-tight text-foreground"><?= $stats['new_personnel_this_month'] ?></span>
+        <span class="text-xs text-muted-foreground">Yeni Kayıt</span>
+      </div>
+      <div class="mt-2.5 h-1 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+        <div class="h-full rounded-full bg-amber-500/80" style="width: <?= $stats['new_personnel_this_month'] > 0 ? '60%' : '0%' ?>"></div>
+      </div>
+      <div class="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
+        <span>İçinde bulunduğumuz ay</span>
+        <span>Kayıt tarihi</span>
       </div>
     </div>
   </div>
 
   <!-- Card 4: Ücret Tanımları -->
-  <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
-    <div class="flex items-center justify-between space-y-0 pb-2">
-      <h3 class="text-sm font-medium text-muted-foreground">Ücret Tanımları</h3>
-      <div class="inline-flex items-center rounded-full border border-purple-500/20 bg-purple-500/10 px-2 py-0.5 text-xs font-semibold text-purple-600 transition-colors dark:text-purple-400">
-        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="mr-1"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
-        Ünvan/Kadro
-      </div>
+  <div class="rounded-xl border border-border bg-white dark:bg-zinc-900 p-4 flex flex-col justify-between">
+    <div class="flex items-center justify-between gap-2">
+      <span class="text-xs font-medium text-muted-foreground">Ücret Tanımları</span>
+      <span class="inline-flex size-7 items-center justify-center rounded-lg bg-violet-500/10 text-violet-600 dark:text-violet-400">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
+      </span>
     </div>
-    <div class="flex flex-col gap-1">
-      <div class="text-2xl font-bold"><?= $stats['total_wages'] ?></div>
-      <div class="mt-4 space-y-1">
-        <p class="text-xs font-medium flex items-center justify-between">
-          Farklı pozisyon türü
-        </p>
-        <p class="text-xs text-muted-foreground">Tanımlı maaş katsayıları</p>
+    <div class="mt-2.5">
+      <div class="flex items-baseline gap-1">
+        <span class="text-xl font-semibold tracking-tight text-foreground"><?= $stats['total_wages'] ?></span>
+        <span class="text-xs text-muted-foreground">Pozisyon</span>
+      </div>
+      <div class="mt-2.5 h-1 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+        <div class="h-full rounded-full bg-violet-500/80" style="width: 100%"></div>
+      </div>
+      <div class="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
+        <span>Farklı ünvan / kadro</span>
+        <span>Maaş katsayıları</span>
       </div>
     </div>
   </div>
 </div>
 
 <!-- Recent Personnel & Chart Section -->
-<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7 mb-8 items-start">
+<div class="grid gap-4 md:grid-cols-2 lg:grid-cols-7 mb-6 items-start">
   <!-- Visitors Chart Section -->
   <div class="lg:col-span-4 flex flex-col gap-4">
-    <div class="rounded-xl border border-border bg-card shadow-sm h-full">
-    <div class="flex flex-col space-y-1.5 p-6">
-      <div class="flex items-center justify-between">
+    <div class="rounded-xl border border-border bg-white dark:bg-zinc-900 h-full">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-border/60">
         <div>
-          <h3 class="text-base font-semibold leading-none tracking-tight">Kayıt İstatistikleri</h3>
-          <p class="text-sm text-muted-foreground mt-1">Son dönem personel ekleme trendi</p>
+          <h3 class="text-sm font-semibold leading-none tracking-tight text-foreground">Kayıt İstatistikleri</h3>
+          <p class="text-xs text-muted-foreground mt-1">Son dönem personel ekleme trendi</p>
         </div>
       </div>
-    </div>
-    <div class="p-6 pt-0">
-      <div class="h-[300px] w-full">
-        <canvas id="visitorsChart"></canvas>
-      </div>
+      <div class="p-5">
+        <div class="h-[300px] w-full">
+          <canvas id="visitorsChart"></canvas>
+        </div>
       </div>
     </div>
   </div>
 
   <div class="lg:col-span-3">
     <!-- Kadroya Geçişi Yaklaşanlar -->
-    <div class="rounded-xl border border-border bg-card shadow-sm">
-      <div class="flex flex-col space-y-1.5 p-6">
-        <h3 class="text-base font-semibold leading-none tracking-tight">Kadroya Geçişi Yaklaşanlar</h3>
-        <p class="text-sm text-muted-foreground mt-1">Görev süresi 3 yılı dolan son 5 kayıt.</p>
+    <div class="rounded-xl border border-border bg-white dark:bg-zinc-900">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-border/60">
+        <div>
+          <h3 class="text-sm font-semibold leading-none tracking-tight text-foreground">Kadroya Geçişi Yaklaşanlar</h3>
+          <p class="text-xs text-muted-foreground mt-1">Görev süresi 3 yılı dolan son 5 kayıt</p>
+        </div>
+        <a href="<?= routeUrl('personel-listesi') ?>?filter=kadro_dolmus" class="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+          Tümünü gör
+        </a>
       </div>
-      <div class="p-6 pt-0">
-        <div class="space-y-4">
+      <div class="p-5">
+        <div class="space-y-3.5">
           <?php foreach ($eligible_personnel as $p): ?>
           <div class="flex items-center gap-4">
             <div class="h-9 w-9 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-sm font-bold">

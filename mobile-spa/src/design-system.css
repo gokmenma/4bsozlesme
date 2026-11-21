@@ -7,8 +7,8 @@
   /* 1. Zemin ve Yüzeyler */
   --ds-canvas: #e8edf4;
   --ds-surface: #ffffff;
-  --ds-surface-dark: #0d1f3c;
-  --ds-surface-dark-2: #142f59;
+  --ds-surface-dark: #090d18;
+  --ds-surface-dark-2: #121829;
   --ds-surface-subtle: #f1f5f9;
   --ds-surface-translucent: rgba(255, 255, 255, 0.85);
 
@@ -24,14 +24,14 @@
   --ds-border: rgba(255, 255, 255, 0.9);
   --ds-border-subtle: rgba(15, 23, 42, 0.08);
   --ds-border-dark: rgba(255, 255, 255, 0.08);
-  --ds-focus: #1e3a8a;
+  --ds-focus: #12182b;
 
   /* 4. Gölgeler */
   --ds-shadow-bento: 0 4px 14px -6px rgba(15, 23, 42, 0.07), 0 2px 4px rgba(15, 23, 42, 0.02);
   --ds-shadow-bento-dark: 0 6px 16px -8px rgba(0, 0, 0, 0.2);
   --ds-shadow-tile: 0 2px 6px rgba(15, 23, 42, 0.035), 0 1px 2px rgba(15, 23, 42, 0.02);
   --ds-shadow-pill: 0 2px 5px rgba(15, 23, 42, 0.03);
-  --ds-shadow-btn: 0 12px 24px -6px rgba(30, 58, 138, 0.36);
+  --ds-shadow-btn: 0 12px 24px -6px rgba(18, 24, 43, 0.36);
   --ds-shadow-float: 0 14px 32px -8px rgba(0, 0, 0, 0.35);
 
   /* 5. Yuvarlatma ve Boşluk */
@@ -42,10 +42,10 @@
   --ds-card-gap: 16px;
 
   /* 6. Renk Paleti */
-  --ds-primary: #1e3a8a;
-  --ds-primary-hover: #172554;
-  --ds-primary-ink: #172554;
-  --ds-primary-soft: #eff6ff;
+  --ds-primary: #12182b;
+  --ds-primary-hover: #0a0e1c;
+  --ds-primary-ink: #0a0e1c;
+  --ds-primary-soft: #eef0f5;
   --ds-brand-accent: #7dd3fc;
   --ds-brand-accent-soft: #cbd5e1;
   --ds-brand-highlight: #38bdf8;
@@ -76,8 +76,8 @@
 .auth-visual {
   position: relative;
   min-height: 46svh;
-  background: radial-gradient(circle at 22% 30%, rgba(37, 99, 235, 0.32) 0%, transparent 56%),
-    linear-gradient(160deg, #09152b 0%, #0f254a 55%, #132d57 100%);
+  background: radial-gradient(circle at 22% 30%, rgba(18, 24, 43, 0.32) 0%, transparent 56%),
+    linear-gradient(160deg, #05070f 0%, #0e1424 55%, #151c30 100%);
   color: var(--ds-ink-light);
   overflow: hidden;
   display: flex;
@@ -101,7 +101,7 @@
   gap: 7px;
   padding: 7px 12px;
   border-radius: var(--ds-radius-pill);
-  background: rgba(9, 21, 43, 0.56);
+  background: rgba(5, 7, 15, 0.56);
   border: 1px solid rgba(147, 197, 253, 0.22);
   color: #f8fafc;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
@@ -147,7 +147,7 @@
   position: absolute;
   inset: -20px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.42) 0%, rgba(37, 99, 235, 0.24) 48%, transparent 72%);
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.42) 0%, rgba(18, 24, 43, 0.24) 48%, transparent 72%);
   filter: blur(14px);
   animation: splash-glow-pulse 2.6s ease-in-out infinite alternate;
   pointer-events: none;
@@ -231,7 +231,7 @@
   }
   100% {
     transform: translateY(-2px) rotateY(-6deg) rotateX(11deg) scale(1.01);
-    box-shadow: 6px 20px 38px rgba(0, 0, 0, 0.52), 0 0 22px rgba(37, 99, 235, 0.30);
+    box-shadow: 6px 20px 38px rgba(0, 0, 0, 0.52), 0 0 22px rgba(18, 24, 43, 0.30);
   }
 }
 @keyframes splash-logo-sheen {
@@ -304,7 +304,7 @@
   padding: 16px 20px calc(24px + var(--ds-safe-bottom));
   border-radius: 26px 26px 0 0;
   background: var(--ds-surface);
-  box-shadow: 0 -12px 40px rgba(5, 22, 48, 0.14);
+  box-shadow: 0 -12px 40px rgba(5, 7, 15, 0.14);
 }
 
 .auth-form > *,
@@ -379,7 +379,7 @@
 .auth-field > div:focus-within {
   border-color: var(--ds-primary);
   background: var(--ds-surface);
-  box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12);
+  box-shadow: 0 0 0 3px rgba(18, 24, 43, 0.12);
 }
 
 .auth-field input {
@@ -432,10 +432,43 @@
 }
 
 .auth-options input[type='checkbox'] {
-  width: 17px;
-  height: 17px;
-  accent-color: var(--ds-primary);
+  appearance: none;
+  -webkit-appearance: none;
+  display: grid;
+  place-content: center;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  border: 1px solid var(--ds-border-subtle);
+  border-radius: 7px;
+  background: var(--ds-surface-subtle);
   cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.auth-options input[type='checkbox']::after {
+  content: '';
+  width: 6px;
+  height: 11px;
+  margin-top: -2px;
+  border: solid #fff;
+  border-width: 0 2.5px 2.5px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.15s;
+}
+
+.auth-options input[type='checkbox']:checked {
+  border-color: var(--ds-primary);
+  background: var(--ds-primary);
+}
+
+.auth-options input[type='checkbox']:checked::after {
+  transform: rotate(45deg) scale(1);
+}
+
+.auth-options input[type='checkbox']:focus-visible {
+  outline: 2px solid var(--ds-focus);
+  outline-offset: 2px;
 }
 
 .auth-options a {
@@ -452,9 +485,9 @@
   justify-content: space-between;
   padding: 0 20px 0 22px;
   border: 0;
-  border-radius: var(--ds-radius-pill);
+  border-radius: var(--ds-radius-sm);
   color: var(--ds-ink-light);
-  background: linear-gradient(135deg, #1e3a8a 0%, #172554 100%);
+  background: linear-gradient(135deg, #12182b 0%, #0a0e1c 100%);
   box-shadow: var(--ds-shadow-btn);
   font-size: 15px;
   font-weight: 700;
@@ -463,7 +496,7 @@
 }
 
 .login-button:hover {
-  background: linear-gradient(135deg, #172554 0%, #172554 100%);
+  background: linear-gradient(135deg, #0a0e1c 0%, #0a0e1c 100%);
 }
 
 .login-button:active {

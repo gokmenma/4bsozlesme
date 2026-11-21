@@ -161,7 +161,7 @@ async function logout() {
 .sheet-item__text strong { font-size: 14px; font-weight: 700; }
 .sheet-item__text small { color: var(--ds-muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sheet-item__arrow { color: var(--ds-muted-light); flex-shrink: 0; }
-.theme-blue { --tone: #0284c7; } .theme-emerald { --tone: #059669; } .theme-amber { --tone: #d97706; } .theme-purple { --tone: #7c3aed; } .theme-coral { --tone: #e11d48; }
+.theme-blue { --tone: #1f2a44; } .theme-emerald { --tone: #059669; } .theme-amber { --tone: #d97706; } .theme-purple { --tone: #7c3aed; } .theme-coral { --tone: #e11d48; }
 .sheet__empty { text-align: center; color: var(--ds-muted); font-size: 14px; margin: 12px 0; }
 .sheet__profile { display: grid; place-items: center; flex-shrink: 0; width: 48px; height: 48px; border: 0; border-radius: 50%; background: var(--ds-surface-subtle); color: var(--ds-ink); cursor: pointer; }
 .sheet__logout { display: grid; place-items: center; flex-shrink: 0; width: 48px; height: 48px; border: 0; border-radius: 50%; background: var(--ds-danger-bg); color: var(--ds-danger-ink); cursor: pointer; }

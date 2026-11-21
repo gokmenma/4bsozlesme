@@ -89,7 +89,7 @@ async function submit() {
       </div>
 
       <div v-if="error" class="form-alert" role="alert">{{ error }}</div>
-      <div v-else-if="info" class="form-alert" style="background:#f0f9ff;border-color:#bae6fd;color:#0369a1;" role="status">
+      <div v-else-if="info" class="form-alert" style="background:#f1f2f6;border-color:#cfd5e3;color:#1f2a44;" role="status">
         {{ info }}
       </div>
 
