@@ -22,10 +22,10 @@ export const MODULE_GROUPS = [
 export const MODULES = [
   { key: 'personnel', route: '/personel-listesi', to: '/personel', group: 'yonetim', label: 'Personel Yönetimi', navLabel: 'Personel', subtitle: 'Personel listesi, özlük ve durum takibi', icon: UsersRound, theme: 'blue' },
   { key: 'wages', route: '/ucret-tanimlari', to: '/ucret-tanimlari', group: 'yonetim', label: 'Ücret Tanımları', navLabel: 'Ücretler', subtitle: 'Unvan ve ücret tanımları', icon: Coins, theme: 'amber' },
-  { key: 'matrah', route: '/matrah-yonetimi', to: '/matrah', group: 'yonetim', label: 'Matrah Yönetimi', navLabel: 'Matrah', subtitle: 'Teşvik ek ödeme matrahları', icon: Calculator, theme: 'emerald' },
   { key: 'definitions', route: '/tanimlamalar', to: '/tanimlamalar', group: 'diger', label: 'Tanımlamalar', navLabel: 'Tanımlar', subtitle: 'Sistem tanım ve parametreleri', icon: FileCog, theme: 'blue' },
   { key: 'tasks', route: '/yapilacaklar', to: '/yapilacaklar', group: 'diger', label: 'Yapılacaklar', navLabel: 'Görevler', subtitle: 'Kanban görev panosu', icon: ListTodo, theme: 'emerald' },
   { key: 'doner', route: '/doner-matrahi-olustur', to: '/doner-matrahi', group: 'diger', label: 'Döner Matrahı', navLabel: 'Döner', subtitle: 'Döner matrahı oluştur ve indir', icon: Banknote, theme: 'amber' },
+  { key: 'matrah', route: '/matrah-yonetimi', to: '/matrah', group: 'diger', label: 'Matrah Yönetimi', navLabel: 'Matrah', subtitle: 'Teşvik ek ödeme matrahları', icon: Calculator, theme: 'emerald' },
   { key: 'users', route: '/kullanicilar', to: '/kullanicilar', group: 'sistem', label: 'Kullanıcılar', navLabel: 'Kullanıcı', subtitle: 'Kullanıcı hesapları ve roller', icon: Users, theme: 'blue' },
   { key: 'roles', route: '/yetki-gruplari', to: '/yetki-gruplari', group: 'sistem', label: 'Yetki Grupları', navLabel: 'Yetkiler', subtitle: 'Rol ve izin yönetimi', icon: ShieldCheck, theme: 'purple' },
   { key: 'tenants', route: '/kurum-yonetimi', to: '/kurum-yonetimi', group: 'sistem', label: 'Kurum Yönetimi', navLabel: 'Kurumlar', subtitle: 'Kurum kayıtları', icon: Building2, theme: 'coral', superadminOnly: true },

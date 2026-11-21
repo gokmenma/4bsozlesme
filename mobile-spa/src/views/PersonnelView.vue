@@ -383,8 +383,8 @@ onBeforeUnmount(() => {
       <Transition name="pop">
         <button v-if="showTop && !formOpen && !detail" type="button" class="to-top" aria-label="Yukarı çık" @click="scrollTop"><ArrowUp :size="20" /></button>
       </Transition>
-      <button v-if="!formOpen && !detail" type="button" class="scan-fab" aria-label="Kimlikten tara" :disabled="scanning" @click="startScan"><ScanLine :size="20" /> Kimlik tara</button>
-      <button v-if="!formOpen && !detail" type="button" class="fab" aria-label="Personel ekle" @click="openForm()"><Plus :size="22" /> Ekle</button>
+      <button v-if="!formOpen && !detail" type="button" class="scan-fab" aria-label="Kimlikten tara" :disabled="scanning" @click="startScan"><ScanLine :size="20" /></button>
+      <button v-if="!formOpen && !detail" type="button" class="fab" aria-label="Personel ekle" @click="openForm()"><Plus :size="24" /></button>
       <Transition name="island">
         <div v-if="toast" class="island" role="status" aria-live="polite">
           <CircleCheck :size="18" /><span>{{ toast }}</span>
@@ -517,9 +517,9 @@ dd { margin: 0; text-align: right; font-weight: 600; overflow-wrap: anywhere; }
 .sheet-enter-from .sheet, .sheet-leave-to .sheet { transform: translateY(100%); }
 @media (prefers-reduced-motion: reduce) { .skeletons i { animation: none; } .sheet-enter-active, .sheet-leave-active, .sheet-enter-active .sheet, .sheet-leave-active .sheet { transition: none; } }
 
-.fab { position: fixed; z-index: 60; right: max(16px, calc(50% - 244px)); bottom: calc(108px + var(--ds-safe-bottom)); display: inline-flex; align-items: center; gap: 6px; min-height: 52px; padding: 0 20px 0 16px; border: 0; border-radius: 999px; background: #12182b; color: #fff; font-weight: 800; font-size: 15px; box-shadow: 0 12px 24px -6px rgba(18, 24, 43, .5); cursor: pointer; }
+.fab { position: fixed; z-index: 60; right: max(16px, calc(50% - 244px)); bottom: calc(108px + var(--ds-safe-bottom)); display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; padding: 0; border: 0; border-radius: 999px; background: #12182b; color: #fff; font-weight: 800; font-size: 15px; box-shadow: 0 12px 24px -6px rgba(18, 24, 43, .5); cursor: pointer; }
 .fab:active { transform: scale(.95); }
-.scan-fab { position: fixed; z-index: 60; right: max(16px, calc(50% - 244px)); bottom: calc(172px + var(--ds-safe-bottom)); display: inline-flex; align-items: center; gap: 6px; min-height: 46px; padding: 0 16px 0 13px; border: 0; border-radius: 999px; background: var(--ds-surface-dark); color: #fff; font-weight: 800; font-size: 14px; box-shadow: var(--ds-shadow-float); cursor: pointer; }
+.scan-fab { position: fixed; z-index: 60; right: calc(max(16px, calc(50% - 244px)) + 4px); bottom: calc(172px + var(--ds-safe-bottom)); display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 999px; background: var(--ds-surface-dark); color: #fff; font-weight: 800; font-size: 14px; box-shadow: var(--ds-shadow-float); cursor: pointer; }
 .scan-fab:active { transform: scale(.95); }
 .scan-fab:disabled { opacity: .6; }
 .sr-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
