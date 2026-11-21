@@ -1258,7 +1258,7 @@ $(document).ready(function() {
                 }
             }
         ],
-        order: [[1, 'desc']],
+        order: [[9, 'desc']],
         dom: '<"flex-1 overflow-auto"rt><"mt-auto border-t border-zinc-200 dark:border-zinc-800 flex flex-row justify-between items-center py-0 px-4 bg-zinc-50/50 dark:bg-zinc-800/30"lip>',
         preloader: '#table-preloader'
     });

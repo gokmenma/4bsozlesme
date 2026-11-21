@@ -741,6 +741,7 @@ class PersonnelController extends Controller {
             $searchValue = $_POST['search']['value'] ?? '';
             $orderColumnIndex = $_POST['order'][0]['column'] ?? 0;
             $orderDir = $_POST['order'][0]['dir'] ?? 'desc';
+            $orderDir = strtolower($orderDir) === 'asc' ? 'ASC' : 'DESC';
             $columnFilterState = $_POST['columnFilterState'] ?? [];
 
             $columns = [
@@ -932,7 +933,7 @@ class PersonnelController extends Controller {
                     GROUP BY personel_id
                 ) izin ON izin.personel_id = p.id
                 WHERE $whereSql
-                ORDER BY $orderColumn $orderDir
+                ORDER BY $orderColumn $orderDir, p.id DESC
                 $limitSql
             ";
             $dataStmt = $db->prepare($dataSql);
