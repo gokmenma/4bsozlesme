@@ -12,6 +12,11 @@ foreach ($definedPages as $route => $info) {
 }
 ?>
 
+<style>
+.roles-save-fab{position:fixed;right:24px;bottom:24px;z-index:40}
+.roles-save-fab:disabled{opacity:.5;cursor:not-allowed}
+</style>
+
 <div class="space-y-6">
   <!-- Üst Aksiyon Çubuğu (Sayfa başlığı topbar'da gösterildiği için burada sadece aksiyon butonu yer alır) -->
   <div class="flex items-center justify-between pb-2 border-b border-zinc-200/80 dark:border-zinc-800/80">
@@ -28,13 +33,6 @@ foreach ($definedPages as $route => $info) {
       </div>
     </div>
 
-    <button onclick="document.getElementById('modal-add-role').showModal()" class="inline-flex items-center justify-center rounded-md bg-zinc-900 px-3.5 py-2 text-xs font-medium text-zinc-50 hover:bg-zinc-900/90 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-50/90 shadow transition-colors cursor-pointer gap-1.5">
-      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M5 12h14"/>
-        <path d="M12 5v14"/>
-      </svg>
-      Yeni Yetki Grubu
-    </button>
   </div>
 
   <!-- Ana İçerik Grid (12 Sütun) -->
@@ -44,9 +42,18 @@ foreach ($definedPages as $route => $info) {
     <div class="lg:col-span-4 space-y-3">
       <div class="flex items-center justify-between px-2">
         <span class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Yetki Grupları</span>
+        <div class="flex items-center gap-2">
         <span class="inline-flex items-center rounded-md border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 text-[11px] font-mono text-zinc-600 dark:text-zinc-400">
           <?php echo count($roles); ?> Grup
         </span>
+    <button onclick="document.getElementById('modal-add-role').showModal()" class="inline-flex items-center justify-center rounded-md bg-zinc-900 px-2.5 py-1.5 text-xs font-medium text-zinc-50 hover:bg-zinc-900/90 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-50/90 shadow transition-colors cursor-pointer gap-1.5">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14"/>
+        <path d="M12 5v14"/>
+      </svg>
+      Yeni Yetki Grubu
+    </button>
+        </div>
       </div>
 
       <div class="space-y-3 max-h-[calc(100vh-230px)] overflow-y-auto p-1.5 px-2.5 custom-scrollbar" id="roles-list-container">
@@ -227,7 +234,7 @@ foreach ($definedPages as $route => $info) {
               Değişiklikleri uygulamak için kaydet butonuna tıklayın.
             </span>
 
-            <button type="submit" id="btn-save-permissions" class="inline-flex items-center justify-center rounded-md bg-zinc-900 px-4 py-2 text-xs font-medium text-zinc-50 hover:bg-zinc-900/90 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-50/90 shadow transition-colors cursor-pointer gap-1.5">
+            <button type="submit" id="btn-save-permissions" class="roles-save-fab inline-flex items-center justify-center rounded-md bg-zinc-900 px-5 py-3 text-xs font-medium text-zinc-50 hover:bg-zinc-900/90 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-50/90 shadow-lg transition-colors cursor-pointer gap-1.5">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                 <polyline points="17 21 17 13 7 13 7 21"/>

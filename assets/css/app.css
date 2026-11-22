@@ -1031,7 +1031,7 @@ button,
 .topbar-center {
     flex: 1;
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     min-width: 0;
 }
 
