@@ -2,7 +2,7 @@
     const $ = (id) => document.getElementById(id);
     const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const toast = (category, title, description) => window.showToast ? showToast({ category, title, description }) : alert(description);
-    const tipAd = { bilgi: 'Bilgi Formu', kvkk: 'Onay Metni', beyan: 'Beyan', belge: 'Belge Yükleme' };
+    const tipAd = { bilgi: 'Bilgi Formu', kvkk: 'Onay Metni', beyan: 'Beyan', belge: 'Belge Yükleme', cikti: 'Basılı Çıktı' };
 
     function basePath() {
         return window.EVRAK_BASE || '';
@@ -23,6 +23,7 @@
         $('evg-form').classList.remove('hidden');
         $('evg-sonuc').classList.add('hidden');
         $('evg-gonder-btn').classList.remove('hidden');
+        $('evg-cikti-btn').classList.remove('hidden');
         $('evg-personel-id').value = personelId;
         $('evg-formlar').innerHTML = '<p class="ev-muted">Yükleniyor...</p>';
         $('evg-personel').textContent = '';
@@ -41,12 +42,25 @@
             $('evg-formlar').innerHTML = d.formlar.map((f) => `
                 <label class="ev-form-choice">
                     <input type="checkbox" class="input" name="form_ids[]" value="${Number(f.id)}" checked>
-                    <span><strong style="font-size:.875rem">${esc(f.ad)}</strong><br><span class="ev-muted">${esc(tipAd[f.tip] || f.tip)} · ${Number(f.alan_sayisi)} alan${f.aciklama ? ' · ' + esc(f.aciklama) : ''}</span></span>
+                    <span><strong style="font-size:.875rem">${esc(f.ad)}</strong><br><span class="ev-muted">${esc(tipAd[f.tip] || f.tip)}${f.tip === 'cikti' ? '' : ' · ' + Number(f.alan_sayisi) + ' alan'}${f.aciklama ? ' · ' + esc(f.aciklama) : ''}</span></span>
                 </label>`).join('');
             kanalDegisti();
         } catch (e) {
             $('evg-formlar').innerHTML = `<div class="ev-note">${esc(e.message || 'Formlar yüklenemedi.')}</div>`;
         }
+    };
+
+    window.evrakCiktiAl = function () {
+        const fd = new FormData($('evg-form'));
+        const ids = fd.getAll('form_ids[]');
+        if (!ids.length) {
+            toast('warning', 'Form seçilmedi', 'En az bir form seçmelisiniz.');
+            return;
+        }
+        const qs = new URLSearchParams();
+        qs.set('personel_id', fd.get('personel_id'));
+        ids.forEach((id) => qs.append('form_ids[]', id));
+        window.open(`${basePath()}/evrak-cikti?${qs.toString()}`, '_blank', 'noopener');
     };
 
     window.evrakGonder = async function () {
@@ -76,6 +90,7 @@
         if (!dlg.open) dlg.showModal();
         $('evg-form').classList.add('hidden');
         $('evg-gonder-btn').classList.add('hidden');
+        $('evg-cikti-btn').classList.add('hidden');
         $('evg-sonuc').classList.remove('hidden');
         $('evg-sonuc-mesaj').textContent = mesaj;
         $('evg-sonuc-mesaj').classList.toggle('ok', !!basarili);

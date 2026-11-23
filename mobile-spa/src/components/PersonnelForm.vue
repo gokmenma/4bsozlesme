@@ -15,7 +15,7 @@ const form = reactive({
   tc_kimlik: props.person?.tc_kimlik || props.prefill?.tc_kimlik || '',
   ucret_id: props.person?.ucret_id ? String(props.person.ucret_id) : '',
   durum: props.person?.durum || 'aktif',
-  cinsiyet: props.person?.cinsiyet || 'erkek',
+  cinsiyet: props.person?.cinsiyet || props.prefill?.cinsiyet || 'erkek',
   telefon: props.person?.telefon || '',
   meslek_kodu: props.person?.meslek_kodu || '',
   goreve_baslama_tarihi: props.person?.goreve_baslama_tarihi?.slice(0, 10) || today,

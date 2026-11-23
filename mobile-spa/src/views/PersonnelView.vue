@@ -1,9 +1,10 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { AlertCircle, ArrowUp, CalendarOff, ChevronDown, ScanLine, CircleCheck, Pencil, Phone, Plus, RefreshCw, Search, Trash2, UsersRound, X } from '@lucide/vue'
+import { AlertCircle, ArrowUp, CalendarOff, ChevronDown, FileText, ScanLine, CircleCheck, Pencil, Phone, Plus, RefreshCw, Search, Trash2, UsersRound, X } from '@lucide/vue'
 import ConfirmDialog from '../components/ConfirmDialog.vue'
 import PersonnelForm from '../components/PersonnelForm.vue'
+import EvrakSendSheet from '../components/EvrakSendSheet.vue'
 import { releaseScanner, scanCardCanvas, scanIdCard } from '../services/idScan.js'
 import IdCameraScanner from '../components/IdCameraScanner.vue'
 import TopBar from '../components/TopBar.vue'
@@ -33,6 +34,8 @@ const leavesOpen = ref(false)
 const formOpen = ref(false)
 const formPerson = ref(null)
 const confirmDelete = ref(false)
+const evrakOpen = ref(false)
+const canSendEvrak = computed(() => auth.can('/evrak-takip'))
 const actionBusy = ref(false)
 const actionError = ref('')
 const leaveForm = ref({ baslangic_tarihi: '', bitis_tarihi: '', aciklama: '' })
@@ -206,7 +209,7 @@ function applyScanResult(result) {
     showToast('Kimlik okunamadı, daha net çekin.')
     return
   }
-  formPrefill.value = { tc_kimlik: result.tc, ad_soyad: result.ad_soyad }
+  formPrefill.value = { tc_kimlik: result.tc, ad_soyad: result.ad_soyad, cinsiyet: result.cinsiyet || '' }
   openForm(null, true)
   showToast(result.tc && result.ad_soyad ? 'Kimlik okundu, kontrol edin.' : 'Kısmen okundu, eksikleri tamamlayın.')
 }
@@ -305,7 +308,7 @@ function closeDetail() {
 }
 
 function handleKeydown(event) {
-  if (event.key === 'Escape' && !formOpen.value) closeDetail()
+  if (event.key === 'Escape' && !formOpen.value && !evrakOpen.value) closeDetail()
 }
 
 const detailRows = computed(() => {
@@ -452,9 +455,13 @@ onBeforeUnmount(() => {
               <button type="button" class="btn btn--dark" @click="openForm(detail)"><Pencil :size="16" /> Düzenle</button>
               <button type="button" class="btn btn--danger" :disabled="actionBusy" @click="confirmDelete = true"><Trash2 :size="16" /> Sil</button>
             </div>
+            <div v-if="canSendEvrak" class="actions">
+              <button type="button" class="btn btn--light" @click="evrakOpen = true"><FileText :size="16" /> İşe Giriş Evrakı Gönder</button>
+            </div>
             <a v-if="detail.telefon" class="call" :href="`tel:${detail.telefon}`"><Phone :size="17" /> {{ detail.telefon }}</a>
           </footer>
 
+          <EvrakSendSheet v-if="evrakOpen" :person="detail" @close="evrakOpen = false" />
           <ConfirmDialog v-if="confirmDelete" message="Bu personeli silmek istediğinize emin misiniz? Bu işlem geri alınamaz." confirm-text="Evet, sil" :busy="actionBusy" @confirm="removePerson" @cancel="confirmDelete = false" />
         </section>
       </div>

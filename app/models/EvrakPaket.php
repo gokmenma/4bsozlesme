@@ -37,6 +37,9 @@ class EvrakPaket extends Model {
             }
             $formlar[] = $form;
         }
+        if (empty(array_filter($formlar, fn($f) => $f['tip'] !== 'cikti'))) {
+            throw new InvalidArgumentException('Personele gönderilecek en az bir doldurulabilir form seçmelisiniz. Basılı çıktı formları için "Çıktı Al" butonunu kullanın.');
+        }
         usort($formlar, fn($a, $b) => [(int)$a['sira'], (int)$a['id']] <=> [(int)$b['sira'], (int)$b['id']]);
 
         $token = bin2hex(random_bytes(32));
@@ -187,13 +190,16 @@ class EvrakPaket extends Model {
         return false;
     }
 
-    public function getForms(int $paketId): array {
+    public function getForms(int $paketId, bool $dijitalOnly = false): array {
         $stmt = $this->db->prepare("SELECT form_id, form_snapshot FROM evrak_paket_formlari WHERE paket_id = ? ORDER BY sira ASC");
         $stmt->execute([$paketId]);
         $formlar = [];
         foreach ($stmt->fetchAll() as $r) {
             $snap = json_decode($r['form_snapshot'], true);
             if (is_array($snap)) {
+                if ($dijitalOnly && ($snap['tip'] ?? '') === 'cikti') {
+                    continue;
+                }
                 $snap['id'] = (int)$r['form_id'];
                 $formlar[] = $snap;
             }

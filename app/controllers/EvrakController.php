@@ -81,6 +81,7 @@ class EvrakController extends Controller {
             'formTipleri'     => EvrakForm::TIPLER,
             'alanTipleri'     => EvrakForm::ALAN_TIPLERI,
             'personelAlanlari'=> EvrakForm::PERSONEL_ALANLARI,
+            'ciktiSablonlari' => EvrakForm::CIKTI_SABLONLARI,
         ];
     }
 
@@ -220,40 +221,7 @@ class EvrakController extends Controller {
     }
 
     private function deliver(array $paket, string $link, string $kanal, string $email): array {
-        $settings = (new Definition())->getSettings($this->tenantId());
-        $kurum = $settings['kurum_adi'] ?? 'Kurum';
-        $sonGun = date('d.m.Y', strtotime($paket['son_gecerlilik']));
-
-        if ($kanal === 'sms') {
-            if (empty($paket['telefon'])) {
-                return ['success' => false, 'message' => 'Personelin telefon numarası kayıtlı değil. Bağlantıyı kopyalayıp iletebilirsiniz.'];
-            }
-            $mesaj = "{$kurum}: Sayın {$paket['ad_soyad']}, işe giriş evraklarınızı doldurmak için bağlantı: {$link} Son gün: {$sonGun}";
-            $r = SmsGonderService::gonder($mesaj, $paket['telefon'], true, $this->userId());
-            return $r['success']
-                ? ['success' => true, 'message' => 'Bağlantı SMS ile gönderildi.']
-                : ['success' => false, 'message' => 'SMS gönderilemedi: ' . $r['message'] . ' Bağlantıyı kopyalayıp iletebilirsiniz.'];
-        }
-
-        if ($kanal === 'mail') {
-            $ad = htmlspecialchars($paket['ad_soyad'], ENT_QUOTES, 'UTF-8');
-            $kurumHtml = htmlspecialchars($kurum, ENT_QUOTES, 'UTF-8');
-            $linkHtml = htmlspecialchars($link, ENT_QUOTES, 'UTF-8');
-            $body = "<p>Sayın {$ad},</p><p>{$kurumHtml} işe giriş evraklarınızı aşağıdaki bağlantıdan doldurabilirsiniz. Bağlantıyı açtığınızda doğrulama için T.C. Kimlik numaranızın son 4 hanesi istenecektir.</p>"
-                . "<p><a href=\"{$linkHtml}\" style=\"display:inline-block;padding:10px 18px;background:#18181b;color:#fff;border-radius:8px;text-decoration:none\">Evrakları Doldur</a></p>"
-                . "<p style=\"color:#71717a;font-size:13px\">Bağlantı {$sonGun} tarihine kadar geçerlidir. Bu e-postayı siz talep etmediyseniz dikkate almayınız.</p>";
-            try {
-                $ok = MailGonderService::gonder($email, $kurum . ' - İşe Giriş Evrakları', $body, $paket['ad_soyad'], $this->tenantId());
-            } catch (Throwable $e) {
-                error_log('Evrak mail hatası: ' . $e->getMessage());
-                $ok = false;
-            }
-            return $ok
-                ? ['success' => true, 'message' => 'Bağlantı e-posta ile gönderildi.']
-                : ['success' => false, 'message' => 'E-posta gönderilemedi. Bağlantıyı kopyalayıp iletebilirsiniz.'];
-        }
-
-        return ['success' => true, 'message' => 'Bağlantı oluşturuldu. Kopyalayıp personele iletebilirsiniz.'];
+        return EvrakGonderService::teslimEt($paket, $link, $kanal, $email, $this->tenantId(), $this->userId());
     }
 
     public function paketDetay() {
@@ -263,7 +231,7 @@ class EvrakController extends Controller {
         if (!$paket) {
             $this->json(['success' => false, 'message' => 'Paket bulunamadı.'], 404);
         }
-        $formlar = $model->getForms((int)$paket['id']);
+        $formlar = $model->getForms((int)$paket['id'], true);
         $yanitlar = $model->getAnswers((int)$paket['id']);
         $dosyalar = (new EvrakDosya())->listForPackage((int)$paket['id']);
 
@@ -423,6 +391,49 @@ class EvrakController extends Controller {
         $vars = EvrakForm::templateVars($settings, $personel ?: []);
 
         $this->log('Evrak Çıktısı Alma', 'Paket #' . $paket['id'] . ' - ' . $paket['ad_soyad']);
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+        include __DIR__ . '/../pages/evrak/yazdir.php';
+        exit;
+    }
+
+    public function cikti() {
+        if (!$this->canAccess(self::ROUTE_TAKIP)) {
+            http_response_code(403);
+            echo 'Bu sayfaya erişim yetkiniz bulunmamaktadır.';
+            exit;
+        }
+        $model = new EvrakPaket();
+        $personel = $model->getPersonnel((int)($_GET['personel_id'] ?? 0), $this->tenantId());
+        $ids = $_GET['form_ids'] ?? [];
+        $ids = is_array($ids) ? array_values(array_unique(array_filter(array_map('intval', $ids)))) : [];
+        if (!$personel || empty($ids)) {
+            http_response_code(404);
+            echo 'Personel veya form bulunamadı.';
+            exit;
+        }
+        $formModel = new EvrakForm();
+        $formlar = [];
+        foreach ($ids as $fid) {
+            $form = $formModel->findForTenant($fid, $this->tenantId());
+            if ($form && $form['tip'] === 'cikti' && (int)$form['aktif'] === 1) {
+                $formlar[] = $form;
+            }
+        }
+        if (empty($formlar)) {
+            http_response_code(404);
+            echo 'Yazdırılabilir çıktı formu bulunamadı.';
+            exit;
+        }
+        usort($formlar, fn($a, $b) => [(int)$a['sira'], (int)$a['id']] <=> [(int)$b['sira'], (int)$b['id']]);
+        $paket = ['id' => 0, 'ad_soyad' => $personel['ad_soyad'], 'tc_kimlik' => $personel['tc_kimlik'], 'gonderim_tarihi' => null];
+        $settings = (new Definition())->getSettings($this->tenantId());
+        $yanitlar = [];
+        $dosyalar = [];
+        $vars = EvrakForm::templateVars($settings, $personel);
+
+        $this->log('Evrak Çıktısı Alma', 'Basılı çıktı - ' . $personel['ad_soyad'] . ' (' . implode(', ', array_map(fn($f) => $f['ad'], $formlar)) . ')');
         while (ob_get_level() > 0) {
             ob_end_clean();
         }

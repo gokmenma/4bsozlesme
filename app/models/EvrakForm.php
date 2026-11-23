@@ -9,6 +9,15 @@ class EvrakForm extends Model {
         'kvkk'  => 'KVKK / Onay Metni',
         'beyan' => 'Beyan Formu',
         'belge' => 'Belge Yükleme',
+        'cikti' => 'Çıktı Formu (Basılı)',
+    ];
+
+    public const CIKTI_SABLONLARI = [
+        'ise_baslama_egitim_tutanagi' => 'İşe Başlama Eğitim Tutanağı (SÇ.FR.12)',
+        'psikososyal_risk_analiz'     => 'Psikososyal Risk Analiz Formu (KKU.FR.12)',
+        'kimlik_karti_talep'          => 'Personel Kimlik Kartı Talep Formu (EK-2)',
+        'aile_durumu_bildirimi'       => 'Aile Durumu Bildirimi (EK-1, yatay)',
+        'mal_bildirim_formu'          => 'Mal Bildirim Formu (KKU.FR.18)',
     ];
 
     public const ALAN_TIPLERI = [
@@ -70,11 +79,21 @@ class EvrakForm extends Model {
         if (!isset(self::TIPLER[$tip])) {
             throw new InvalidArgumentException('Geçersiz form tipi.');
         }
-        $alanlar = $this->normalizeFields($data['alanlar'] ?? []);
+        $ciktiSablon = null;
+        if ($tip === 'cikti') {
+            $ciktiSablon = (string)($data['cikti_sablon'] ?? '');
+            if (!isset(self::CIKTI_SABLONLARI[$ciktiSablon])) {
+                throw new InvalidArgumentException('Çıktı formu için bir basılı şablon seçiniz.');
+            }
+            $alanlar = [];
+        } else {
+            $alanlar = $this->normalizeFields($data['alanlar'] ?? []);
+        }
 
         $row = [
             'ad'       => $ad,
             'tip'      => $tip,
+            'cikti_sablon' => $ciktiSablon,
             'aciklama' => mb_substr(trim((string)($data['aciklama'] ?? '')), 0, 500),
             'metin'    => trim((string)($data['metin'] ?? '')) ?: null,
             'aktif'    => !empty($data['aktif']) ? 1 : 0,
@@ -124,6 +143,7 @@ class EvrakForm extends Model {
                     'tenant_id'  => $tenantId,
                     'ad'         => $s['ad'],
                     'tip'        => $s['tip'],
+                    'cikti_sablon' => $s['cikti_sablon'] ?? null,
                     'aciklama'   => $s['aciklama'],
                     'metin'      => $s['metin'],
                     'sira'       => $s['sira'],
@@ -156,6 +176,7 @@ class EvrakForm extends Model {
             'id'       => (int)$form['id'],
             'ad'       => $form['ad'],
             'tip'      => $form['tip'],
+            'cikti_sablon' => $form['cikti_sablon'] ?? null,
             'aciklama' => $form['aciklama'],
             'metin'    => $form['metin'],
             'alanlar'  => $alanlar,

@@ -49,11 +49,16 @@ $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APO
                         <div id="ev-tip-wrap"></div>
                     </div>
                 </div>
+                <div class="ev-stack hidden" id="ev-cikti-wrap">
+                    <label>Basılı Şablon</label>
+                    <div id="ev-cikti-sel"></div>
+                    <p class="ev-muted">Personelin adı soyadı, T.C. kimlik no ve unvanı otomatik dolar; diğer alanlar ıslak imza için boş çıkar. Personele dijital gönderilmez, yalnızca çıktı alınır.</p>
+                </div>
                 <div class="ev-stack">
                     <label for="ev-aciklama">Kısa Açıklama</label>
                     <input type="text" id="ev-aciklama" maxlength="500" placeholder="Personelin formun başında göreceği kısa açıklama">
                 </div>
-                <div class="ev-stack">
+                <div class="ev-stack" id="ev-metin-wrap">
                     <label for="ev-metin">Bilgilendirme / Beyan Metni <span class="ev-muted">(isteğe bağlı)</span></label>
                     <textarea id="ev-metin" rows="6" placeholder="KVKK aydınlatma metni, taahhütname vb. Paragrafları boş satırla ayırın."></textarea>
                     <div class="ev-muted ev-hint-vars">Değişkenler:
@@ -69,7 +74,7 @@ $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APO
                     <label class="ev-check">Sıra <input type="number" id="ev-sira" class="ev-sm" style="width:80px" min="0" value="0"></label>
                 </div>
 
-                <div>
+                <div id="ev-alan-wrap">
                     <div class="ev-section-title">
                         <h3>Alanlar <span class="ev-badge-count" id="ev-alan-sayi"></span></h3>
                         <span class="ev-muted">Onay metinlerinde “Onay Kutusu”, belgelerde “Dosya Yükleme” tipini kullanın.</span>
@@ -93,8 +98,9 @@ $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APO
     const TIPLER = <?php echo json_encode($formTipleri, $jsonFlags); ?>;
     const ALAN_TIPLERI = <?php echo json_encode($alanTipleri, $jsonFlags); ?>;
     const PERSONEL_ALANLARI = <?php echo json_encode($personelAlanlari, $jsonFlags); ?>;
+    const CIKTI_SABLONLARI = <?php echo json_encode($ciktiSablonlari, $jsonFlags); ?>;
     const base = <?php echo json_encode(appBasePath(), $jsonFlags); ?>;
-    const pillRenk = { bilgi: 'blue', kvkk: 'violet', beyan: 'amber', belge: 'green' };
+    const pillRenk = { bilgi: 'blue', kvkk: 'violet', beyan: 'amber', belge: 'green', cikti: 'gray' };
     let aktifId = null;
     let alanlar = [];
 
@@ -102,8 +108,17 @@ $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APO
     const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     const toast = (category, title, description) => window.showToast ? showToast({ category, title, description }) : alert(description);
 
-    const tipSec = (v) => { $('ev-tip-wrap').innerHTML = evSelectHtml('ev-tip', TIPLER, v); };
+    const ciktiMi = () => evSelectValue('ev-tip') === 'cikti';
+    window.evTipDegisti = () => {
+        const c = ciktiMi();
+        $('ev-cikti-wrap').classList.toggle('hidden', !c);
+        $('ev-metin-wrap').classList.toggle('hidden', c);
+        $('ev-alan-wrap').classList.toggle('hidden', c);
+    };
+    const tipSec = (v) => { $('ev-tip-wrap').innerHTML = evSelectHtml('ev-tip', TIPLER, v, 'evTipDegisti()'); evTipDegisti(); };
+    const ciktiSec = (v) => { $('ev-cikti-sel').innerHTML = evSelectHtml('ev-cikti', CIKTI_SABLONLARI, v); };
     tipSec('bilgi');
+    ciktiSec('');
 
     document.querySelectorAll('.ev-hint-vars code').forEach((c) => c.addEventListener('click', () => {
         const t = $('ev-metin');
@@ -172,6 +187,7 @@ $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APO
         $('ev-sil-btn').classList.toggle('hidden', !f);
         $('ev-ad').value = f ? f.ad : '';
         tipSec(f ? f.tip : 'bilgi');
+        ciktiSec(f ? (f.cikti_sablon || '') : '');
         $('ev-aciklama').value = f ? (f.aciklama || '') : '';
         $('ev-metin').value = f ? (f.metin || '') : '';
         $('ev-aktif').checked = f ? Number(f.aktif) === 1 : true;
@@ -233,6 +249,7 @@ $jsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APO
                 id: aktifId,
                 ad: $('ev-ad').value,
                 tip: evSelectValue('ev-tip'),
+                cikti_sablon: evSelectValue('ev-cikti'),
                 aciklama: $('ev-aciklama').value,
                 metin: $('ev-metin').value,
                 aktif: $('ev-aktif').checked ? 1 : 0,

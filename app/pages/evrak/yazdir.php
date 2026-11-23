@@ -28,6 +28,8 @@ $deger = function (array $alan, $v, int $formId) use ($h, $dosyalar) {
 <title><?php echo $h($paket['ad_soyad']); ?> - İşe Giriş Evrakları</title>
 <style>
     @page { size: A4; margin: 16mm 16mm 18mm; }
+    @page land { size: A4 landscape; margin: 8mm 12mm; }
+    .ct-land { page: land; width: 297mm !important; min-height: 210mm !important; }
     * { box-sizing: border-box; }
     body { margin: 0; background: #e4e4e7; font-family: "Times New Roman", Times, serif; font-size: 12pt; color: #000; }
     .toolbar { position: sticky; top: 0; z-index: 5; display: flex; justify-content: center; gap: 10px; padding: 12px; background: #18181b; }
@@ -53,12 +55,30 @@ $deger = function (array $alan, $v, int $formId) use ($h, $dosyalar) {
     .imza .blok { text-align: center; }
     .imza .baslik { font-weight: bold; margin-bottom: 4px; }
     .imza .satir { margin-top: 42px; border-top: 1px dotted #000; padding-top: 4px; }
+    .ct { font-size: 12pt; }
+    .ct table { width: 100%; border-collapse: collapse; }
+    .ct-head td, .ct-meta td { border: 1px solid #000; padding: 6px 10px; }
+    .ct-logo { width: 32%; font-weight: bold; font-size: 10pt; text-align: center; text-transform: uppercase; }
+    .ct-title { text-align: center; font-weight: bold; font-size: 15pt; padding: 18px 10px !important; }
+    .ct-meta td { font-size: 9.5pt; font-weight: bold; text-align: center; border-top: 0; }
+    .ct-lines { margin-top: 26px; padding: 0 12mm; }
+    .ct-lines p { margin: 0 0 9px; }
+    .ct-h { font-size: 13pt; margin: 18px 12mm 8px; text-transform: uppercase; }
+    .ct-list { list-style: none; margin: 0; padding: 0 12mm 0 22mm; }
+    .ct-list li { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 5px; font-size: 11pt; }
+    .ct .kutu { margin-top: 3px; }
+    .ct-text { padding: 0 12mm; text-align: justify; line-height: 1.45; margin: 0 0 14px; font-size: 11.5pt; }
+    .ct-sign { margin: 0 12mm; width: calc(100% - 24mm) !important; }
+    .ct-sign th, .ct-sign td { border: 1px solid #000; padding: 8px 8px; font-size: 11pt; text-align: center; }
+    .ct-sign th:first-child { width: 28%; }
+    .ct-sign tr:not(:first-child) { height: 30px; }
     .alt { font-size: 8.5pt; color: #52525b; margin-top: 10px; text-align: right; font-family: system-ui, sans-serif; }
     @media print {
         body { background: #fff; }
         .toolbar { display: none; }
         .page { margin: 0; padding: 0; width: auto; min-height: calc(297mm - 34mm); box-shadow: none; page-break-after: always; }
         .page:last-child { page-break-after: auto; }
+        .page.ct-land { width: 273mm !important; min-height: 0 !important; }
     }
 </style>
 </head>
@@ -70,6 +90,13 @@ $deger = function (array $alan, $v, int $formId) use ($h, $dosyalar) {
 
 <?php foreach ($formlar as $form):
     $fid = (int)$form['id'];
+    if (($form['tip'] ?? '') === 'cikti') {
+        $sablon = (string)($form['cikti_sablon'] ?? '');
+        if (isset(EvrakForm::CIKTI_SABLONLARI[$sablon]) && is_file(__DIR__ . '/cikti/' . $sablon . '.php')) {
+            include __DIR__ . '/cikti/' . $sablon . '.php';
+        }
+        continue;
+    }
     $y = $yanitlar[$fid] ?? [];
     $onaylar = array_filter($form['alanlar'], fn($a) => $a['tip'] === 'checkbox');
     $digerleri = array_filter($form['alanlar'], fn($a) => $a['tip'] !== 'checkbox');

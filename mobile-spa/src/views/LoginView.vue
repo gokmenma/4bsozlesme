@@ -7,7 +7,18 @@ import { auth } from '../services/auth.js'
 const router = useRouter()
 const route = useRoute()
 
-const username = ref('')
+function readCookie(name) {
+  const match = document.cookie.split('; ').find(item => item.startsWith(`${name}=`))
+  if (!match) return ''
+  try {
+    return decodeURIComponent(match.slice(name.length + 1))
+  } catch {
+    return ''
+  }
+}
+
+const rememberedUser = readCookie('remember_user')
+const username = ref(rememberedUser)
 const password = ref('')
 const remember = ref(true)
 const showPassword = ref(false)

@@ -3,6 +3,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <?php echo csrf_meta(); ?>
+    <meta name="login-url" content="<?php echo htmlspecialchars(routeUrl('/login'), ENT_QUOTES, 'UTF-8'); ?>">
+    <meta name="session-check-url" content="<?php echo htmlspecialchars(routeUrl('/oturum-kontrol'), ENT_QUOTES, 'UTF-8'); ?>">
     <script>
         // Screen-size based mobile/tablet redirect
         if (window.innerWidth < 1024) {
@@ -284,6 +286,7 @@
                 height: 100vh !important;
                 width: 100% !important;
                 overflow: hidden !important;
+                overflow: clip !important;
             }
             .sidebar:not([aria-hidden="true"]) {
                 width: var(--sidebar-width) !important;
@@ -310,6 +313,7 @@
                 flex: 1 !important;
                 height: 100vh !important;
                 overflow: hidden !important;
+                overflow: clip !important;
                 min-width: 0 !important;
                 display: flex !important;
                 flex-direction: column !important;

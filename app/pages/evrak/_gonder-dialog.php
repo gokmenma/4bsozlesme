@@ -46,6 +46,7 @@
 
     <footer class="flex justify-end gap-2 mt-5">
       <button type="button" class="btn-outline" onclick="this.closest('dialog').close()">Kapat</button>
+      <button type="button" class="btn-outline" id="evg-cikti-btn" onclick="evrakCiktiAl()">Seçili Basılı Formların Çıktısını Al</button>
       <button type="button" class="btn" id="evg-gonder-btn" onclick="evrakGonder()">Gönder</button>
     </footer>
   </div>

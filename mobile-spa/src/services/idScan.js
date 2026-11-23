@@ -1,3 +1,5 @@
+import { genderFromName, snapGivenToken } from './trNames.js'
+
 let workerPromise = null
 
 function getWorker(onProgress) {
@@ -39,12 +41,52 @@ export function isValidTc(tc) {
   return d.slice(0, 10).reduce((a, b) => a + b, 0) % 10 === d[10]
 }
 
-function nameLine(line) {
-  if (/[a-zçğıöşü]/.test(line.replace(/[iİ]/g, 'I'))) return ''
-  const tokens = line.split(/[^A-ZÇĞİÖŞÜ]+/).filter(Boolean)
+const NAME_NOISE = /SURNAME|GIVEN|SOYAD|IDENTITY|CUMHUR|REPUBLIC|DO[ĞG]UM|TAR[İI]H|BIRTH|GENDER|C[İI]NS|DOCUMENT|VALID|UNTIL|GE[ÇC]ERL|K[İI]ML[İI]K|(^|\s)(NAMES?|TUR|TC|T C|KART|KARTI|CARD|SER[İI]|SON|DATE|OF|NO|ADI)(\s|$)|TÜRK[İI]YE|TURK[İI]YE/
+
+function fixDigits(line) {
+  const letters = (line.match(/[A-Za-zÇĞİıÖŞÜçğöşü]/g) || []).length
+  const digits = (line.match(/[0-9]/g) || []).length
+  if (letters < 4 || digits > letters / 2) return line
+  return line.replace(/0/g, 'O').replace(/1/g, 'I').replace(/5/g, 'S').replace(/8/g, 'B').replace(/6/g, 'G').replace(/\|/g, 'I')
+}
+
+function nameLine(raw) {
+  const line = fixDigits(raw)
+  const lower = (line.match(/[a-zçğıöşü]/g) || []).length
+  if (lower > 1) return ''
+  const upperLine = line.toLocaleUpperCase('tr-TR')
+  const tokens = upperLine.split(/[^A-ZÇĞİÖŞÜ]+/).filter(Boolean)
   if (!tokens.length || tokens.some((t) => t.length < 2)) return ''
   const value = tokens.join(' ')
-  return /SURNAME|GIVEN|SOYAD|NAME|IDENTITY|KART|CARD|CUMHUR|T\.?C|TÜRK|REPUBLIC|TUR/.test(value) ? '' : value
+  return NAME_NOISE.test(value) ? '' : value
+}
+
+export function parseGender(text) {
+  const lines = String(text).split(/\r?\n/).map((l) => l.toLocaleUpperCase('tr-TR'))
+  const pair = /(?:^|[^A-ZÇĞİÖŞÜ])([EK])\s*[\/|\\]\s*([MF])(?![A-ZÇĞİÖŞÜ])/
+  const fromMatch = (m) => {
+    if (!m) return ''
+    if (m[1] === 'E') return 'erkek'
+    if (m[1] === 'K') return 'kadin'
+    return ''
+  }
+  const dated = lines.filter((l) => /\d{2}[.\-/]\d{2}[.\-/]\d{4}/.test(l))
+  for (const l of dated) {
+    const g = fromMatch(l.match(pair))
+    if (g) return g
+  }
+  for (let i = 0; i < lines.length; i++) {
+    if (!/C[İI]NS[İI]YET|GENDER/.test(lines[i])) continue
+    for (let j = i; j < Math.min(lines.length, i + 3); j++) {
+      const g = fromMatch(lines[j].match(pair))
+      if (g) return g
+    }
+  }
+  for (const l of lines) {
+    const g = fromMatch(l.match(pair))
+    if (g) return g
+  }
+  return ''
 }
 
 export function extractTc(text) {
@@ -80,7 +122,8 @@ export function parseNameBlock(lines) {
   } else if (surname && !given) {
     given = rest[rest.length - 1] || ''
   }
-  return [given, surname].filter(Boolean).join(' ')
+  const snapped = given.split(' ').map(snapGivenToken).join(' ')
+  return [snapped, surname].filter(Boolean).join(' ')
 }
 
 export function parseNameText(text) {
@@ -93,21 +136,28 @@ export function parseIdText(text) {
   const tcLine = tc ? lines.findIndex((l) => l.replace(/[Oo]/g, '0').replace(/\s/g, '').includes(tc)) : -1
   const dateLine = lines.findIndex((l, i) => i > tcLine && /\d{2}[.\-/]\d{2}[.\-/]\d{4}/.test(l))
   const slice = lines.slice(tcLine + 1, dateLine > tcLine ? dateLine : tcLine + 8)
-  return { tc, ad_soyad: parseNameBlock(slice) }
+  return { tc, ad_soyad: parseNameBlock(slice), cinsiyet: parseGender(text) }
+}
+
+function genderFromFullName(fullName) {
+  const tokens = String(fullName || '').split(/\s+/).filter(Boolean)
+  return tokens.length > 1 ? genderFromName(tokens.slice(0, -1).join(' ')) : ''
 }
 
 export async function scanIdCard(file, onProgress) {
   const worker = await getWorker(onProgress)
-  await worker.setParameters({ tessedit_pageseg_mode: '3' })
-  let best = { tc: '', ad_soyad: '' }
+  await worker.setParameters({ tessedit_pageseg_mode: '3', tessedit_char_whitelist: '' })
+  const best = { tc: '', ad_soyad: '', cinsiyet: '' }
   for (const maxSide of [1100, 1800]) {
     const canvas = await prepareImage(file, maxSide)
     const { data } = await worker.recognize(canvas)
     const result = parseIdText(data.text)
-    if (result.tc && result.ad_soyad) return result
     if (!best.tc && result.tc) best.tc = result.tc
     if (!best.ad_soyad && result.ad_soyad) best.ad_soyad = result.ad_soyad
+    if (!best.cinsiyet && result.cinsiyet) best.cinsiyet = result.cinsiyet
+    if (best.tc && best.ad_soyad && best.cinsiyet) break
   }
+  if (!best.cinsiyet) best.cinsiyet = genderFromFullName(best.ad_soyad)
   return best
 }
 
@@ -118,15 +168,18 @@ export async function releaseScanner() {
   try { await (await pending).terminate() } catch { /* yoksay */ }
 }
 
-export async function recognizeRegion(canvas, pageSegMode = '6') {
+export async function recognizeRegion(canvas, pageSegMode = '6', whitelist = '') {
   const worker = await getWorker()
-  await worker.setParameters({ tessedit_pageseg_mode: pageSegMode })
+  await worker.setParameters({ tessedit_pageseg_mode: pageSegMode, tessedit_char_whitelist: whitelist })
   const { data } = await worker.recognize(canvas)
   return data.text
 }
 
 const TC_REGION = { x0: 0, y0: 0.14, x1: 0.5, y1: 0.38, width: 560 }
 const NAME_REGION = { x0: 0.26, y0: 0.3, x1: 0.78, y1: 0.63, width: 680 }
+const NAME_REGION_HI = { x0: 0.26, y0: 0.3, x1: 0.78, y1: 0.63, width: 1000 }
+const GENDER_REGION = { x0: 0.26, y0: 0.45, x1: 1, y1: 0.9, width: 760 }
+const NAME_WHITELIST = 'ABCÇDEFGHIİJKLMNOÖPQRSŞTUÜVWXYZ '
 
 function cropCanvas(source, region) {
   const sx = source.width * region.x0
@@ -144,19 +197,42 @@ function cropCanvas(source, region) {
   return target
 }
 
+function pickName(candidates, fullParse) {
+  const names = candidates.filter(Boolean)
+  if (!names.length) return fullParse()
+  if (names.length === 1) return names[0]
+  if (names[0] === names[1]) return names[0]
+  const third = fullParse()
+  const votes = names.filter((n) => n === third).length
+  return votes ? third : names[0]
+}
+
 export async function scanCardCanvas(card, onStep) {
   const report = (label, percent) => onStep?.({ label, percent })
   report('Okuyucu hazırlanıyor…', 8)
   await getWorker()
-  report('TC kimlik no okunuyor…', 30)
+  report('TC kimlik no okunuyor…', 25)
   const tc = extractTc(await recognizeRegion(cropCanvas(card, TC_REGION)))
-  report('Ad soyad okunuyor…', 65)
-  const name = parseNameText(await recognizeRegion(cropCanvas(card, NAME_REGION)))
-  if (tc && name) { report('Tamamlandı', 100); return { tc, ad_soyad: name } }
-  report('Kimlik tamamı okunuyor…', 85)
-  const full = parseIdText(await recognizeRegion(cropCanvas(card, { x0: 0, y0: 0, x1: 1, y1: 1, width: 900 })))
+  report('Ad soyad okunuyor…', 45)
+  const nameA = parseNameText(await recognizeRegion(cropCanvas(card, NAME_REGION)))
+  report('Ad soyad doğrulanıyor…', 62)
+  const nameB = parseNameText(await recognizeRegion(cropCanvas(card, NAME_REGION_HI), '6', NAME_WHITELIST))
+  report('Cinsiyet okunuyor…', 78)
+  let cinsiyet = parseGender(await recognizeRegion(cropCanvas(card, GENDER_REGION)))
+  let full = null
+  const readFull = async () => {
+    if (!full) full = parseIdText(await recognizeRegion(cropCanvas(card, { x0: 0, y0: 0, x1: 1, y1: 1, width: 900 })))
+    return full
+  }
+  if (!tc || (!nameA && !nameB) || !cinsiyet || (nameA && nameB && nameA !== nameB)) {
+    report('Kimlik tamamı okunuyor…', 88)
+    await readFull()
+  }
+  const fullName = full?.ad_soyad || ''
+  const name = pickName([nameA, nameB], () => fullName)
+  if (!cinsiyet) cinsiyet = full?.cinsiyet || genderFromFullName(name)
   report('Tamamlandı', 100)
-  return { tc: tc || full.tc, ad_soyad: name || full.ad_soyad }
+  return { tc: tc || full?.tc || '', ad_soyad: name, cinsiyet }
 }
 
 export function warmUpScanner() {

@@ -51,7 +51,7 @@ class EvrakPublicController extends Controller {
     }
 
     private function findForm(array $paket, int $formId): ?array {
-        foreach ((new EvrakPaket())->getForms((int)$paket['id']) as $f) {
+        foreach ((new EvrakPaket())->getForms((int)$paket['id'], true) as $f) {
             if ((int)$f['id'] === $formId) {
                 return $f;
             }
@@ -93,7 +93,7 @@ class EvrakPublicController extends Controller {
         $dosyalar = [];
         $vars = [];
         if ($dogrulandi) {
-            $formlar = $model->getForms((int)$paket['id']);
+            $formlar = $model->getForms((int)$paket['id'], true);
             $yanitlar = $model->getAnswers((int)$paket['id']);
             $dosyalar = (new EvrakDosya())->uploadedKeys((int)$paket['id']);
             $vars = EvrakForm::templateVars($settings, $personel ?: []);
@@ -186,7 +186,7 @@ class EvrakPublicController extends Controller {
         $yanitlar = $model->getAnswers((int)$paket['id']);
         $dosyalar = (new EvrakDosya())->uploadedKeys((int)$paket['id']);
         $tumHatalar = [];
-        foreach ($model->getForms((int)$paket['id']) as $form) {
+        foreach ($model->getForms((int)$paket['id'], true) as $form) {
             $h = $model->validateForm($form, $yanitlar[$form['id']] ?? [], $dosyalar[$form['id']] ?? []);
             if (!empty($h)) {
                 $tumHatalar[$form['id']] = $h;

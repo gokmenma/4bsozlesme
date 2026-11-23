@@ -300,10 +300,12 @@ summary.no-marker::-webkit-details-marker {
     flex-direction: column;
     height: 100vh;
     overflow: hidden;
+    overflow: clip;
 }
 
 .app-main {
     flex: 1;
+    min-height: 0;
     overflow-y: auto;
 }
 

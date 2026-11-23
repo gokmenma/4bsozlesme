@@ -27,6 +27,29 @@
         return url.indexOf(window.location.origin) === 0;
     }
 
+    var redirecting = false;
+
+    function getLoginUrl() {
+        var meta = document.querySelector('meta[name="login-url"]');
+        return meta ? meta.getAttribute('content') : '';
+    }
+
+    function goLogin() {
+        var loginUrl = getLoginUrl();
+        if (redirecting || !loginUrl) return;
+        redirecting = true;
+        window.location.href = loginUrl;
+    }
+
+    function isLoginPath(url) {
+        try {
+            var loginPath = new URL(getLoginUrl(), window.location.origin).pathname;
+            return new URL(url, window.location.origin).pathname === loginPath;
+        } catch (e) {
+            return false;
+        }
+    }
+
     // --- 1) Native fetch() sarmalama ---
     if (window.fetch) {
         var originalFetch = window.fetch;
@@ -44,7 +67,13 @@
                 }
                 init.headers = headers;
             }
-            return originalFetch.call(this, input, init);
+            var sameOrigin = isSameOrigin(url);
+            return originalFetch.call(this, input, init).then(function (response) {
+                if (sameOrigin && (response.status === 401 || (response.redirected && isLoginPath(response.url)))) {
+                    goLogin();
+                }
+                return response;
+            });
         };
     }
 
@@ -57,5 +86,22 @@
                 }
             }
         });
+        window.jQuery(document).ajaxError(function (event, xhr) {
+            if (xhr && xhr.status === 401) goLogin();
+        });
     }
+
+    var checkUrl = (document.querySelector('meta[name="session-check-url"]') || {}).content;
+    var lastCheck = 0;
+    function checkSession() {
+        var now = Date.now();
+        if (!checkUrl || redirecting || now - lastCheck < 15000) return;
+        lastCheck = now;
+        window.fetch(checkUrl, { credentials: 'same-origin', cache: 'no-store' }).catch(function () {});
+    }
+    setInterval(checkSession, 60000);
+    document.addEventListener('visibilitychange', function () {
+        if (!document.hidden) checkSession();
+    });
+    window.addEventListener('focus', checkSession);
 })();

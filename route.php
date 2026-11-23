@@ -195,6 +195,7 @@ function appRoutes(): array
         '/evrak-dosya-indir'       => ['c' => 'EvrakController', 'a' => 'dosyaIndir',       'api' => true, 'exit' => true],
         '/evrak-imzali-yukle'      => ['c' => 'EvrakController', 'a' => 'imzaliYukle',      'm' => 'POST', 'api' => true, 'exit' => true],
         '/evrak-yazdir'            => ['c' => 'EvrakController', 'a' => 'yazdir',           'api' => true, 'exit' => true],
+        '/evrak-cikti'             => ['c' => 'EvrakController', 'a' => 'cikti',            'api' => true, 'exit' => true],
 
         // --- Personel Evrak Doldurma (oturumsuz, token'lı) ---
         '/evrak'          => ['c' => 'EvrakPublicController', 'a' => 'show',     'api' => true, 'exit' => true, 'public' => true],
@@ -230,7 +231,7 @@ function isStandaloneRoute(string $page): bool
     }
 
     // Tablo dışında özel ele alınan standalone uçlar (indirme / inline API)
-    if (in_array($page, ['/belge-yazdir', '/onboarding-complete'], true)) {
+    if (in_array($page, ['/belge-yazdir', '/onboarding-complete', '/oturum-kontrol'], true)) {
         return true;
     }
 
@@ -381,6 +382,12 @@ function renderRoute(string $page): void
             ? routeUrl('/mobile')
             : routeUrl('/login');
         header('Location: ' . $logoutRedirect);
+        exit;
+    }
+
+    if ($page === '/oturum-kontrol') {
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['success' => true]);
         exit;
     }
 
