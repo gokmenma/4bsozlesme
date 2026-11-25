@@ -207,12 +207,13 @@ function pickName(candidates, fullParse) {
   return votes ? third : names[0]
 }
 
-function titleCaseTr(value) {
-  return String(value || '')
-    .split(/\s+/)
-    .filter(Boolean)
-    .map((w) => w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1).toLocaleLowerCase('tr-TR'))
-    .join(' ')
+function formatFullName(value) {
+  const words = String(value || '').split(/\s+/).filter(Boolean)
+  if (!words.length) return ''
+  if (words.length === 1) return words[0].toLocaleUpperCase('tr-TR')
+  const surname = words.pop().toLocaleUpperCase('tr-TR')
+  const given = words.map((w) => w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1).toLocaleLowerCase('tr-TR'))
+  return [...given, surname].join(' ')
 }
 
 export async function scanCardCanvas(card, onStep) {
@@ -240,7 +241,7 @@ export async function scanCardCanvas(card, onStep) {
   const name = pickName([nameA, nameB], () => fullName)
   if (!cinsiyet) cinsiyet = full?.cinsiyet || genderFromFullName(name)
   report('Tamamlandı', 100)
-  return { tc: tc || full?.tc || '', ad_soyad: titleCaseTr(name), cinsiyet }
+  return { tc: tc || full?.tc || '', ad_soyad: formatFullName(name), cinsiyet }
 }
 
 export function warmUpScanner() {
