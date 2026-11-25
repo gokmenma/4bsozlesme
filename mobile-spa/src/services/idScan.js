@@ -207,6 +207,14 @@ function pickName(candidates, fullParse) {
   return votes ? third : names[0]
 }
 
+function titleCaseTr(value) {
+  return String(value || '')
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toLocaleUpperCase('tr-TR') + w.slice(1).toLocaleLowerCase('tr-TR'))
+    .join(' ')
+}
+
 export async function scanCardCanvas(card, onStep) {
   const report = (label, percent) => onStep?.({ label, percent })
   report('Okuyucu hazırlanıyor…', 8)
@@ -232,7 +240,7 @@ export async function scanCardCanvas(card, onStep) {
   const name = pickName([nameA, nameB], () => fullName)
   if (!cinsiyet) cinsiyet = full?.cinsiyet || genderFromFullName(name)
   report('Tamamlandı', 100)
-  return { tc: tc || full?.tc || '', ad_soyad: name, cinsiyet }
+  return { tc: tc || full?.tc || '', ad_soyad: titleCaseTr(name), cinsiyet }
 }
 
 export function warmUpScanner() {
